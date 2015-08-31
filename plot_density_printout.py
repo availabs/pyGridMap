@@ -5,6 +5,8 @@ Plots tropical cyclone density for a given RMM phase.
 #==============================================================================
 # Import modules
 #==============================================================================
+from flask import Flask, jsonify
+
 import sys
 import numpy as np
 import numpy.ma as ma
@@ -13,6 +15,8 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.basemap import Basemap
 import matplotlib.colors as colors
 import seaborn as sb
+
+
 
 #==============================================================================
 # Parameters
@@ -47,36 +51,36 @@ plt.rcParams['axes.linewidth'] = 2
 #==============================================================================
 # Loop over phase to print x-grid, y-grid, and corresponding values
 #==============================================================================
-phases = np.zeros((numVals*8,))
-xGrid = np.zeros_like(phases)
-yGrid = np.zeros_like(phases)
-values = np.zeros_like(phases)
 
-# Define grid and convert to vector
-X, Y = np.meshgrid(np.arange(0,360,2.5), np.arange(80,-81,-2.5))
-xVector = X.ravel(1)
-yVector = Y.ravel(1)
+def getphase(phase):
 
-count = 0
-for phase in xrange(8):
+
+
+    # Define grid and convert to vector
+    X, Y = np.meshgrid(np.arange(0,360,2.5), np.arange(80,-81,-2.5))
+    xVector = X.ravel(1)
+    yVector = Y.ravel(1)
 
     # Contour fill density
     tempValues = rmmCountArray[phase,mlats,:]
     tempValues = tempValues.ravel(1)
     
     # Populate vectors
-    phases[count:count+numVals,] = np.repeat(phase+1, numVals)
-    xGrid[count:count+numVals,] = xVector
-    yGrid[count:count+numVals,]= yVector
-    values[count:count+numVals,] = tempValues
+    phases = np.repeat(phase+1, numVals)
+    xGrid = xVector
+    yGrid= yVector
+    values = tempValues
     
-    count += numVals
 
 #==============================================================================
 # Concatenate vectors and write data
 #==============================================================================
-printArray = np.concatenate((phases[:,None], xGrid[:,None], yGrid[:,None],
+    printArray = np.concatenate((phases[:,None], xGrid[:,None], yGrid[:,None],
                              values[:,None]), 1)
+
+    return printArray
+
+print getphase(0)
                              
 # Write to csv
-np.savetxt('./grid_values.csv', printArray, fmt='%1.1f', delimiter=',')
+#np.savetxt('./grid_values.csv', printArray, fmt='%1.1f', delimiter=',')
