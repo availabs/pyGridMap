@@ -5,12 +5,16 @@ Plots tropical cyclone density for a given RMM phase.
 #==============================================================================
 # Import modules
 #==============================================================================
+from flask import Flask, jsonify
+
 import sys
 import numpy as np
 import numpy.ma as ma
 import scipy.io as sio
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
+
+
 
 #==============================================================================
 # Parameters
@@ -37,7 +41,7 @@ plt.rcParams['axes.linewidth'] = 2
 #==============================================================================
 # Loop over phase to print x-grid, y-grid, and corresponding values
 #==============================================================================
-def get_phase(phase):
+def getphase(phase):
 
     # Define grid and convert to vector
     X, Y = np.meshgrid(np.arange(0,360,2.5), np.arange(80,-81,-2.5))

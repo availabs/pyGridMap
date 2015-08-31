@@ -1,4 +1,7 @@
 #!flask/bin/python
+#==============================================================================
+# Import modules
+#==============================================================================
 from flask import Flask, jsonify, abort
 import sys
 import numpy as np
@@ -25,6 +28,7 @@ rmmCountArray = data['rmmCountArray']
 #==============================================================================
 # Loop over phase to print x-grid, y-grid, and corresponding values
 #==============================================================================
+
 app = Flask(__name__)
 
 @app.route('/')
@@ -63,12 +67,3 @@ def get_phase(phase):
 
 if __name__ == '__main__':
     app.run(debug=True)
-
-# def get_task(task_id):
-#     task = [task for task in tasks if task['id'] == task_id]
-#     if len(task) == 0:
-#         abort(404)
-#     return jsonify({'task': task[0]})
-
-# # Write to csv
-# np.savetxt('./grid_values.csv', printArray, fmt='%1.1f', delimiter=',')
