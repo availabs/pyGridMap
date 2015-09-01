@@ -28,31 +28,72 @@
 
 		var grid = generateGrid();
 		console.log('grids',grid)
-		var gridLayer = L.geoJson(grid,{
-			style:function(feature){
-				return {
-					stroke:true,
-					fill:false,
-					weight:0.5
-				}
-			},
-			onEachFeature:function(feature, layer){
-				layer.on({
-					mouseover:function(e){
-						console.log('mouseover',e.target.feature.properties.count);
-						layer.setStyle({weight:5});
-					},
-					mouseout:function(e){
-						//console.log('mouseover',e);
-						layer.setStyle({weight:0.5});
-					}
-				})
+		
 
-			}
-		});
+		d3.json('http://localhost:5000/grids/0',function(err,data){
+			console.log('some data',data,err)
+			var lats=[],lngs =[],lookup = {},values =[]
+
+			data.forEach(function(d){
+
+				if(!lookup[d[2]]){
+					lookup[d[2]] = {}
+				}
+				var second = d[1] > 180 ? -d[1]%180 : d[1] 
+				lookup[d[2]][d[1]%180] = d[3]
+
+				if(d[3] != -999){
+					values.push(d[3])
+				}
+			})
+			console.log('loookup',lookup,values)
+			var datascale = d3.scale.quantile();
+				datascale
+					.domain(values)
+					.range(["#ffffcc","#ffeda0","#fed976","#feb24c","#fd8d3c","#fc4e2a","#e31a1c","#bd0026","#800026"])
+
+
+			var gridLayer = L.geoJson(grid,{
+				style:function(feature){
+					var gridValue =  lookup[feature.properties.lng] ?  lookup[feature.properties.lng][feature.properties.lat] : -321 
+					var color = '#fff';
+					if(gridValue > 0 ){
+						color = datascale(gridValue)
+					}
+					return {
+						stroke:true,
+						fill:true,
+						weight:0.5,
+						color:color
+
+					}
+				},
+				onEachFeature:function(feature, layer){
+					layer.on({
+						mouseover:function(e){
+
+							var gridValue =  lookup[feature.properties.lat] ?  lookup[feature.properties.lat][feature.properties.lng] : -321 
+							var color = '#fff';
+							if(gridValue > 0 ){
+								color = datascale(gridValue)
+							}
+							console.log('mouseover',color,gridValue,feature.properties.lat,feature.properties.lng);
+							layer.setStyle({
+								weight:5});
+						},
+						mouseout:function(e){
+							//console.log('mouseover',e);
+							layer.setStyle({weight:0.5});
+						}
+					})
+
+				}
+			});
 
 		gridLayer.addTo(map);
 
+			//console.log(lats,lngs)
+		})
 
 	</script>
 </body>

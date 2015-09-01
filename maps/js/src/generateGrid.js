@@ -29,7 +29,11 @@ function generateGrid(){
       //console.log(cell[0],cell[1],cell[2],cell[3],cell[4])
       var featCell = {
         type:'Feature',
-        properties:{count:count},
+        properties:{
+            count:count,
+            lat:tLx,
+            lng:tLy
+        },
         geometry:{
           type:'Polygon',
           coordinates:[cell]

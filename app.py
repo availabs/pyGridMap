@@ -3,6 +3,7 @@
 # Import modules
 #==============================================================================
 from flask import Flask, jsonify, abort
+from flask.ext.cors import CORS
 import sys
 import numpy as np
 import scipy.io as sio
@@ -30,6 +31,7 @@ rmmCountArray = data['rmmCountArray']
 #==============================================================================
 
 app = Flask(__name__)
+CORS(app)
 
 @app.route('/')
 def index():
@@ -49,7 +51,7 @@ def get_phase(phase):
     # Contour fill density
     tempValues = rmmCountArray[phase,mlats,:]
     tempValues = tempValues.ravel(1)
-
+    tempValues[np.isnan(tempValues)] = -999
     # Populate vectors
     phases = np.repeat(phase+1, numVals)
     xGrid = xVector
