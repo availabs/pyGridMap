@@ -15,10 +15,7 @@ import simplejson
 # General
 lats = np.arange(90,-91,-2.5)
 lons = np.arange(0,360,2.5)
-mlats = np.squeeze(np.where(np.logical_and(lats >= -80, lats <= 80)))
-maxLag = 15
-lags = np.arange(-maxLag, maxLag+1)
-numVals = mlats.size*lons.size
+numVals = lats.size*lons.size
 
 #==============================================================================
 # Load data
@@ -29,9 +26,8 @@ rmmCountArray = data['rmmCountArray']
 #==============================================================================
 # Loop over phase to print x-grid, y-grid, and corresponding values
 #==============================================================================
-
 app = Flask(__name__)
-CORS(app)
+CORS(app) # Allow restricted resource to be requested from outside domain
 
 @app.route('/')
 def index():
@@ -39,33 +35,36 @@ def index():
 
 @app.route('/grids/<int:phase>', methods=['GET'])
 def get_phase(phase):
-    print 'getting phase '+str(phase)
-    if phase < 0 or phase > 8:
+
+    print 'getting phase ' + str(phase)
+
+    # Phases can only be between 1 and 8, inclusive
+    if phase < 1 or phase > 8:
         abort(404)
 
     # Define grid and convert to vector
-    X, Y = np.meshgrid(np.arange(0,360,2.5), np.arange(80,-81,-2.5))
-    xVector = X.ravel(1)
-    yVector = Y.ravel(1)
+    lonArray, latArray = np.meshgrid(lons, lats)
+    lonVector = lonArray.ravel(1)
+    latVector = latArray.ravel(1)
 
     # Contour fill density
-    tempValues = rmmCountArray[phase,mlats,:]
+    tempValues = rmmCountArray[phase,:,:]
     tempValues = tempValues.ravel(1)
-    tempValues[np.isnan(tempValues)] = -999
+    tempValues[np.isnan(tempValues)] = -999 # Missing value flag
+
     # Populate vectors
-    phases = np.repeat(phase+1, numVals)
-    xGrid = xVector
-    yGrid = yVector
+    phase = np.repeat(phase, numVals)
+    lonGrid = lonVector
+    latGrid = latVector
     values = tempValues
 
-    #==============================================================================
     # Concatenate vectors and write data
-    #==============================================================================
-    printArray = np.concatenate((phases[:,None], xGrid[:,None], yGrid[:,None],
+    printArray = np.concatenate((phase[:,None], latGrid[:,None], lonGrid[:,None],
                                  values[:,None]), 1)
 
     print printArray
-    return simplejson.dumps(printArray.tolist())
+
+    return simplejson.dumps(printArray.tolist()) # Returns JSON formatted string
 
 if __name__ == '__main__':
     app.run(debug=True)

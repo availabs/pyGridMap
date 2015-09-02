@@ -18,82 +18,96 @@
 	<script src="js/src/generateGrid.js"></script>
 	<script>
 
-		var map = L.map('map').setView([0, 0], 2);
+	var map = L.map('map').setView([0, 180], 2); // lat/lon/zoom
 
-		L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6IjZjNmRjNzk3ZmE2MTcwOTEwMGY0MzU3YjUzOWFmNWZhIn0.Y8bhBaUMqFiPrDRW9hieoQ', {
-			maxZoom: 18,
-			id: 'mapbox.streets'
-		}).addTo(map);
+	L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6IjZjNmRjNzk3ZmE2MTcwOTEwMGY0MzU3YjUzOWFmNWZhIn0.Y8bhBaUMqFiPrDRW9hieoQ', {
+		maxZoom: 18,
+		id: 'mapbox.streets'
+	}).addTo(map);
 
+	var grid = generateGrid(); // generate mapping grid
 
-		var grid = generateGrid();
-		console.log('grids',grid)
-		
+	d3.json('http://localhost:5000/grids/1',function(err,data){
+		console.log('some data',data,err)
 
-		d3.json('http://localhost:5000/grids/0',function(err,data){
-			console.log('some data',data,err)
-			var lats=[],lngs =[],lookup = {},values =[]
+		// Initialize mapping variables
+		var lats = [], // latitude coordinates
+		lngs = [], // longitude coordinates
+		values = [], // values
+		valueObj = {} //
 
-			data.forEach(function(d){
+		data.forEach(function(d){
 
-				if(!lookup[d[2]]){
-					lookup[d[2]] = {}
+			if(!valueObj[d[1]]){
+				valueObj[d[1]] = {}
+			}
+
+			valueObj[d[1]][d[2]] = d[3]
+
+			if(d[3] != -999){
+				values.push(d[3])
+			}
+		})
+
+		var datascale = d3.scale.quantile(); // scale colors by value
+		datascale
+		.domain(values)
+		.range(["#ffffcc","#ffeda0","#fed976","#feb24c","#fd8d3c",
+		"#fc4e2a","#e31a1c","#bd0026","#800026"]) // fill colors
+
+		var gridLayer = L.geoJson(grid,{
+
+			style:function(feature){ // init styling
+
+				var gridValue = valueObj[feature.properties.lat][feature.properties.lng] // value to map
+				var color = [];
+
+				if(gridValue > 0 ){
+					color = datascale(gridValue)
 				}
-				var second = d[1] > 180 ? -d[1]%180 : d[1] 
-				lookup[d[2]][d[1]%180] = d[3]
 
-				if(d[3] != -999){
-					values.push(d[3])
+				return {
+					stroke:false, // no grid box boundaries
+					fill:true, // fill boxes
+					fillOpacity:0.5,
+					color:color // fill/boundary color
 				}
-			})
-			console.log('loookup',lookup,values)
-			var datascale = d3.scale.quantile();
-				datascale
-					.domain(values)
-					.range(["#ffffcc","#ffeda0","#fed976","#feb24c","#fd8d3c","#fc4e2a","#e31a1c","#bd0026","#800026"])
+			},
+			onEachFeature:function(feature, layer){ // interactive styling
 
+				layer.on({
 
-			var gridLayer = L.geoJson(grid,{
-				style:function(feature){
-					var gridValue =  lookup[feature.properties.lng] ?  lookup[feature.properties.lng][feature.properties.lat] : -321 
-					var color = '#fff';
-					if(gridValue > 0 ){
-						color = datascale(gridValue)
-					}
-					return {
-						stroke:true,
-						fill:true,
-						weight:0.5,
-						color:color
+					mouseover:function(e){
 
-					}
-				},
-				onEachFeature:function(feature, layer){
-					layer.on({
-						mouseover:function(e){
+						var gridValue = valueObj[feature.properties.lat][feature.properties.lng] // value to map
+						var color = [];
 
-							var gridValue =  lookup[feature.properties.lat] ?  lookup[feature.properties.lat][feature.properties.lng] : -321 
-							var color = '#fff';
-							if(gridValue > 0 ){
-								color = datascale(gridValue)
-							}
-							console.log('mouseover',color,gridValue,feature.properties.lat,feature.properties.lng);
-							layer.setStyle({
-								weight:5});
-						},
-						mouseout:function(e){
-							//console.log('mouseover',e);
-							layer.setStyle({weight:0.5});
+						if(gridValue > 0 ){
+							color = datascale(gridValue)
 						}
-					})
 
-				}
-			});
+						console.log('mouseover',color,gridValue,feature.properties.lat,feature.properties.lng);
+
+						layer.setStyle({
+							stroke:true, // grid box boundaries on
+							weight:5 // grid box boundary weight
+						});
+					},
+
+					mouseout:function(e){
+
+						layer.setStyle({
+							stroke:false // grid box boundaries off
+						});
+					}
+				})
+
+			}
+		});
 
 		gridLayer.addTo(map);
 
-			//console.log(lats,lngs)
-		})
+	})
 
 	</script>
 </body>
