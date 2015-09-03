@@ -59,17 +59,21 @@
 
 			style:function(feature){ // init styling
 
-				var gridValue = valueObj[feature.properties.lat][feature.properties.lng] // value to map
-				var color = [];
+				var gridValue = valueObj[feature.properties.lat][feature.properties.lng], // value to map
+					color = '#fff',
+					opacity = 0.5;
 
 				if(gridValue > 0 ){
-					color = datascale(gridValue)
+					color = datascale(gridValue);
+				}else{
+					opacity = 0;
 				}
+				
 
 				return {
 					stroke:false, // no grid box boundaries
 					fill:true, // fill boxes
-					fillOpacity:0.5,
+					fillOpacity:opacity, //set box opacity
 					color:color // fill/boundary color
 				}
 			},
@@ -86,7 +90,7 @@
 							color = datascale(gridValue)
 						}
 
-						console.log('mouseover',color,gridValue,feature.properties.lat,feature.properties.lng);
+						//console.log('mouseover',color,gridValue,feature.properties.lat,feature.properties.lng);
 
 						layer.setStyle({
 							stroke:true, // grid box boundaries on
