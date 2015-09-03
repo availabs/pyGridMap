@@ -48,18 +48,18 @@ def get_phase(phase):
     latVector = latArray.ravel(1)
 
     # Contour fill density
-    tempValues = rmmCountArray[phase,:,:]
+    tempValues = rmmCountArray[phase-1,:,:]
     tempValues = tempValues.ravel(1)
     tempValues[np.isnan(tempValues)] = -999 # Missing value flag
 
     # Populate vectors
-    phase = np.repeat(phase, numVals)
+    phaseNum = np.repeat(phase, numVals)
     lonGrid = lonVector
     latGrid = latVector
     values = tempValues
 
     # Concatenate vectors and write data
-    printArray = np.concatenate((phase[:,None], latGrid[:,None], lonGrid[:,None],
+    printArray = np.concatenate((phaseNum[:,None], latGrid[:,None], lonGrid[:,None],
                                  values[:,None]), 1)
 
     print printArray

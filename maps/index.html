@@ -66,9 +66,9 @@
 				if(gridValue > 0 ){
 					color = datascale(gridValue);
 				}else{
-					opacity = 0;
+					opacity = 0; // Boxes with no data are transparent
 				}
-				
+
 
 				return {
 					stroke:false, // no grid box boundaries
