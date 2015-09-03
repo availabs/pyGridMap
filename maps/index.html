@@ -49,11 +49,12 @@
 			}
 		})
 
-		var datascale = d3.scale.quantile(); // scale colors by value
+		// d3.scale.threshold() maps arbitrary subsets of domain to discrete values
+		var datascale = d3.scale.threshold(); // scale colors by value
 		datascale
-		.domain(values)
+		.domain([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]) // subset bounds
 		.range(["#ffffcc","#ffeda0","#fed976","#feb24c","#fd8d3c",
-		"#fc4e2a","#e31a1c","#bd0026","#800026"]) // fill colors
+		"#fc4e2a","#e31a1c","#bd0026","#800026"]) // fill colors; need 11 colors
 
 		var gridLayer = L.geoJson(grid,{
 
