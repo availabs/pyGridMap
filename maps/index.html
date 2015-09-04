@@ -27,7 +27,7 @@
 
 	var grid = generateGrid(); // generate mapping grid
 
-	d3.json('http://localhost:5000/grids/1',function(err,data){
+	d3.json('http://localhost:5000/grids/5',function(err,data){
 		console.log('some data',data,err)
 
 		// Initialize mapping variables
@@ -49,13 +49,13 @@
 			}
 		})
 
-		// d3.scale.threshold() maps arbitrary subsets of domain to discrete values
-		var datascale = d3.scale.threshold(); // scale colors by value
+		var datascale = d3.scale.quantile(); // scale colors by value
 		datascale
-		.domain([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100]) // subset bounds
+		.domain([0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110]) // subset bounds
 		.range(["#ffffcc","#ffeda0","#fed976","#feb24c","#fd8d3c",
-		"#fc4e2a","#e31a1c","#bd0026","#800026"]) // fill colors; need 11 colors
+		"#fc4e2a","#e31a1c","#bd0026","#800026","#000000","#ffffff"]) // fill colors
 
+		console.log('data scale', datascale)
 		var gridLayer = L.geoJson(grid,{
 
 			style:function(feature){ // init styling
@@ -69,7 +69,6 @@
 				}else{
 					opacity = 0; // Boxes with no data are transparent
 				}
-
 
 				return {
 					stroke:false, // no grid box boundaries
@@ -91,7 +90,7 @@
 							color = datascale(gridValue)
 						}
 
-						//console.log('mouseover',color,gridValue,feature.properties.lat,feature.properties.lng);
+						console.log('mouseover',color,gridValue,feature.properties.lat,feature.properties.lng);
 
 						layer.setStyle({
 							stroke:true, // grid box boundaries on
