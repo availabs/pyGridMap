@@ -27,16 +27,19 @@
 
 	d3.json('data/earth-topo.json',function(err,topo){
 		var coastData = topojson.feature(topo, topo.objects.coastline_110m);
+		var configuration = {}
 		var projectionName = 'orthographic'
 		var globe = globes.get(projectionName)();
 			globe.defineMap(d3.select("#map"), d3.select("#foreground"));
-			console.log('the globe object',globe)
+			globe.orientation(globe.orientation(),view)
+			//console.log('the globe object')
 
 			
 		var path = d3.geo.path().projection(globe.projection).pointRadius(7);
 	    var coastline = d3.select(".coastline");
 	    var lakes = d3.select(".lakes");
-	    
+	    d3.selectAll(".fill-screen").attr("width", view.width).attr("height", view.height);
+
 	 
 		coastline.datum(coastData)
 		
