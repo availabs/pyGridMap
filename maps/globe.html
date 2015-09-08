@@ -5,11 +5,11 @@
 	<title>Grid Map</title>
 	<meta charset="utf-8" />
 
-	
+
 	<link rel="stylesheet" href="styles/globe.css" />
 </head>
 <body>
-	
+
 	<div id="display">
         <svg id="map" class="fill-screen" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
         <canvas id="animation" class="fill-screen"></canvas>
@@ -28,10 +28,18 @@
 	<script>
 	var op = null,
 		view = getView();
-	
 
     d3.json('data/earth-topo.json',function(err,topo){
-		
+
+		// Specify mobile device settings later
+		// Figure out where 'mesh' is defined in earth.js
+		var o = topo.objects;
+		var coastLo = topojson.feature(topo, o.coastline_110m);
+		var coastHi = topojson.feature(topo, o.coastline_50m);
+		var lakesLo = topojson.feature(topo, o.lakes_110m);
+		var lakesHi = topojson.feature(topo, o.lakes_50m);
+
+		// console.log('topo', coastHi)
 
 		function newOp(startMouse, startScale) {
 	        return {
@@ -42,11 +50,13 @@
 	        };
 	    }
 
-
 		var zoom = d3.behavior.zoom()
 			.scale(150)
 	        .on("zoomstart", function() {
 	            op = op || newOp(d3.mouse(this), zoom.scale());  // a new operation begins
+				// Render lo-res coastlines and lakes
+				coastline.datum(coastLo);
+				lakes.datum(lakesLo);
 	            console.log('zoom')
 	        })
 	        .on("zoom", function() {
@@ -69,13 +79,16 @@
 	            }
 
 	            // when zooming, ignore whatever the mouse is doing--really cleans up behavior on touch devices
-	            op.manipulator.move(op.type === "zoom" ? null : currentMouse, currentScale);
+				op.manipulator.move(op.type === "zoom" ? null : currentMouse, currentScale);
 	            console.log('zoom2',op.type === "zoom" ? null : currentMouse, currentScale)
-	            //dispatch.trigger("move");
 	            doDraw_throttled()
 	        })
 	        .on("zoomend", function() {
 	            op.manipulator.end();
+				// Render hi-res coastlines and lakes
+				coastline.datum(coastHi);
+				lakes.datum(lakesHi);
+				d3.selectAll("path").attr("d", path);
 	            if (op.type === "click") {
 	                //dispatch.trigger("click", op.startMouse, globe.projection.invert(op.startMouse) || []);
 	            }
@@ -85,10 +98,8 @@
 	            op = null;  // the drag/zoom/click operation is over
 	        });
 
-
 	    d3.select("#display").call(zoom);
 
-	
 		var coastData = topojson.feature(topo, topo.objects.coastline_110m);
 		var configuration = {}
 		var projectionName = 'orthographic'
@@ -106,15 +117,14 @@
 			globe.orientation(globe.orientation(),view)
 			console.log('the globe object',globe.orientation())
 
-			
 		var path = d3.geo.path().projection(globe.projection).pointRadius(7);
 	    var coastline = d3.select(".coastline");
 	    var lakes = d3.select(".lakes");
 	    d3.selectAll(".fill-screen").attr("width", view.width).attr("height", view.height);
 		coastline.datum(coastData)
-		
+
 		d3.selectAll("path").attr("d", path);
-		
+
 		// Throttled draw method helps with slow devices that would get overwhelmed by too many redraw events.
         var REDRAW_WAIT = 5;  // milliseconds
         var doDraw_throttled = _.throttle(doDraw, REDRAW_WAIT, {leading: false});
@@ -127,7 +137,6 @@
     	}
 	})
 
-	
 	function getView() {
         var w = window;
         var d = document && document.documentElement;
@@ -142,8 +151,6 @@
         var Δy = b[1] - a[1];
         return Math.sqrt(Δx * Δx + Δy * Δy);
     }
-
-
 
 	</script>
 
