@@ -1,0 +1,74 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Grid Map</title>
+	<meta charset="utf-8" />
+
+	
+	<link rel="stylesheet" href="styles/globe.css" />
+</head>
+<body>
+	
+	<div id="display">
+        <svg id="map" class="fill-screen" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
+        <canvas id="animation" class="fill-screen"></canvas>
+        <canvas id="overlay" class="fill-screen"></canvas>
+        <svg id="foreground" class="fill-screen" xmlns="http://www.w3.org/2000/svg" version="1.1"></svg>
+    </div>
+
+    <script src="bower_components/underscore/underscore.js"></script>
+	<script src="bower_components/d3/d3.js"></script>
+	<script src="bower_components/topojson/topojson.js"></script>
+
+	<script src="js/d3.geo/d3.geo.projection.v0.min.js" charset="utf-8"></script>
+    <script src="js/d3.geo/d3.geo.polyhedron.v0.min.js" charset="utf-8"></script>
+
+	<script src="js/earth/globes.js"></script>
+	<script>
+
+	var view = getView();
+	
+
+	d3.json('data/earth-topo.json',function(err,topo){
+		var coastData = topojson.feature(topo, topo.objects.coastline_110m);
+		var configuration = {}
+		var projectionName = 'orthographic'
+		//atlantis
+		//azimuthal_equidistant
+		//conic_equidistant
+		//equirectangular
+		//orthographic
+		//stereographic
+		//waterman
+		//winkel3
+
+		var globe = globes.get(projectionName)(view);
+			globe.defineMap(d3.select("#map"), d3.select("#foreground"));
+			globe.orientation(globe.orientation(),view)
+			console.log('the globe object',globes)
+
+			
+		var path = d3.geo.path().projection(globe.projection).pointRadius(7);
+	    var coastline = d3.select(".coastline");
+	    var lakes = d3.select(".lakes");
+	    d3.selectAll(".fill-screen").attr("width", view.width).attr("height", view.height);
+
+	 
+		coastline.datum(coastData)
+		
+		d3.selectAll("path").attr("d", path);
+	})
+	
+	function getView() {
+        var w = window;
+        var d = document && document.documentElement;
+        var b = document && document.getElementsByTagName("body")[0];
+        var x = w.innerWidth || d.clientWidth || b.clientWidth;
+        var y = w.innerHeight || d.clientHeight || b.clientHeight;
+        return {width: x, height: y};
+    }
+	</script>
+
+</body>
+</html>
