@@ -100,9 +100,9 @@
 
 	    d3.select("#display").call(zoom);
 
-		var coastData = topojson.feature(topo, topo.objects.coastline_110m);
-		var configuration = {}
-		var projectionName = 'orthographic'
+		var coastData = topojson.feature(topo, topo.objects.coastline_50m);
+		var lakeData = topojson.feature(topo, topo.objects.lakes_50m);
+		var projectionName = 'winkel3'
 		//atlantis
 		//azimuthal_equidistant
 		//conic_equidistant
@@ -121,7 +121,8 @@
 	    var coastline = d3.select(".coastline");
 	    var lakes = d3.select(".lakes");
 	    d3.selectAll(".fill-screen").attr("width", view.width).attr("height", view.height);
-		coastline.datum(coastData)
+		coastline.datum(coastData);
+		lakes.datum(lakeData);
 
 		d3.selectAll("path").attr("d", path);
 
