@@ -83,7 +83,7 @@
 
 				// when zooming, ignore whatever the mouse is doing--really cleans up behavior on touch devices
 				op.manipulator.move(op.type === "zoom" ? null : currentMouse, currentScale);
-				console.log('zoom2',op.type === "zoom" ? null : currentMouse, currentScale);
+				//console.log('zoom2',op.type === "zoom" ? null : currentMouse, currentScale);
 				doDraw_throttled();
 			})
 			.on("zoomend", function() {
@@ -139,7 +139,11 @@
 				.data(data.features)
 				.enter()
 				.append("path")
-				.attr("class", "colorGrids");
+				.attr("class", "colorGrid")
+				.attr("fill",function(d){
+					return d.properties.color;
+				});
+
 			d3.selectAll("path").attr("d", path)
 			//console.log('stuff', d3.selectAll("path").attr("d", path))
 
@@ -150,7 +154,7 @@
 		var doDraw_throttled = _.throttle(doDraw, REDRAW_WAIT, {leading: false});
 
 		function doDraw() {
-			console.log('draw')
+			//console.log('draw')
 			d3.selectAll("path").attr("d", path);
 			//rendererAgent.trigger("redraw");
 			doDraw_throttled = _.throttle(doDraw, REDRAW_WAIT, {leading: false});
