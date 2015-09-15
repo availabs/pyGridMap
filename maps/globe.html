@@ -139,7 +139,6 @@
 				.data(data.features)
 				.enter()
 				.append("path")
-
 				.attr("class", "colorGrid")
 				.attr("opacity", 0.5)
 				.attr("stroke-opacity", 0.5)
@@ -152,10 +151,8 @@
 				})
 				.on('mouseover',function(){
 					var elem = d3.select(this);
-					//console.log('mouseover',elem)
-					
 					elem.attr('stroke-width',5)
-						.attr('stroke','#f00')					
+						.attr('stroke','#f00')
 				})
 				.on('mouseout',function(){
 					var elem = d3.select(this)
@@ -165,14 +162,12 @@
 							return d.properties.color;
 						})
 				})
+				// Avoiding building out clickability for now
 				.on('click',function(){
 					console.log(this)
-				})
-				;
-
+				});
 
 			d3.selectAll("path").attr("d", path)
-			//console.log('stuff', d3.selectAll("path").attr("d", path))
 
 		})
 
