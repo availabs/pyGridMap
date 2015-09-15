@@ -139,10 +139,37 @@
 				.data(data.features)
 				.enter()
 				.append("path")
+
 				.attr("class", "colorGrid")
+				.attr("opacity", 0.5)
+				.attr("stroke-opacity", 0.5)
+				.attr("stroke-width",0.5)
+				.attr("stroke",function(d){
+					return d.properties.color;
+				})
 				.attr("fill",function(d){
 					return d.properties.color;
-				});
+				})
+				.on('mouseover',function(){
+					var elem = d3.select(this);
+					//console.log('mouseover',elem)
+					
+					elem.attr('stroke-width',5)
+						.attr('stroke','#f00')					
+				})
+				.on('mouseout',function(){
+					var elem = d3.select(this)
+					elem
+						.attr('stroke-width',0.5)
+						.attr("stroke",function(d){
+							return d.properties.color;
+						})
+				})
+				.on('click',function(){
+					console.log(this)
+				})
+				;
+
 
 			d3.selectAll("path").attr("d", path)
 			//console.log('stuff', d3.selectAll("path").attr("d", path))
@@ -150,7 +177,7 @@
 		})
 
 		// Throttled draw method helps with slow devices that would get overwhelmed by too many redraw events.
-		var REDRAW_WAIT = 5;  // milliseconds
+		var REDRAW_WAIT = 15;  // milliseconds
 		var doDraw_throttled = _.throttle(doDraw, REDRAW_WAIT, {leading: false});
 
 		function doDraw() {
