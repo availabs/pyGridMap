@@ -274,7 +274,7 @@ var globes = function() {
                 mapSvg.append("path")
                     .attr("class", "lakes");
                 mapSvg.append("path")
-                        .attr("class", "colorGrids");
+                    .attr("class", "colorGrids");
                 foregroundSvg.append("use")
                     .attr("xlink:href", "#sphere")
                     .attr("class", "foreground-sphere");

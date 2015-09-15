@@ -212,6 +212,11 @@ body {
     stroke-width: 1.0;
 }
 
+.colorGrids {
+    stroke: none;
+    fill: #ffffff;
+}
+
 .graticule {
     stroke: #505050;
     stroke-width: 1.0;

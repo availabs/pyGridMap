@@ -17,7 +17,7 @@
 	</div>
 
 	<script src="bower_components/underscore/underscore.js"></script>
-	<script src="backbone/1.1.0/backbone.js"></script>
+	<!-- <script src="backbone/1.1.0/backbone.js"></script> -->
 	<script src="bower_components/d3/d3.js"></script>
 	<script src="bower_components/topojson/topojson.js"></script>
 
@@ -127,13 +127,21 @@
 		var lakes = d3.select(".lakes");
 		var grids = d3.select(".colorGrids");
 
-		d3.json('data/console.json',function(err,data){
-			console.log('new data',data);
+		d3.json('data/console.json',function(err,data) {
+			console.log('new data', grids.data(data.features).enter().append("path"));
 			d3.selectAll(".fill-screen").attr("width", view.width).attr("height", view.height);
 			coastline.datum(coastData);
 			lakes.datum(lakeData);
-			grids.datum(data);
+			console.log('data size', grids.selectAll(".colorGrids")
+				.data(data.features)
+				.enter().size())
+			grids.selectAll(".colorGrids")
+				.data(data.features)
+				.enter()
+				.append("path")
+				.attr("class", "colorGrids");
 			d3.selectAll("path").attr("d", path)
+			//console.log('stuff', d3.selectAll("path").attr("d", path))
 
 		})
 
