@@ -24,7 +24,10 @@
 	<script src="js/d3.geo/d3.geo.projection.v0.min.js" charset="utf-8"></script>
 	<script src="js/d3.geo/d3.geo.polyhedron.v0.min.js" charset="utf-8"></script>
 
+	<script src="js/earth/micro.js"></script>
 	<script src="js/earth/globes.js"></script>
+	<script src="js/src/colorGrids.js"></script>
+	<script src="js/src/canvasDisplay.js"></script>
 	<!-- <script src="js/earth/micro.js"></script> -->
 	<!-- <script src="js/earth/products.js"></script> -->
 
@@ -60,7 +63,8 @@
 				coastline.datum(coastLo);
 				lakes.datum(lakesLo);
 				console.log('zoom')
-				console.log('op', op)
+				console.log('op', op);
+				canvasDisplay.hide();
 			})
 			.on("zoom", function() {
 				var currentMouse = d3.mouse(this), currentScale = d3.event.scale;
@@ -98,6 +102,7 @@
 				else if (op.type !== "spurious") {
 					//signalEnd();
 				}
+				canvasDisplay.update(globe);
 				op = null;  // the drag/zoom/click operation is over
 			});
 
@@ -126,55 +131,27 @@
 		var coastline = d3.select(".coastline");
 		var lakes = d3.select(".lakes");
 		var grids = d3.select(".colorGrids");
+		//colorGrids.draw(grids,path)
+		canvasDisplay.init(globe)
 
-		d3.json('data/console.json',function(err,data) {
-			console.log('new data', grids.data(data.features).enter().append("path"));
-			d3.selectAll(".fill-screen").attr("width", view.width).attr("height", view.height);
+		//---- avtivate the canvas!
+		var width = view.width, height = view.height;
+        var canvas = d3.select(document.createElement("canvas")).attr("width", width).attr("height", height).node();
+        var context = globe.defineMask(canvas.getContext("2d"));
+        context.fillStyle = "rgba(255, 0, 0, 1)";
+        context.fill();
+        // d3.select("#display").node().appendChild(canvas);  // make mask visible for debugging
+
+        var imageData = context.getImageData(0, 0, width, height);
+        var data = imageData.data;  // layout: [r, g, b, a, r, g, b, a, ...]
+       
+        d3.selectAll(".fill-screen").attr("width", view.width).attr("height", view.height);
 			coastline.datum(coastData);
 			lakes.datum(lakeData);
-			console.log('data size', grids.selectAll(".colorGrids")
-				.data(data.features)
-				.enter().size())
-			grids.selectAll(".colorGrids")
-				.data(data.features)
-				.enter()
-				.append("path")
 
-				.attr("class", "colorGrid")
-				.attr("opacity", 0.5)
-				.attr("stroke-opacity", 0.5)
-				.attr("stroke-width",0.5)
-				.attr("stroke",function(d){
-					return d.properties.color;
-				})
-				.attr("fill",function(d){
-					return d.properties.color;
-				})
-				.on('mouseover',function(){
-					var elem = d3.select(this);
-					//console.log('mouseover',elem)
-					
-					elem.attr('stroke-width',5)
-						.attr('stroke','#f00')					
-				})
-				.on('mouseout',function(){
-					var elem = d3.select(this)
-					elem
-						.attr('stroke-width',0.5)
-						.attr("stroke",function(d){
-							return d.properties.color;
-						})
-				})
-				.on('click',function(){
-					console.log(this)
-				})
-				;
+		d3.selectAll("path").attr("d", path)
 
-
-			d3.selectAll("path").attr("d", path)
-			//console.log('stuff', d3.selectAll("path").attr("d", path))
-
-		})
+		
 
 		// Throttled draw method helps with slow devices that would get overwhelmed by too many redraw events.
 		var REDRAW_WAIT = 15;  // milliseconds
@@ -202,6 +179,39 @@
 		var Δy = b[1] - a[1];
 		return Math.sqrt(Δx * Δx + Δy * Δy);
 	}
+
+	function createMask(globe) {
+        if (!globe) return null;
+
+        console.time("render mask");
+
+        // Create a detached canvas, ask the model to define the mask polygon, then fill with an opaque color.
+        var width = view.width, height = view.height;
+        var canvas = d3.select(document.createElement("canvas")).attr("width", width).attr("height", height).node();
+        var context = globe.defineMask(canvas.getContext("2d"));
+        context.fillStyle = "rgba(255, 0, 0, 1)";
+        context.fill();
+        // d3.select("#display").node().appendChild(canvas);  // make mask visible for debugging
+
+        var imageData = context.getImageData(0, 0, width, height);
+        var data = imageData.data;  // layout: [r, g, b, a, r, g, b, a, ...]
+        console.timeEnd("render mask");
+        return {
+            imageData: imageData,
+            isVisible: function(x, y) {
+                var i = (y * width + x) * 4;
+                return data[i + 3] > 0;  // non-zero alpha means pixel is visible
+            },
+            set: function(x, y, rgba) {
+                var i = (y * width + x) * 4;
+                data[i    ] = rgba[0];
+                data[i + 1] = rgba[1];
+                data[i + 2] = rgba[2];
+                data[i + 3] = rgba[3];
+                return this;
+            }
+        };
+    }
 
 	</script>
 

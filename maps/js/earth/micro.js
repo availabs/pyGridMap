@@ -411,90 +411,7 @@ var µ = function() {
      * @param [initial] initial value of the agent, if any
      * @returns {Object}
      */
-    function newAgent(initial) {
-
-        /**
-         * @returns {Function} a cancel function for a task.
-         */
-        function cancelFactory() {
-            return function cancel() {
-                cancel.requested = true;
-                return agent;
-            };
-        }
-
-        /**
-         * Invokes the specified task.
-         * @param cancel the task's cancel function.
-         * @param taskAndArguments the [task-function-or-value, arg0, arg1, ...] array.
-         */
-        function runTask(cancel, taskAndArguments) {
-
-            function run(args) {
-                return cancel.requested ? null : _.isFunction(task) ? task.apply(agent, args) : task;
-            }
-
-            function accept(result) {
-                if (!cancel.requested) {
-                    value = result;
-                    agent.trigger("update", result, agent);
-                }
-            }
-
-            function reject(err) {
-                if (!cancel.requested) {  // ANNOYANCE: when cancelled, this task's error is silently suppressed
-                    agent.trigger("reject", err, agent);
-                }
-            }
-
-            function fail(err) {
-                agent.trigger("fail", err, agent);
-            }
-
-            try {
-                // When all arguments are resolved, invoke the task then either accept or reject the result.
-                var task = taskAndArguments[0];
-                when.all(_.rest(taskAndArguments)).then(run).then(accept, reject).done(undefined, fail);
-                agent.trigger("submit", agent);
-            } catch (err) {
-                fail(err);
-            }
-        }
-
-        var value = initial;
-        var runTask_debounced = _.debounce(runTask, 0);  // ignore multiple simultaneous submissions--reduces noise
-        var agent = {
-
-            /**
-             * @returns {Object} this agent's current value.
-             */
-            value: function() {
-                return value;
-            },
-
-            /**
-             * Cancels this agent's most recently submitted task.
-             */
-            cancel: cancelFactory(),
-
-            /**
-             * Submit a new task and arguments to invoke the task with. The task may return a promise for
-             * asynchronous tasks, and all arguments may be either values or promises. The previously submitted
-             * task, if any, is immediately cancelled.
-             * @returns this agent.
-             */
-            submit: function(task, arg0, arg1, and_so_on) {
-                // immediately cancel the previous task
-                this.cancel();
-                // schedule the new task and update the agent with its associated cancel function
-                runTask_debounced(this.cancel = cancelFactory(), arguments);
-                return this;
-            }
-        };
-
-        return _.extend(agent, Backbone.Events);
-    }
-
+    
     /**
      * Parses a URL hash fragment:
      *
@@ -558,48 +475,7 @@ var µ = function() {
      * A Backbone.js Model that persists its attributes as a human readable URL hash fragment. Loading from and
      * storing to the hash fragment is handled by the sync method.
      */
-    var Configuration = Backbone.Model.extend({
-        id: 0,
-        _ignoreNextHashChangeEvent: false,
-        _projectionNames: null,
-        _overlayTypes: null,
-
-        /**
-         * @returns {String} this configuration converted to a hash fragment.
-         */
-        toHash: function() {
-            var attr = this.attributes;
-            var dir = attr.date === "current" ? "current" : attr.date + "/" + attr.hour + "Z";
-            var proj = [attr.projection, attr.orientation].filter(isTruthy).join("=");
-            var ol = !isValue(attr.overlayType) || attr.overlayType === "default" ? "" : "overlay=" + attr.overlayType;
-            var grid = attr.showGridPoints ? "grid=on" : "";
-            return [dir, attr.param, attr.surface, attr.level, ol, proj, grid].filter(isTruthy).join("/");
-        },
-
-        /**
-         * Synchronizes between the configuration model and the hash fragment in the URL bar. Invocations
-         * caused by "hashchange" events must have the {trigger: "hashchange"} option specified.
-         */
-        sync: function(method, model, options) {
-            switch (method) {
-                case "read":
-                    if (options.trigger === "hashchange" && model._ignoreNextHashChangeEvent) {
-                        model._ignoreNextHashChangeEvent = false;
-                        return;
-                    }
-                    model.set(parse(
-                        window.location.hash.substr(1) || DEFAULT_CONFIG,
-                        model._projectionNames,
-                        model._overlayTypes));
-                    break;
-                case "update":
-                    // Ugh. Setting the hash fires a hashchange event during the next event loop turn. Ignore it.
-                    model._ignoreNextHashChangeEvent = true;
-                    window.location.hash = model.toHash();
-                    break;
-            }
-        }
-    });
+    
 
     /**
      * A Backbone.js Model to hold the page's configuration as a set of attributes: date, layer, projection,
@@ -612,13 +488,7 @@ var µ = function() {
      *
      * @returns {Configuration} Model to represent the hash fragment, using the specified set of allowed projections.
      */
-    function buildConfiguration(projectionNames, overlayTypes) {
-        var result = new Configuration();
-        result._projectionNames = projectionNames;
-        result._overlayTypes = overlayTypes;
-        return result;
-    }
-
+    
     return {
         isTruthy: isTruthy,
         isValue: isValue,
@@ -651,9 +521,7 @@ var µ = function() {
         formatVector: formatVector,
         loadJson: loadJson,
         distortion: distortion,
-        newAgent: newAgent,
         parse: parse,
-        buildConfiguration: buildConfiguration
     };
 
 }();
