@@ -44,12 +44,12 @@ def get_phase(phase):
 
     # Define grid and convert to vector
     lonArray, latArray = np.meshgrid(lons, lats)
-    lonVector = lonArray.ravel(1)
-    latVector = latArray.ravel(1)
+    lonVector = lonArray.ravel(0)
+    latVector = latArray.ravel(0)
 
     # Contour fill density
     tempValues = rmmCountArray[phase-1,:,:]
-    tempValues = tempValues.ravel(1)
+    tempValues = tempValues.ravel(0)
     tempValues[np.isnan(tempValues)] = -999 # Missing value flag
 
     # Populate vectors

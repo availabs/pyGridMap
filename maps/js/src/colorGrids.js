@@ -10,6 +10,7 @@ var colorGrids = (function(){
 				console.log('data size', grids.selectAll(".colorGrids")
 					.data(data.features)
 					.enter().size())
+				
 				grids.selectAll(".colorGrids")
 					.data(data.features)
 					.enter()

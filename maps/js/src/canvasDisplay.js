@@ -33,7 +33,7 @@ var canvasDisplay = (function(){
 	        paths: [],
 	        date: new Date(),
 	        builder: function(file) {
-	        	console.log(file)
+	        	//console.log(file)
 	            var uData = file[0].data, vData = file[1].data;
 	            return {
 	                header: file[0].header,
@@ -56,7 +56,51 @@ var canvasDisplay = (function(){
 	            }
 	        },
 	        particles: {velocityScale: 1/60000, maxIntensity: 17}
-	    }
+	    },
+        gridBuilder = {
+            field: "scalar",
+            type: "temp",
+            description: {
+                name: {en: "Grids", ja: "気温"},
+                qualifier: {}
+            },
+            paths: [],
+            date: new Date(),
+            
+            builder: function(file) {
+                var record = file[0], data = record.data;
+                return {
+                    header: record.header,
+                    interpolate: bilinearInterpolateScalar,
+                    data: function(i) {
+                        return data[i];
+                    }
+                }
+            },
+            
+            units: [
+                {label: "°C", conversion: function(x) { return x - 273.15; },       precision: 1},
+                {label: "°F", conversion: function(x) { return x * 9/5 - 459.67; }, precision: 1},
+                {label: "K",  conversion: function(x) { return x; },                precision: 1}
+            ],
+
+            scale: {
+                bounds: [1, 78],
+                gradient: µ.segmentedColorScale([
+                    [1,     [37, 4, 42]],
+                    [6,     [41, 10, 130]],
+                    [11,     [81, 40, 40]],
+                    [19,  [192, 37, 149]],  // -40 C/F
+                    [30, [70, 215, 215]],  // 0 F
+                    [37,  [21, 84, 187]],   // 0 C
+                    [45,  [24, 132, 14]],   // just above 0 C
+                    [52,     [247, 251, 59]],
+                    [60,     [235, 167, 21]],
+                    [68,     [230, 71, 39]],
+                    [78,     [88, 27, 67]]
+                ])
+            } 
+        };
 
 	function createMask(globe) {
         if (!globe) return null;
@@ -72,6 +116,8 @@ var canvasDisplay = (function(){
         // d3.select("#display").node().appendChild(canvas);  // make mask visible for debugging
 
         var imageData = context.getImageData(0, 0, width, height);
+        console.log('context image data',imageData)
+
         var data = imageData.data;  // layout: [r, g, b, a, r, g, b, a, ...]
         console.timeEnd("render mask");
         return {
@@ -160,22 +206,25 @@ var canvasDisplay = (function(){
         if (!globe || !grids) return null;
 
         var mask = createMask(globe);
-        var primaryGrid = grids;//.primaryGrid;
+        var primaryGrid = {};//grids;//.primaryGrid;
         var overlayGrid = grids;//.overlayGrid;
 
         console.time("interpolating field");
+        console.log('interpolating feild',overlayGrid)
         //var d = when.defer(), cancel = this.cancel;
 
         var projection = globe.projection;
         var bounds = globe.bounds(view);
+        
         // How fast particles move on the screen (arbitrary value chosen for aesthetics).
-        var velocityScale = bounds.height * primaryGrid.particles.velocityScale;
+        var velocityScale = bounds.height * 1/6000;
 
         var columns = [];
         var point = [];
         var x = bounds.x;
-        var interpolate = primaryGrid.interpolate;
+        //var interpolate = primaryGrid.interpolate;
         var overlayInterpolate = overlayGrid.interpolate;
+        console.log('overlayInterpolate',overlayInterpolate)
         var hasDistinctOverlay = primaryGrid !== overlayGrid;
         var scale = overlayGrid.scale;
 
@@ -189,16 +238,19 @@ var canvasDisplay = (function(){
                     var wind = null;
                     if (coord) {
                         var λ = coord[0], φ = coord[1];
+                        //console.log(λ,φ)
                         if (isFinite(λ)) {
-                            wind = interpolate(λ, φ);
+                            //wind = interpolate(λ, φ);
                             var scalar = null;
-                            if (wind) {
+                            if (false) { //wind
                                 wind = distort(projection, λ, φ, x, y, velocityScale, wind);
                                 scalar = wind[2];
                             }
-                            if (hasDistinctOverlay) {
+                            if (true) {
+                                //console.log(λ, φ)
                                 scalar = overlayInterpolate(λ, φ);
                             }
+                            //console.log(scalar)
                             if (µ.isValue(scalar)) {
                                 color = scale.gradient(scalar, OVERLAY_ALPHA);
                             }
@@ -227,7 +279,7 @@ var canvasDisplay = (function(){
                 }
             }
             var field = createField(columns, bounds, mask)
-            console.log('the field',columns,bounds,mask)
+            //console.log('the field',columns,bounds,mask)
            	cb(mask.imageData);
            
             //report.progress(1);  // 100% complete
@@ -316,15 +368,16 @@ var canvasDisplay = (function(){
         return canvas;
     }
 
-	function loadData(cb){
-		d3.json('data/weather/current/current-wind-surface-level-gfs-1.0.json',function(err,data){
+	function loadData(url,cb){
+		d3.json(url,function(err,data){
 			if(err){ console.log('error loading data',err) }
-			console.log('the  loaded data',data);
+			//console.log('the  loaded data',data);
 			cb(data);
 		})
 	}
 
 	function bilinearInterpolateScalar(x, y, g00, g10, g01, g11) {
+        //console.log(x, y, g00, g10, g01, g11)
         var rx = (1 - x);
         var ry = (1 - y);
         return g00 * rx * ry + g10 * x * ry + g01 * rx * y + g11 * x * y;
@@ -393,7 +446,7 @@ var canvasDisplay = (function(){
     }
 
     function drawOverlay(grid,globe){
-    	console.log('draw overlay',d3.select("#overlay").node());
+    	//console.log('draw overlay',d3.select("#overlay").node());
 		var ctx = d3.select("#overlay").node().getContext("2d");
 
         clearCanvas(d3.select("#overlay").node());
@@ -401,16 +454,17 @@ var canvasDisplay = (function(){
       
         interpolateField(globe,grid,function(overlay){
         	ctx.putImageData(overlay, 0, 0);
-        	drawGridPoints(ctx, grid,globe);
+        	//drawGridPoints(ctx, grid,globe);
         })
 	}
 
 	return {
-		init:function(globe){
 
-			loadData(function(data){
+		drawWind:function(globe){
+
+			loadData('data/weather/current/current-wind-surface-level-gfs-1.0.json',function(data){
 				console.log('INIT the data',data)
-				overlayData = _.extend(windBuilder, buildGrid(windBuilder.builder(data)));
+				overlayData = Object.assign(windBuilder, buildGrid(windBuilder.builder(data)));
 				console.log('overlayData',overlayData);
 				drawOverlay(overlayData,globe);
 				initialized = true;
@@ -418,6 +472,19 @@ var canvasDisplay = (function(){
 			})
 		
 		},
+
+        drawGrids:function(globe){
+            loadData('processing/gridData0.json',function(data){
+               
+                console.log('INIT the data grid',data)
+                overlayData = Object.assign(gridBuilder, buildGrid(gridBuilder.builder([data])));
+                console.log('overlayData',overlayData);
+                drawOverlay(overlayData,globe);
+                initialized = true;
+
+            })
+        },
+
 		update:function(globe){
 			drawOverlay(overlayData,globe);
 		},
