@@ -33,6 +33,8 @@ function getAllData(){
 }
 
 function getDataForPhase(i, cb) {
+
+    console.log('get data index',i)
     request
     .get('http://localhost:5000/grids/'+i)
     .end(function(err, res){
@@ -46,6 +48,10 @@ function getDataForPhase(i, cb) {
 }
 
 function writeData() {
+
+   
+    console.log('is equal??',equal);
+
     fs.writeFile('gridDataArray.json', JSON.stringify(gribData), function (err) {
         if (err) return console.log(err);
         console.log('Hello World > helloworld.txt');
