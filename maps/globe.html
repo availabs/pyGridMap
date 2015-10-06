@@ -132,7 +132,9 @@
 		var lakes = d3.select(".lakes");
 		var grids = d3.select(".colorGrids");
 		//colorGrids.draw(grids,path)
-		canvasDisplay.drawGrids(globe)
+		canvasDisplay.animateGrids(globe)
+		//canvasDisplay.drawGrids(globe)
+
 
 		//---- avtivate the canvas!
 		var width = view.width, height = view.height;
@@ -144,14 +146,14 @@
 
         var imageData = context.getImageData(0, 0, width, height);
         var data = imageData.data;  // layout: [r, g, b, a, r, g, b, a, ...]
-       
+
         d3.selectAll(".fill-screen").attr("width", view.width).attr("height", view.height);
 			coastline.datum(coastData);
 			lakes.datum(lakeData);
 
 		d3.selectAll("path").attr("d", path)
 
-		
+
 
 
 		// Throttled draw method helps with slow devices that would get overwhelmed by too many redraw events.

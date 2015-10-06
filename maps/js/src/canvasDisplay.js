@@ -66,7 +66,7 @@ var canvasDisplay = (function(){
             },
             paths: [],
             date: new Date(),
-            
+
             builder: function(file) {
                 var record = file[0], data = record.data;
                 return {
@@ -77,7 +77,7 @@ var canvasDisplay = (function(){
                     }
                 }
             },
-            
+
             units: [
                 {label: "°C", conversion: function(x) { return x - 273.15; },       precision: 1},
                 {label: "°F", conversion: function(x) { return x * 9/5 - 459.67; }, precision: 1},
@@ -99,7 +99,7 @@ var canvasDisplay = (function(){
                     [68,     [230, 71, 39]],
                     [78,     [88, 27, 67]]
                 ])
-            } 
+            }
         };
 
 	function createMask(globe) {
@@ -202,7 +202,7 @@ var canvasDisplay = (function(){
         return wind;
     }
 
-    function interpolateField(globe, grids,cb) {
+    function interpolateField(globe, grids, cb) {
         if (!globe || !grids) return null;
 
         var mask = createMask(globe);
@@ -210,12 +210,12 @@ var canvasDisplay = (function(){
         var overlayGrid = grids;//.overlayGrid;
 
         console.time("interpolating field");
-        console.log('interpolating feild',overlayGrid)
+        console.log('interpolating field',overlayGrid)
         //var d = when.defer(), cancel = this.cancel;
 
         var projection = globe.projection;
         var bounds = globe.bounds(view);
-        
+
         // How fast particles move on the screen (arbitrary value chosen for aesthetics).
         var velocityScale = bounds.height * 1/6000;
 
@@ -263,10 +263,10 @@ var canvasDisplay = (function(){
             columns[x+1] = columns[x] = column;
         }
 
-        
+
         (function batchInterpolate() {
-            
-            
+
+
             var start = Date.now();
             while (x < bounds.xMax) {
                 interpolateColumn(x);
@@ -281,12 +281,12 @@ var canvasDisplay = (function(){
             var field = createField(columns, bounds, mask)
             //console.log('the field',columns,bounds,mask)
            	cb(mask.imageData);
-           
+
             //report.progress(1);  // 100% complete
             console.timeEnd("interpolating field");
         })();
 
-       
+
     }
 
     function buildGrid(builder) {
@@ -451,11 +451,36 @@ var canvasDisplay = (function(){
 
         clearCanvas(d3.select("#overlay").node());
         //clearCanvas(d3.select("#scale").node());
-      
+
         interpolateField(globe,grid,function(overlay){
         	ctx.putImageData(overlay, 0, 0);
         	//drawGridPoints(ctx, grid,globe);
         })
+	}
+
+	function animateOverlay(grid,globe){
+    	//console.log('draw overlay',d3.select("#overlay").node());
+		var ctx = d3.select("#overlay").node().getContext("2d");
+
+        clearCanvas(d3.select("#overlay").node());
+        //clearCanvas(d3.select("#scale").node());
+
+		console.log('animate grids',grid)
+		var i = 0
+		setTimeout(function() {
+			if (i === 8) {
+				i = 0
+			} else {
+				i ++
+			}
+			console.log('grid', grid[i])
+			interpolateField(globe,grid[i],function(overlay){
+				console.log('our overlay',overlay.data.filter(function(d){ return d > 0}).length)
+
+	        	ctx.putImageData(overlay, 0, 0);
+
+			})
+		}, 1000)
 	}
 
 	return {
@@ -470,16 +495,35 @@ var canvasDisplay = (function(){
 				initialized = true;
 
 			})
-		
+
 		},
 
         drawGrids:function(globe){
             loadData('processing/gridData0.json',function(data){
-               
+
                 console.log('INIT the data grid',data)
                 overlayData = Object.assign(gridBuilder, buildGrid(gridBuilder.builder([data])));
                 console.log('overlayData',overlayData);
                 drawOverlay(overlayData,globe);
+                initialized = true;
+
+            })
+        },
+
+		animateGrids:function(globe){
+            loadData('processing/gridDataArray.json',function(data){
+
+                console.log('INIT the data grid',data)
+				var animateData = [];
+				data.data.forEach(function(d) {
+					var phaseData = {
+						header: data.header,
+						data: d
+					}
+					animateData.push(Object.assign(gridBuilder, buildGrid(gridBuilder.builder([data]))));
+				})
+                // console.log('overlayData',overlayData);
+                animateOverlay(animateData,globe);
                 initialized = true;
 
             })
