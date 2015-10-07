@@ -468,12 +468,12 @@ var canvasDisplay = (function(){
 		console.log('animate grids',grid)
 		var i = 0
 		setTimeout(function() {
+
 			if (i === 8) {
 				i = 0
-			} else {
-				i ++
 			}
-			console.log('grid', grid[i])
+
+			console.log('grid', grid[i], i)
 			interpolateField(globe,grid[i],function(overlay){
 				console.log('our overlay',overlay.data.filter(function(d){ return d > 0}).length)
 
@@ -481,6 +481,7 @@ var canvasDisplay = (function(){
 
 			})
 		}, 1000)
+		i ++
 	}
 
 	return {
@@ -498,8 +499,22 @@ var canvasDisplay = (function(){
 
 		},
 
+		// gridData6.json aligns with heightData4.json (RMM phase 6)
         drawGrids:function(globe){
-            loadData('processing/gridData0.json',function(data){
+            loadData('processing/gridData6.json',function(data){
+
+                console.log('INIT the data grid',data)
+                overlayData = Object.assign(gridBuilder, buildGrid(gridBuilder.builder([data])));
+                console.log('overlayData',overlayData);
+                drawOverlay(overlayData,globe);
+                initialized = true;
+
+            })
+        },
+
+		// Temp addition to add another field of data
+		drawHeights:function(globe){
+            loadData('processing/heightData4.json',function(data){
 
                 console.log('INIT the data grid',data)
                 overlayData = Object.assign(gridBuilder, buildGrid(gridBuilder.builder([data])));
@@ -520,7 +535,7 @@ var canvasDisplay = (function(){
 						header: data.header,
 						data: d
 					}
-					animateData.push(Object.assign(gridBuilder, buildGrid(gridBuilder.builder([data]))));
+					animateData.push(Object.assign(gridBuilder, buildGrid(gridBuilder.builder([phaseData]))));
 				})
                 // console.log('overlayData',overlayData);
                 animateOverlay(animateData,globe);

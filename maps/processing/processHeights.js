@@ -3,7 +3,7 @@ fs = require('fs'),
 d3 = require('d3');
 
 request
-.get('http://localhost:5000/grids/6')
+.get('http://localhost:5000/heights/4')
 .end(function(err, res){
     var data = JSON.parse(res.text);
     console.log(data.length)
@@ -24,7 +24,7 @@ request
     	data:gridData,
     	meta: {date:new Date()}
     }
-    fs.writeFile('gridData6.json', JSON.stringify(gribData), function (err) {
+    fs.writeFile('heightData4.json', JSON.stringify(gribData), function (err) {
 	  if (err) return console.log(err);
 	  console.log('Hello World > helloworld.txt');
 

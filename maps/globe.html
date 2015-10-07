@@ -132,9 +132,9 @@
 		var lakes = d3.select(".lakes");
 		var grids = d3.select(".colorGrids");
 		//colorGrids.draw(grids,path)
-		canvasDisplay.animateGrids(globe)
-		//canvasDisplay.drawGrids(globe)
-
+		//canvasDisplay.animateGrids(globe)
+		canvasDisplay.drawGrids(globe)
+		//canvasDisplay.drawHeights(globe)
 
 		//---- avtivate the canvas!
 		var width = view.width, height = view.height;
@@ -152,9 +152,6 @@
 			lakes.datum(lakeData);
 
 		d3.selectAll("path").attr("d", path)
-
-
-
 
 		// Throttled draw method helps with slow devices that would get overwhelmed by too many redraw events.
 		var REDRAW_WAIT = 15;  // milliseconds

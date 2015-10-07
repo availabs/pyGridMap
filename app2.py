@@ -20,11 +20,11 @@ numVals = lats.size*lons.size
 #==============================================================================
 # Load data
 #==============================================================================
-data = sio.loadmat('./son_tc_counts.mat')
-rmmCountArray = data['rmmCountArray']
+data = sio.loadmat('./pentad_composites.mat')
+heightArray = data['height']
 
 #==============================================================================
-# Loop over phase to print x-grid, y-grid, and corresponding values
+# Loop over lag to print x-grid, y-grid, and corresponding values
 #==============================================================================
 app = Flask(__name__)
 CORS(app) # Allow restricted resource to be requested from outside domain
@@ -33,13 +33,13 @@ CORS(app) # Allow restricted resource to be requested from outside domain
 def index():
     return "Hello, World!"
 
-@app.route('/grids/<int:phase>', methods=['GET'])
-def get_phase(phase):
+@app.route('/heights/<int:lag>', methods=['GET'])
+def get_lag(lag):
 
-    print 'getting phase ' + str(phase)
+    print 'getting lag ' + str(lag)
 
-    # Phases can only be between 1 and 8, inclusive
-    if phase < 1 or phase > 8:
+    # Lags can only be between -15 and 15, inclusive
+    if lag < 1 or lag > 6:
         abort(404)
 
     # Define grid and convert to vector
@@ -48,18 +48,18 @@ def get_phase(phase):
     latVector = latArray.ravel(0)
 
     # Contour fill density
-    tempValues = rmmCountArray[phase-1,:,:]
+    tempValues = heightArray[lag-1,:,:]
     tempValues = tempValues.ravel(0)
     tempValues[np.isnan(tempValues)] = -999 # Missing value flag
 
     # Populate vectors
-    phaseNum = np.repeat(phase, numVals)
+    lagNum = np.repeat(lag, numVals)
     lonGrid = lonVector
     latGrid = latVector
     values = tempValues
 
     # Concatenate vectors and write data
-    printArray = np.concatenate((phaseNum[:,None], latGrid[:,None], lonGrid[:,None],
+    printArray = np.concatenate((lagNum[:,None], latGrid[:,None], lonGrid[:,None],
                                  values[:,None]), 1)
 
     print printArray
