@@ -133,10 +133,10 @@
 		var grids = d3.select(".colorGrids");
 		//colorGrids.draw(grids,path)
 		//canvasDisplay.animateGrids(globe)
-		canvasDisplay.drawGrids(globe)
-		//canvasDisplay.drawHeights(globe)
+		//canvasDisplay.drawGrids(globe)
+		canvasDisplay.drawHeights(globe)
 
-		//---- avtivate the canvas!
+		//---- activate the canvas!
 		var width = view.width, height = view.height;
         var canvas = d3.select(document.createElement("canvas")).attr("width", width).attr("height", height).node();
         var context = globe.defineMask(canvas.getContext("2d"));
