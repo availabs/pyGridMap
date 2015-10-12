@@ -85,19 +85,19 @@ var canvasDisplay = (function(){
             ],
 
             scale: {
-                bounds: [1, 78],
+                bounds: [-100, 100],
                 gradient: µ.segmentedColorScale([
-                    [1,     [37, 4, 42]],
-                    [6,     [41, 10, 130]],
-                    [11,     [81, 40, 40]],
-                    [19,  [192, 37, 149]],  // -40 C/F
-                    [30, [70, 215, 215]],  // 0 F
-                    [37,  [21, 84, 187]],   // 0 C
-                    [45,  [24, 132, 14]],   // just above 0 C
-                    [52,     [247, 251, 59]],
+                    [-100,     [37, 4, 42]],
+                    [-80,     [41, 10, 130]],
+                    [-60,     [81, 40, 40]],
+                    [-40,  [192, 37, 149]],  // -40 C/F
+                    [-20, [70, 215, 215]],  // 0 F
+                    [0,  [21, 84, 187]],   // 0 C
+                    [20,  [24, 132, 14]],   // just above 0 C
+                    [40,     [247, 251, 59]],
                     [60,     [235, 167, 21]],
-                    [68,     [230, 71, 39]],
-                    [78,     [88, 27, 67]]
+                    [80,     [230, 71, 39]],
+                    [100,     [88, 27, 67]]
                 ])
             }
         };
@@ -263,9 +263,7 @@ var canvasDisplay = (function(){
             columns[x+1] = columns[x] = column;
         }
 
-
         (function batchInterpolate() {
-
 
             var start = Date.now();
             while (x < bounds.xMax) {
@@ -285,7 +283,6 @@ var canvasDisplay = (function(){
             //report.progress(1);  // 100% complete
             console.timeEnd("interpolating field");
         })();
-
 
     }
 
@@ -371,7 +368,6 @@ var canvasDisplay = (function(){
 	function loadData(url,cb){
 		d3.json(url,function(err,data){
 			if(err){ console.log('error loading data',err) }
-			//console.log('the  loaded data',data);
 			cb(data);
 		})
 	}
@@ -494,34 +490,30 @@ var canvasDisplay = (function(){
 				console.log('overlayData',overlayData);
 				drawOverlay(overlayData,globe);
 				initialized = true;
-
 			})
-
 		},
 
 		// gridData6.json aligns with heightData4.json (RMM phase 6)
         drawGrids:function(globe){
-            loadData('processing/gridData6.json',function(data){
 
+            loadData('processing/gridData6.json',function(data){
                 console.log('INIT the data grid',data)
                 overlayData = Object.assign(gridBuilder, buildGrid(gridBuilder.builder([data])));
                 console.log('overlayData',overlayData);
                 drawOverlay(overlayData,globe);
                 initialized = true;
-
             })
         },
 
 		// Temp addition to add another field of data
 		drawHeights:function(globe){
-            loadData('processing/heightData4.json',function(data){
 
+            loadData('processing/heightData4.json',function(data){
                 console.log('INIT the data grid',data)
                 overlayData = Object.assign(gridBuilder, buildGrid(gridBuilder.builder([data])));
                 console.log('overlayData',overlayData);
                 drawOverlay(overlayData,globe);
                 initialized = true;
-
             })
         },
 
@@ -553,6 +545,5 @@ var canvasDisplay = (function(){
 		}
 
 	}
-
 
 })()
