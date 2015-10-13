@@ -71,6 +71,7 @@
         var y = d3.scale.linear()
             .domain([-4, 4])
             .range([height, 0]);
+
         console.log('w, h', width, height)
         var xAxisBottom = d3.svg.axis()
             .scale(x)
@@ -176,7 +177,14 @@
     // Read in .json data and make graph
     d3.json("./processing/rmmData.json",
     function(error, data) {
-        rmmIndex(data);
+        var newData = data.filter(function(d,i){
+            if(i < 10){
+                console.log(new Date(d.date));
+            }
+            return d && d.date.split('-')[0] === '2015';
+        })
+        console.log('data',data,newData);
+        rmmIndex(newData);
     });
 
     </script>
