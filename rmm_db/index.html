@@ -1,181 +1,186 @@
 <!DOCTYPE HTML>
 <html>
+    <head>
+        <title>RMM Index Test Product</title>
+    </head>
     <body>
 
-        <style>
-            .d3-tip {
-                font-family: Helvetica;
-                line-height: 1;
-                padding: 12px;
-                background: rgba(0, 0, 0, 0.8);
-                color: #fff;
-                border-radius: 2px;
-            }
-            path {
-                stroke: steelblue;
-                stroke-width: 3;
-                fill: none;
-            }
-            .axis path, .axis line {
-                fill: none;
-                stroke: #000;
-                shape-rendering: crispEdges;
-            }
-            .datapoint:hover{
-                fill: steelblue;
-            }
-            .xlabel, .ylabel {
-                font-family: Helvetica;
-                font-weight: bold;
-                font-size: 20px;
-            }
-            .graphtitle {
-                font-family: Helvetica;
-                font-weight: bold;
-                font-size: 30px;
-            }
-            .line {
-                fill: none;
-                stroke: steelblue;
-                stroke-width: 1.5px;
-            }
-        </style>
-
-        <script src="http://d3js.org/d3.v3.min.js"></script>
-        <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
-        <script>
-
-        function getView() {
-    		var w = window;
-    		var d = document && document.documentElement;
-    		var b = document && document.getElementsByTagName("body")[0];
-    		var x = w.innerWidth || d.clientWidth || b.clientWidth;
-    		var y = w.innerHeight || d.clientHeight || b.clientHeight;
-    		return {width: x, height: y};
-    	}
-
-        var view = getView();
-
-        function rmmIndex(data) {
-
-            var margin = {top: 60, right: 60, bottom: 60, left: 75};
-            var width = view.width*0.8, height = view.height*0.8;
-
-            var minDate = data[0].date;
-            var maxDate = data[data.length - 1].date;
-
-            // Set up time based x axis
-            var x = d3.scale.linear()
-                .domain([-4, 4])
-                .range([0, width]);
-
-            var y = d3.scale.linear()
-                .domain([-4, 4])
-                .range([height, 0]);
-
-            var xAxis = d3.svg.axis()
-                .scale(x)
-                .ticks(10)
-                .orient("bottom");
-
-            var yAxis = d3.svg.axis()
-                .scale(y)
-                .ticks(7)
-                .orient("left");
-
-            // put the graph in the "index" div
-            var svg = d3.select("#index").append("svg")
-                .attr("width", width + margin.left + margin.right)
-                .attr("height", height + margin.top + margin.bottom)
-                .append("g")
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-            // function to draw the line
-            var line = d3.svg.line()
-                .x(function(d) { return x(d.rmm1); } )
-                .y(function(d) { return y(d.rmm2); } );
-
-            //Mouseover tip
-            var tip = d3.tip()
-                .attr('class', 'd3-tip')
-                .offset([120, 40])
-                .html(function(d) {
-                    return "<strong>" + d.date +
-                    "</strong><br><br>RMM 1: " +
-                    d.rmm1.toFixed(2) + "<br>RMM 2: " +
-                    d.rmm2.toFixed(2) + "<br>Phase: " +
-                    d.phase + "<br>Amplitude: " +
-                    d.amp.toFixed(2) + "<br>";
-                });
-
-            svg.call(tip);
-
-            // add the x axis and x-label
-            svg.append("g")
-                .attr("class", "x axis")
-                .attr("transform", "translate(0," + height + ")")
-                .call(xAxis)
-                .selectAll("text")
-                .attr("y", 9)
-                .attr("x", 9)
-                .attr("dy", ".35em")
-                .attr("dx", "-0.6em")
-                .style("text-anchor", "start");
-                svg.append("text")
-                .attr("class", "xlabel")
-                .attr("text-anchor", "middle")
-                .attr("x", width / 2)
-                .attr("y", height + margin.bottom)
-                .text("RMM 1");
-
-            // add the y axis and y-label
-            svg.append("g")
-                .attr("class", "y axis")
-                //.attr("transform", "translate(0,0)")
-                .call(yAxis);
-                svg.append("text")
-                .attr("class", "ylabel")
-                .attr("y", 0 - margin.left) // x and y switched due to rotation!!
-                .attr("x", 0 - (height / 2))
-                .attr("dy", "1em")
-                .attr("transform", "rotate(-90)")
-                .style("text-anchor", "middle")
-                .text("RMM 2");
-
-            svg.append("text")
-                .attr("class", "graphtitle")
-                .attr("y", 10)
-                .attr("x", width/2)
-                .attr("dy", "-1em")
-                .style("text-anchor", "middle")
-                .text("RMM Index");
-
-            // draw the line
-            svg.append("path")
-                .datum(data)
-                .attr("class", "line")
-                .attr("d", line);
-
-            svg.selectAll(".dot")
-                .data(data)
-                .enter().append("circle")
-                .attr('class', 'datapoint')
-                .attr('cx', function(d) { return x(d.rmm1); })
-                .attr('cy', function(d) { return y(d.rmm2); })
-                .attr('r', 6)
-                .attr('fill', 'white')
-                .attr('stroke', 'steelblue')
-                .attr('stroke-width', '3')
-                .on('mouseover', tip.show)
-                .on('mouseout', tip.hide);
+    <style>
+        .d3-tip {
+            font-family: Helvetica;
+            line-height: 1;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            border-radius: 2px;
         }
-        // Read in .csv data and make graph
-        d3.json("./processing/rmmData.json",
-        function(error, data) {
-            rmmIndex(data);
-        });
+        path {
+            stroke: steelblue;
+            stroke-width: 3;
+            fill: none;
+        }
+        .axis path, .axis line {
+            fill: none;
+            stroke: #000;
+            shape-rendering: crispEdges;
+        }
+        .datapoint:hover{
+            fill: steelblue;
+        }
+        .xlabel, .ylabel {
+            font-family: Helvetica;
+            font-weight: bold;
+            font-size: 20px;
+        }
+        .graphtitle {
+            font-family: Helvetica;
+            font-weight: bold;
+            font-size: 30px;
+        }
+    </style>
 
-        </script>
-        <div id="index" class="graph"></div>
+    <script src="http://d3js.org/d3.v3.min.js"></script>
+    <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+    <script>
+
+    function getView() {
+		var w = window;
+		var d = document && document.documentElement;
+		var b = document && document.getElementsByTagName("body")[0];
+		var x = w.innerWidth || d.clientWidth || b.clientWidth;
+		var y = w.innerHeight || d.clientHeight || b.clientHeight;
+		return {width: x, height: y};
+	}
+
+    var view = getView();
+
+    function rmmIndex(data) {
+
+        var margin = {top: 60, right: 60, bottom: 60, left: 75};
+        var width = 800 - margin.left - margin.right;
+        var height = 650 - margin.top - margin.bottom;
+
+        var minDate = data[0].date;
+        var maxDate = data[data.length - 1].date;
+
+        // Set up time based x axis
+        var x = d3.scale.linear()
+            .domain([-4, 4])
+            .range([0, width]);
+
+        var y = d3.scale.linear()
+            .domain([-4, 4])
+            .range([height, 0]);
+        console.log('w, h', width, height)
+        var xAxisBottom = d3.svg.axis()
+            .scale(x)
+            .ticks(10)
+            .orient("bottom");
+
+        var yAxisLeft = d3.svg.axis()
+            .scale(y)
+            .ticks(7)
+            .orient("left");
+
+        // put the graph in the "index" div
+        var svg = d3.select("#index").append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        // function to draw the line
+        var line = d3.svg.line()
+            .x(function(d) {
+                // console.log('Plotting X value for data point: ' + d.rmm1 + ' to be at: ' + x(d.rmm1) + ' using our xScale.');
+                return x(d.rmm1);
+            })
+            .y(function(d) {
+                // console.log('Plotting Y value for data point: ' + d.rmm2 + ' to be at: ' + y(d.rmm2) + ' using our yScale.');
+                return y(d.rmm2);
+            });
+
+        //Mouseover tip
+        var tip = d3.tip()
+            .attr('class', 'd3-tip')
+            .offset([120, 40])
+            .html(function(d) {
+                return "<strong>" + d.date +
+                "</strong><br><br>RMM 1: " +
+                d.rmm1.toFixed(2) + "<br>RMM 2: " +
+                d.rmm2.toFixed(2) + "<br>Phase: " +
+                d.phase + "<br>Amplitude: " +
+                d.amp.toFixed(2) + "<br>";
+            });
+
+        svg.call(tip);
+
+        // add the x axis and x-label
+        svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xAxisBottom)
+            .selectAll("text")
+            .attr("y", 9)
+            .attr("x", 9)
+            .attr("dy", ".35em")
+            .attr("dx", "-0.6em")
+            .style("text-anchor", "start");
+            svg.append("text")
+            .attr("class", "xlabel")
+            .attr("text-anchor", "middle")
+            .attr("x", width / 2)
+            .attr("y", height + margin.bottom)
+            .text("RMM 1");
+
+        // add the y axis and y-label
+        svg.append("g")
+            .attr("class", "y axis")
+            .call(yAxisLeft);
+            svg.append("text")
+            .attr("class", "ylabel")
+            .attr("y", 0 - margin.left) // x and y switched due to rotation!!
+            .attr("x", 0 - (height / 2))
+            .attr("dy", "1em")
+            .attr("transform", "rotate(-90)")
+            .style("text-anchor", "middle")
+            .text("RMM 2");
+
+        svg.append("text")
+            .attr("class", "graphtitle")
+            .attr("y", 10)
+            .attr("x", width/2)
+            .attr("dy", "-1em")
+            .style("text-anchor", "middle")
+            .text("RMM Index Test Product");
+
+        // draw the line
+        svg.append("path")
+            .attr("d", line(data));
+
+        // draw markers
+        svg.selectAll(".dot")
+            .data(data)
+            .enter().append("circle")
+            .attr('class', 'datapoint')
+            .attr('cx', function(d) { return x(d.rmm1); })
+            .attr('cy', function(d) { return y(d.rmm2); })
+            .attr('r', 3)
+            .attr('fill', 'white')
+            .attr('stroke', 'steelblue')
+            .attr('stroke-width', '3')
+            .on('mouseover', tip.show)
+            .on('mouseout', tip.hide);
+    }
+
+    // Read in .json data and make graph
+    d3.json("./processing/rmmData.json",
+    function(error, data) {
+        rmmIndex(data);
+    });
+
+    </script>
+
+    <div id="index" class="graph"></div>
     </body>
 </html>
