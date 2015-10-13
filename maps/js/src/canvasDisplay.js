@@ -23,6 +23,7 @@ var COMPLETED = "▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪
 var canvasDisplay = (function(){
 	var overlayData = {},
 		initialized = false,
+        mode = 'fixed',
 		windBuilder = {
 	        field: "vector",
 	        type: "wind",
@@ -105,7 +106,7 @@ var canvasDisplay = (function(){
 	function createMask(globe) {
         if (!globe) return null;
 
-        console.time("render mask");
+        //console.time("render mask");
 
         // Create a detached canvas, ask the model to define the mask polygon, then fill with an opaque color.
         var width = view.width, height = view.height;
@@ -116,10 +117,10 @@ var canvasDisplay = (function(){
         // d3.select("#display").node().appendChild(canvas);  // make mask visible for debugging
 
         var imageData = context.getImageData(0, 0, width, height);
-        console.log('context image data',imageData)
+        //console.log('context image data',imageData)
 
         var data = imageData.data;  // layout: [r, g, b, a, r, g, b, a, ...]
-        console.timeEnd("render mask");
+        //console.timeEnd("render mask");
         return {
             imageData: imageData,
             isVisible: function(x, y) {
@@ -209,8 +210,8 @@ var canvasDisplay = (function(){
         var primaryGrid = {};//grids;//.primaryGrid;
         var overlayGrid = grids;//.overlayGrid;
 
-        console.time("interpolating field");
-        console.log('interpolating field',overlayGrid)
+        //console.time("interpolating field");
+        //console.log('interpolating field',overlayGrid)
         //var d = when.defer(), cancel = this.cancel;
 
         var projection = globe.projection;
@@ -224,7 +225,7 @@ var canvasDisplay = (function(){
         var x = bounds.x;
         //var interpolate = primaryGrid.interpolate;
         var overlayInterpolate = overlayGrid.interpolate;
-        console.log('overlayInterpolate',overlayInterpolate)
+        //console.log('overlayInterpolate',overlayInterpolate)
         var hasDistinctOverlay = primaryGrid !== overlayGrid;
         var scale = overlayGrid.scale;
 
@@ -281,7 +282,7 @@ var canvasDisplay = (function(){
            	cb(mask.imageData);
 
             //report.progress(1);  // 100% complete
-            console.timeEnd("interpolating field");
+            //console.timeEnd("interpolating field");
         })();
 
     }
@@ -426,7 +427,7 @@ var canvasDisplay = (function(){
 
     function drawGridPoints(ctx, grid, globe) {
         if (!grid || !globe ) return;
-        console.log('draw grid points',grid,globe)
+        //console.log('draw grid points',grid,globe)
         ctx.fillStyle = "rgba(255, 255, 255, 1)";
         // Use the clipping behavior of a projection stream to quickly draw visible points.
         var stream = globe.projection.stream({
@@ -454,30 +455,38 @@ var canvasDisplay = (function(){
         })
 	}
 
-	function animateOverlay(grid,globe){
+	function animateOverlay(data,globe){
     	//console.log('draw overlay',d3.select("#overlay").node());
 		var ctx = d3.select("#overlay").node().getContext("2d");
 
         clearCanvas(d3.select("#overlay").node());
         //clearCanvas(d3.select("#scale").node());
 
-		console.log('animate grids',grid)
+		//console.log('animate grids',grid)
 		var i = 0
-		setTimeout(function() {
+		setInterval(function() {
 
 			if (i === 8) {
 				i = 0
 			}
 
-			console.log('grid', grid[i], i)
-			interpolateField(globe,grid[i],function(overlay){
-				console.log('our overlay',overlay.data.filter(function(d){ return d > 0}).length)
+            var phaseData = {
+                header: data.header,
+                data: data.data[i]
+            }
+
+            var grid = Object.assign(gridBuilder, buildGrid(gridBuilder.builder([phaseData])));
+        
+			//console.log('grid', grid[i], i)
+			interpolateField(globe,grid,function(overlay){
+				//console.log('our overlay',overlay.data.filter(function(d){ return d > 0}).length)
 
 	        	ctx.putImageData(overlay, 0, 0);
 
 			})
-		}, 1000)
-		i ++
+            i ++;
+		}, 250)
+		
 	}
 
 	return {
@@ -522,22 +531,19 @@ var canvasDisplay = (function(){
 
                 console.log('INIT the data grid',data)
 				var animateData = [];
-				data.data.forEach(function(d) {
-					var phaseData = {
-						header: data.header,
-						data: d
-					}
-					animateData.push(Object.assign(gridBuilder, buildGrid(gridBuilder.builder([phaseData]))));
-				})
+				
                 // console.log('overlayData',overlayData);
-                animateOverlay(animateData,globe);
+                animateOverlay(data,globe);
                 initialized = true;
+                mode = 'animate';
 
             })
         },
 
 		update:function(globe){
-			drawOverlay(overlayData,globe);
+            if(mode === 'fixed'){
+			 drawOverlay(overlayData,globe);
+            }
 		},
 
 		hide:function(){
