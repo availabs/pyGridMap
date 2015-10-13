@@ -62,6 +62,7 @@
 
         var minDate = data[0].date;
         var maxDate = data[data.length - 1].date;
+        var colorScale = d3.scale.category20()
 
         // Set up time based x axis
         var x = d3.scale.linear()
@@ -158,6 +159,7 @@
         // draw the line
         svg.append("path")
             .attr("d", line(data));
+            
 
         // draw markers
         svg.selectAll(".dot")
@@ -167,8 +169,12 @@
             .attr('cx', function(d) { return x(d.rmm1); })
             .attr('cy', function(d) { return y(d.rmm2); })
             .attr('r', 3)
-            .attr('fill', 'white')
-            .attr('stroke', 'steelblue')
+            .attr('fill', function(d){
+                return colorScale( d.date.split('-')[1] )
+            })
+            .attr('stroke', function(d){
+                return colorScale( d.date.split('-')[1] )
+            })
             .attr('stroke-width', '3')
             .on('mouseover', tip.show)
             .on('mouseout', tip.hide);
