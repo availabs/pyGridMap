@@ -24,6 +24,7 @@ var canvasDisplay = (function(){
 	var overlayData = {},
 		initialized = false,
         mode = 'fixed',
+        zooming = false,
 		windBuilder = {
 	        field: "vector",
 	        type: "wind",
@@ -465,26 +466,27 @@ var canvasDisplay = (function(){
 		//console.log('animate grids',grid)
 		var i = 0
 		setInterval(function() {
+            if(!zooming){
+    			if (i === 8) {
+    				i = 0
+    			}
 
-			if (i === 8) {
-				i = 0
-			}
+                var phaseData = {
+                    header: data.header,
+                    data: data.data[i]
+                }
 
-            var phaseData = {
-                header: data.header,
-                data: data.data[i]
+                var grid = Object.assign(gridBuilder, buildGrid(gridBuilder.builder([phaseData])));
+            
+    			//console.log('grid', grid[i], i)
+    			interpolateField(globe,grid,function(overlay){
+    				//console.log('our overlay',overlay.data.filter(function(d){ return d > 0}).length)
+
+    	        	ctx.putImageData(overlay, 0, 0);
+
+    			})
+                i ++;
             }
-
-            var grid = Object.assign(gridBuilder, buildGrid(gridBuilder.builder([phaseData])));
-        
-			//console.log('grid', grid[i], i)
-			interpolateField(globe,grid,function(overlay){
-				//console.log('our overlay',overlay.data.filter(function(d){ return d > 0}).length)
-
-	        	ctx.putImageData(overlay, 0, 0);
-
-			})
-            i ++;
 		}, 250)
 		
 	}
@@ -543,10 +545,15 @@ var canvasDisplay = (function(){
 		update:function(globe){
             if(mode === 'fixed'){
 			 drawOverlay(overlayData,globe);
+            }else if(mode === 'animate'){
+                zooming = false;
             }
 		},
 
 		hide:function(){
+            if(mode === 'animate'){
+                zooming = true;
+            }
 			clearCanvas(d3.select("#overlay").node());
 		}
 
