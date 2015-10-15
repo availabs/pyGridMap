@@ -477,7 +477,7 @@ var canvasDisplay = (function(){
                 }
 
                 var grid = Object.assign(gridBuilder, buildGrid(gridBuilder.builder([phaseData])));
-            
+
     			//console.log('grid', grid[i], i)
     			interpolateField(globe,grid,function(overlay){
     				//console.log('our overlay',overlay.data.filter(function(d){ return d > 0}).length)
@@ -487,8 +487,8 @@ var canvasDisplay = (function(){
     			})
                 i ++;
             }
-		}, 250)
-		
+		}, 500)
+
 	}
 
 	return {
@@ -533,7 +533,7 @@ var canvasDisplay = (function(){
 
                 console.log('INIT the data grid',data)
 				var animateData = [];
-				
+
                 // console.log('overlayData',overlayData);
                 animateOverlay(data,globe);
                 initialized = true;

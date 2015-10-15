@@ -73,7 +73,6 @@
             .domain([-4, 4])
             .range([height, 0]);
 
-        console.log('w, h', width, height)
         var xAxisBottom = d3.svg.axis()
             .scale(x)
             .ticks(10)
@@ -92,6 +91,9 @@
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
         // function to draw the line
+        // lines = lines.data(data);
+        // lines.enter().append("line");
+
         var line = d3.svg.line()
             .x(function(d) {
                 // console.log('Plotting X value for data point: ' + d.rmm1 + ' to be at: ' + x(d.rmm1) + ' using our xScale.');
@@ -157,9 +159,28 @@
             .text("RMM Index Test Product");
 
         // draw the line
-        svg.append("path")
-            .attr("d", line(data));
-            
+        // svg.append("path")
+        //     .attr("d", line(data))
+        svg.selectAll("path")
+            .data(data)
+            .enter().append("path")
+            // .attr("class", "line")
+            .attr("x1", function(d) {
+                return x(d.rmm1);
+            })
+            .attr("x2", function(d) {
+                return x(d.rmm1);
+            })
+            .attr("y1", function(d) {
+                return y(d.rmm2);
+            })
+            .attr("y2", function(d) {
+                return y(d.rmm2);
+            })
+            .attr("stroke", function(d) {
+                return colorScale( d.date.split('-')[1] );
+            })
+            .attr("stroke-width", "3");
 
         // draw markers
         svg.selectAll(".dot")
@@ -184,14 +205,20 @@
     d3.json("./processing/rmmData.json",
     function(error, data) {
         var newData = data.filter(function(d,i){
-            if(i < 10){
+            if (i < 10) {
                 console.log(new Date(d.date));
             }
-            return d && d.date.split('-')[0] === '2015';
+            return d && d.date.split('-')[0] === '2014';
         })
-        console.log('data',data,newData);
+        // console.log('data', data, newData);
         rmmIndex(newData);
     });
+
+    // function segments(values) {
+    //     var segments = [], i = 0, n = values.length
+    //     while(++i < n) segments.push([[i - 1, values[i - 1]], [i, values[i]]]);
+    //     return segments
+    // };
 
     </script>
 
