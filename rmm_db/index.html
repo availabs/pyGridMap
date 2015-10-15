@@ -2,45 +2,50 @@
 <html>
     <head>
         <title>RMM Index Test Product</title>
+        <link rel="stylesheet" href="styles/rmm_index.css" />
+        <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap/latest/css/bootstrap.css" />
+        <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" />
     </head>
     <body>
 
-    <style>
-        .d3-tip {
-            font-family: Helvetica;
-            line-height: 1;
-            padding: 12px;
-            background: rgba(0, 0, 0, 0.8);
-            color: #fff;
-            border-radius: 2px;
-        }
-        path {
-            stroke: steelblue;
-            stroke-width: 3;
-            fill: none;
-        }
-        .axis path, .axis line {
-            fill: none;
-            stroke: #000;
-            shape-rendering: crispEdges;
-        }
-        .datapoint:hover{
-            fill: steelblue;
-        }
-        .xlabel, .ylabel {
-            font-family: Helvetica;
-            font-weight: bold;
-            font-size: 20px;
-        }
-        .graphtitle {
-            font-family: Helvetica;
-            font-weight: bold;
-            font-size: 30px;
-        }
-    </style>
+    <!-- Include Required Prerequisites -->
+    <script type="text/javascript" src="//cdn.jsdelivr.net/jquery/1/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <!-- <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap/latest/css/bootstrap.css" /> -->
+
+    <!-- Include Date Range Picker -->
+    <script type="text/javascript" src="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.js"></script>
+    <!-- <link rel="stylesheet" type="text/css" href="//cdn.jsdelivr.net/bootstrap.daterangepicker/2/daterangepicker.css" /> -->
 
     <script src="http://d3js.org/d3.v3.min.js"></script>
     <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
+    <div id="reportrange" class="pull-right" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+        <i class="glyphicon glyphicon-calendar fa fa-calendar"></i>&nbsp;
+        <span></span> <b class="caret"></b>
+    </div>
+    <script>
+
+    $(function(){
+
+        function cb(start, end) {
+            $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+        }
+        cb(moment().subtract(29, 'days'), moment());
+
+        $('#reportrange').daterangepicker({
+            ranges: {
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 14 Days': [moment().subtract(13, 'days'), moment()],
+                'Last 21 Days': [moment().subtract(20, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'Last 60 Days': [moment().subtract(59, 'days'), moment()],
+                'Last 90 Days': [moment().subtract(89, 'days'), moment()]
+            }
+        }, cb);
+    });
+
+    </script>
+
     <script>
 
     function getView() {

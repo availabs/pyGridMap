@@ -1,0 +1,34 @@
+/*******************************************************************************
+d3js-driven RMM index plot styling
+*******************************************************************************/
+.d3-tip {
+    font-family: Helvetica;
+    line-height: 1;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.8);
+    color: #fff;
+    border-radius: 2px;
+}
+path {
+    stroke: steelblue;
+    stroke-width: 3;
+    fill: none;
+}
+.axis path, .axis line {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+}
+.datapoint:hover{
+    fill: steelblue;
+}
+.xlabel, .ylabel {
+    font-family: Helvetica;
+    font-weight: bold;
+    font-size: 20px;
+}
+.graphtitle {
+    font-family: Helvetica;
+    font-weight: bold;
+    font-size: 30px;
+}
