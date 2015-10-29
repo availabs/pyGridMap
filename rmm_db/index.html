@@ -24,15 +24,25 @@
         <span></span> <b class="caret"></b>
     </div>
     <script>
+        
+        var drp = null,
+            startDate = null,
+            endDate = null,
+            globalData = null;
+   
 
-    $(function(){
-
-        function cb(start, end) {
+        function onDateChange(start, end) {
+            
+            startDate = start;
+            endDate = end;
+            if(globalData){
+                drawFilteredGraph()
+            }
             $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
         }
-        cb(moment().subtract(29, 'days'), moment());
+        onDateChange(moment().subtract(120, 'days'), moment());
 
-        $('#reportrange').daterangepicker({
+        drp = $('#reportrange').daterangepicker({
             ranges: {
                 'Last 7 Days': [moment().subtract(6, 'days'), moment()],
                 'Last 14 Days': [moment().subtract(13, 'days'), moment()],
@@ -41,13 +51,11 @@
                 'Last 60 Days': [moment().subtract(59, 'days'), moment()],
                 'Last 90 Days': [moment().subtract(89, 'days'), moment()]
             }
-        }, cb);
-    });
+        }, onDateChange);
+   
 
-    </script>
-
-    <script>
-
+   
+    console.log(drp.data('daterangepicker').startDate._d)
     function getView() {
 		var w = window;
 		var d = document && document.documentElement;
@@ -61,6 +69,7 @@
 
     function rmmIndex(data) {
 
+        
         var margin = {top: 60, right: 60, bottom: 60, left: 75};
         var width = 800 - margin.left - margin.right;
         var height = 650 - margin.top - margin.bottom;
@@ -89,6 +98,8 @@
             .orient("left");
 
         // put the graph in the "index" div
+
+        d3.select('svg').remove();
         var svg = d3.select("#index").append("svg")
             .attr("width", width + margin.left + margin.right)
             .attr("height", height + margin.top + margin.bottom)
@@ -166,21 +177,17 @@
         // draw the line
         // svg.append("path")
         //     .attr("d", line(data))
-        svg.selectAll("path")
+
+        svg.selectAll(".linedata")
             .data(data)
             .enter().append("path")
             // .attr("class", "line")
-            .attr("x1", function(d) {
-                return x(d.rmm1);
-            })
-            .attr("x2", function(d) {
-                return x(d.rmm1);
-            })
-            .attr("y1", function(d) {
-                return y(d.rmm2);
-            })
-            .attr("y2", function(d) {
-                return y(d.rmm2);
+            .attr("d", function(d,i) {
+                var next = data[i+1]
+                if(next){
+                    return 'M'+x(d.rmm1)+' '+y(d.rmm2)+' L'+x(next.rmm1)+' '+y(next.rmm2)
+                }
+                
             })
             .attr("stroke", function(d) {
                 return colorScale( d.date.split('-')[1] );
@@ -207,23 +214,37 @@
     }
 
     // Read in .json data and make graph
-    d3.json("./processing/rmmData.json",
-    function(error, data) {
-        var newData = data.filter(function(d,i){
-            if (i < 10) {
-                console.log(new Date(d.date));
+   
+
+    function drawFilteredGraph(){
+        if(globalData){
+            var newData = globalData.filter(function(d,i){
+                
+                var n = new Date(d.date),
+                    s = new Date(startDate._d),
+                    e = new Date(endDate._d);
+
+                
+                return d && n >= s  && n <= e;
+            })
+            if(newData.length === 0){
+                console.log('no data between '+startDate.format('MMMM D, YYYY')+' and '+endDate.format('MMMM D, YYYY'))
+            }else if(newData.length > 90){
+                //newData = newData.slice(0,90);
+                rmmIndex(newData);
+                console.log(newData.length)
+            }else{
+                rmmIndex(newData);
             }
-            return d && d.date.split('-')[0] === '2014';
-        })
-        // console.log('data', data, newData);
-        rmmIndex(newData);
+        }
+
+    }
+
+     d3.json("./processing/rmmData.json",function(error, data) {
+        globalData = data;
+        drawFilteredGraph()
     });
 
-    // function segments(values) {
-    //     var segments = [], i = 0, n = values.length
-    //     while(++i < n) segments.push([[i - 1, values[i - 1]], [i, values[i]]]);
-    //     return segments
-    // };
 
     </script>
 

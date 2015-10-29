@@ -9,11 +9,7 @@ d3js-driven RMM index plot styling
     color: #fff;
     border-radius: 2px;
 }
-path {
-    stroke: steelblue;
-    stroke-width: 3;
-    fill: none;
-}
+
 .axis path, .axis line {
     fill: none;
     stroke: #000;
