@@ -9,7 +9,7 @@ var RmmDemo = React.createClass({
 		return {
 			graphData:[],
 			width:0,
-			height:0;
+			height:0
 		}
 	},
 
@@ -147,13 +147,12 @@ var RmmDemo = React.createClass({
 		if(this.state.graphData.length > 0){
 			this.renderData();
 		}
-		
+
 		return (
 	
-			<div id="graphDiv" style={{width:'100%'}}>
-	      
-	        </div>
-
+			<div id="graphDiv" style={{width:'100%'}} />
+	    
+	        
 		);
 	}
 
