@@ -16,11 +16,7 @@
 // (if you're using LESS with the built-in default config, you'll want
 //  to change `assets/styles/importer.less` instead.)
 var cssFilesToInject = [
-  'styles/**/*.css',
-  'bower_components/leaflet/dist/leaflet.css',
-  'bower_components/bootstrap/dist/css/bootstrap.min.css',
-  'bower_components/rangeslider.js/dist/rangeslider.css',
-  'bower_components/c3/c3.min.css'
+  //'styles/**/*.css',
 ];
 
 
