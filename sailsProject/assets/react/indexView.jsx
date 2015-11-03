@@ -9,22 +9,19 @@ var React = require("react"),
     DefaultRoute = Router.DefaultRoute,
 
     //SailsWebApi = require("./utils/api/SailsWebApi.react"),
-// Layout
+    // Layout
 	App = require("./pages/layout.react"),
-// Components
+    // Components
     //DemoOne =   require("./pages/DemoOne.react"),
-    MetroZBP =  require("./pages/MetroZBP.react");
+    DemoPage =  require("./pages/Demo.react");
 
-
-
-// <Route name="demo1" path="/demo1" handler={DemoOne} />
        
-var routes = (
-	<Route name="app" path="/" handler={App}>
-        <Route name="metrozbp" path="/metrozbp" handler={MetroZBP} />
-		<DefaultRoute handler={MetroZBP} />
-	</Route>
-);
+    var routes = (
+    	<Route name="app" path="/" handler={App}>
+            <Route name="metrozbp" path="/metrozbp" handler={DemoPage} />
+    		<DefaultRoute handler={DemoPage} />
+    	</Route>
+    );
 
 Router.run(routes, (Handler) => {
 	React.render(<Handler/>, document.getElementById("route-wrapper"));

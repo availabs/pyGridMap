@@ -1,12 +1,13 @@
 var React = require("react");
 
 var Header = React.createClass({
-	render() {
+	
+	render:function() {
 		return (
-			<nav className="navbar navbar-inverse" id="topNav">
+			<nav className="navbar" id="topNav" style={{borderBottom:'1px solid lightblue'}}>
 				<div className="container">
 					<div className="navbar-header">
-						<a className="navbar-brand" href="#">BDS Demo</a>
+						<a className="navbar-brand" href="#"> Demo </a>
 					</div>
 					<div>
 						<ul className="nav navbar-nav">
@@ -18,6 +19,7 @@ var Header = React.createClass({
 			</nav>
 		);
 	}
+
 });
 
 module.exports = Header;
