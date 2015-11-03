@@ -144,6 +144,9 @@ var RmmDemo = React.createClass({
 
 	render:function(){
 		
+		if(this.state.graphData.length > 0){
+			this.renderData();
+		}
 		
 		return (
 	
