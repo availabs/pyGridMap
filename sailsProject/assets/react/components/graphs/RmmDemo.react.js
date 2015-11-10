@@ -1,10 +1,9 @@
 var React = require("react"),
 	d3 = require('d3'),
 	d3Tip = require('d3-tip');
-	
-	
+
 var RmmDemo = React.createClass({
-	
+
 	getInitialState:function(){
 		return {
 			graphData:[],
@@ -30,7 +29,7 @@ var RmmDemo = React.createClass({
 			margin = {top: 60, right: 60, bottom: 60, left: 75},
         	width = elemWidth- margin.left - margin.right,
         	height = (elemWidth*0.8) - margin.top - margin.bottom;
-        
+
         this.setState({width:width,height:height});
 
        	var x = d3.scale.linear()
@@ -114,7 +113,10 @@ var RmmDemo = React.createClass({
 	},
 
 	renderData:function(){
-		 var svg = d3.select(".graphCanvas");
+
+		var svg = d3.select(".graphCanvas");
+
+		var colorScale = d3.scale.category20();
 
 		var x = d3.scale.linear()
             .domain([-4, 4])
@@ -123,6 +125,22 @@ var RmmDemo = React.createClass({
         var y = d3.scale.linear()
             .domain([-4, 4])
             .range([this.state.height, 0]);
+
+		console.log('x y', x, y);
+
+		var tip = d3Tip()
+            .attr('class', 'd3-tip')
+            .offset([120, 40])
+            .html(function(d) {
+                return "<strong>" + d.date +
+                "</strong><br><br>RMM 1: " +
+                d.rmm1.toFixed(2) + "<br>RMM 2: " +
+                d.rmm2.toFixed(2) + "<br>Phase: " +
+                d.phase + "<br>Amplitude: " +
+                d.amp.toFixed(2) + "<br>";
+            });
+
+		console.log('tip', tip);
 
 		 svg.selectAll(".dot")
             .data(this.state.graphData)
@@ -140,19 +158,21 @@ var RmmDemo = React.createClass({
             .attr('stroke-width', '3')
             .on('mouseover', tip.show)
             .on('mouseout', tip.hide);
+
+			// console.log('data', this.state.graphData)
+			// console.log('tip', this.tip)
 	},
 
 	render:function(){
-		
+
 		if(this.state.graphData.length > 0){
 			this.renderData();
 		}
 
 		return (
-	
+
 			<div id="graphDiv" style={{width:'100%'}} />
-	    
-	        
+
 		);
 	}
 
