@@ -1,12 +1,24 @@
 var React = require("react"),
 	d3 = require('d3'),
-	d3Tip = require('d3-tip');
+	d3Tip = require('d3-tip'),
+    moment = require('moment');
 
 var RmmDemo = React.createClass({
 
+    getDefaultProps:function(){
+        return {
+            
+            startDate:moment().subtract(120, 'days'),
+            endDate: moment(),
+            graphData:[]
+
+        }
+
+    },
+
 	getInitialState:function(){
 		return {
-			graphData:[],
+			
 			width:0,
 			height:0
 		}
@@ -16,11 +28,23 @@ var RmmDemo = React.createClass({
 		var scope = this;
 		this.renderGraphAxis()
 
-		d3.json("/data/rmm.json",function(error, data) {
-        	scope.setState({graphData:data})
-    	});
 
 	},
+
+    filterDataByDate:function(data){
+        var scope = this;
+
+        return data.filter(function(d,i){
+                
+            var n = new Date(d.date),
+                s = new Date(scope.props.startDate),
+                e = new Date(scope.props.endDate);
+
+            
+            return d && n >= s  && n <= e;
+        })
+
+    },
 
 	renderGraphAxis:function(){
 
@@ -57,19 +81,19 @@ var RmmDemo = React.createClass({
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
             .attr('class','graphCanvas');
 
-        var tip = d3Tip()
-            .attr('class', 'd3-tip')
-            .offset([120, 40])
-            .html(function(d) {
-                return "<strong>" + d.date +
-                "</strong><br><br>RMM 1: " +
-                d.rmm1.toFixed(2) + "<br>RMM 2: " +
-                d.rmm2.toFixed(2) + "<br>Phase: " +
-                d.phase + "<br>Amplitude: " +
-                d.amp.toFixed(2) + "<br>";
-            });
+        // var tip = d3Tip()
+        //     .attr('class', 'd3-tip')
+        //     .offset([120, 40])
+        //     .html(function(d) {
+        //         return "<strong>" + d.date +
+        //         "</strong><br><br>RMM 1: " +
+        //         d.rmm1.toFixed(2) + "<br>RMM 2: " +
+        //         d.rmm2.toFixed(2) + "<br>Phase: " +
+        //         d.phase + "<br>Amplitude: " +
+        //         d.amp.toFixed(2) + "<br>";
+        //     });
 
-        svg.call(tip);
+        // svg.call(tip);
 
         // add the x axis and x-label
         svg.append("g")
@@ -113,9 +137,9 @@ var RmmDemo = React.createClass({
 	},
 
 	renderData:function(){
-
+        var scope = this
 		var svg = d3.select(".graphCanvas");
-
+            
 		var colorScale = d3.scale.category20();
 
 		var x = d3.scale.linear()
@@ -126,26 +150,37 @@ var RmmDemo = React.createClass({
             .domain([-4, 4])
             .range([this.state.height, 0]);
 
-		console.log('x y', x, y);
+		//console.log('x y', x, y);
 
-		var tip = d3Tip()
-            .attr('class', 'd3-tip')
-            .offset([120, 40])
-            .html(function(d) {
-                return "<strong>" + d.date +
-                "</strong><br><br>RMM 1: " +
-                d.rmm1.toFixed(2) + "<br>RMM 2: " +
-                d.rmm2.toFixed(2) + "<br>Phase: " +
-                d.phase + "<br>Amplitude: " +
-                d.amp.toFixed(2) + "<br>";
-            });
+		// var tip = d3Tip()
+  //           .attr('class', 'd3-tip')
+  //           .offset([120, 40])
+  //           .html(function(d) {
+  //               return "<strong>" + d.date +
+  //               "</strong><br><br>RMM 1: " +
+  //               d.rmm1.toFixed(2) + "<br>RMM 2: " +
+  //               d.rmm2.toFixed(2) + "<br>Phase: " +
+  //               d.phase + "<br>Amplitude: " +
+  //               d.amp.toFixed(2) + "<br>";
+  //           });
 
-		console.log('tip', tip);
+		//console.log('tip', tip);
+        var data = this.filterDataByDate(this.props.graphData)
+		
+        var dots = svg.selectAll(".dot")
+            .data(data)
 
-		 svg.selectAll(".dot")
-            .data(this.state.graphData)
-            .enter().append("circle")
-            .attr('class', 'datapoint')
+
+        var lines = svg.selectAll(".linedata")
+            .data(data)
+        
+
+         
+
+       dots
+        .transition()
+            .duration(750)
+            .attr('class', 'dot')
             .attr('cx', function(d) { return x(d.rmm1); })
             .attr('cy', function(d) { return y(d.rmm2); })
             .attr('r', 3)
@@ -156,22 +191,102 @@ var RmmDemo = React.createClass({
                 return colorScale( d.date.split('-')[1] )
             })
             .attr('stroke-width', '3')
-            .on('mouseover', tip.show)
-            .on('mouseout', tip.hide);
+
+        dots
+            .enter().append("circle")
+                .attr('cx', 0 )
+                .attr('cy', 0 )
+            .transition()
+                .duration(750)
+                .attr('class', 'dot')
+                .attr('cx', function(d) { return x(d.rmm1); })
+                .attr('cy', function(d) { return y(d.rmm2); })
+                .attr('r', 3)
+                .attr('fill', function(d){
+                    return colorScale( d.date.split('-')[1] )
+                })
+                .attr('stroke', function(d){
+                    return colorScale( d.date.split('-')[1] )
+                })
+                .attr('stroke-width', '3')
+            
+        dots
+            .exit().transition()
+                .duration(750)
+                .attr('cx', this.state.width )
+                .attr('cy', 0).remove()
+            // .on('mouseover', tip.show)
+            // .on('mouseout', tip.hide);
 
 			// console.log('data', this.state.graphData)
 			// console.log('tip', this.tip)
+
+        lines
+            .transition()
+            .duration(750)
+            .attr('class', 'linedata')
+            .attr("d", function(d,i) {
+                var next = data[i+1]
+                if(next){
+                    return 'M'+x(d.rmm1)+' '+y(d.rmm2)+' L'+x(next.rmm1)+' '+y(next.rmm2)
+                }
+                
+            })
+            .attr("stroke", function(d) {
+                return colorScale( d.date.split('-')[1] );
+            })
+            .attr("stroke-width", "3");
+
+        lines
+            .enter().append("path")
+                .attr("d", function(d,i) {
+                var next = data[i+1]
+                if(next){
+                    return 'M'+0+' '+0+' L'+0+' '+0
+                }
+                
+            })
+            .transition()
+            .duration(750)
+            .attr('class', 'linedata')
+            .attr("d", function(d,i) {
+                var next = data[i+1]
+                if(next){
+                    return 'M'+x(d.rmm1)+' '+y(d.rmm2)+' L'+x(next.rmm1)+' '+y(next.rmm2)
+                }
+                
+            })
+            .attr("stroke", function(d) {
+                return colorScale( d.date.split('-')[1] );
+            })
+            .attr("stroke-width", "3");
+
+
+
+         lines
+            .exit().transition()
+                .duration(750)
+                .attr("d", function(d,i) {
+                    var next = data[i+1]
+                    if(next){
+                        return 'M'+scope.state.width+' '+scope.state.width+' L'+scope.state.width+' '+scope.state.width;
+                    }
+                    
+                })
+            .remove() 
 	},
 
 	render:function(){
 
-		if(this.state.graphData.length > 0){
+		if(this.props.graphData.length > 0){
 			this.renderData();
 		}
 
 		return (
 
-			<div id="graphDiv" style={{width:'100%'}} />
+			<div id="graphDiv" style={{width:'100%'}} >
+
+            </div>
 
 		);
 	}
