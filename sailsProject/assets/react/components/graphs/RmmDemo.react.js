@@ -52,7 +52,25 @@ var RmmDemo = React.createClass({
 			elemWidth = parseInt(window.getComputedStyle(element).width),
 			margin = {top: 60, right: 60, bottom: 60, left: 75},
         	width = elemWidth - margin.left - margin.right,
-        	height = (elemWidth) - margin.top - margin.bottom;
+        	height = (elemWidth) - margin.top - margin.bottom,
+			radius = Math.min(width, height) / 2;
+
+		var pie = d3.layout.pie()
+			.sort(null)
+			.value(function(d) {
+				return d.value;
+			});
+
+		var labelData = [
+			{value: 45, label: "6"},
+			{value: 45, label: "5"},
+			{value: 45, label: "4"},
+			{value: 45, label: "3"},
+			{value: 45, label: "2"},
+			{value: 45, label: "1"},
+			{value: 45, label: "8"},
+			{value: 45, label: "7"}
+		]
 
 		console.log('height', height, 'width', width)
 
@@ -121,6 +139,37 @@ var RmmDemo = React.createClass({
 			.attr("transform", "translate(" + width + ", 0)")
 			.call(yAxisRight);
 
+		var key = function(d){ return d.data.label; };
+
+		var outerArc = d3.svg.arc()
+			.innerRadius(radius * 0.9)
+			.outerRadius(radius * 0.9);
+
+		svg.append("g")
+			.attr("class", "labels")
+			.attr("transform", "translate(" + width/2 + "," + height/2 + ")");
+
+
+		function midAngle(d){
+			return d.startAngle + (d.endAngle - d.startAngle)/2;
+		}
+
+		var text = svg.select(".labels").selectAll("text")
+			.data(pie(labelData), key);
+
+		text.enter()
+			.append("text")
+			.attr("transform", function(d){
+				var pos = outerArc.centroid(d);
+				//pos[0] = radius * (midAngle(d) < Math.PI ? 1 : -1);
+				return "translate(" + pos + ")";
+			})
+			.attr("dy", ".35em")
+			.text(function(d) {
+				console.log(outerArc.centroid(d),d)
+				return d.data.label;
+			});
+
         // var tip = d3Tip()
         //     .attr('class', 'd3-tip')
         //     .offset([120, 40])
@@ -146,7 +195,8 @@ var RmmDemo = React.createClass({
             .attr("dy", ".35em")
             .attr("dx", "-0.6em")
             .style("text-anchor", "start");
-            svg.append("text")
+
+        svg.append("text")
             .attr("class", "xlabel")
             .attr("text-anchor", "middle")
             .attr("x", width / 2)
@@ -157,7 +207,8 @@ var RmmDemo = React.createClass({
         svg.append("g")
             .attr("class", "y axis")
             .call(yAxisLeft);
-            svg.append("text")
+
+		svg.append("text")
             .attr("class", "ylabel")
             .attr("y", 0 - margin.left) // x and y switched due to rotation!!
             .attr("x", 0 - (height / 2))
@@ -165,6 +216,38 @@ var RmmDemo = React.createClass({
             .attr("transform", "rotate(-90)")
             .style("text-anchor", "middle")
             .text("RMM 2");
+
+		svg.append("text")
+            .attr("class", "xlabel")
+            .attr("text-anchor", "middle")
+            .attr("x", width / 2)
+            .attr("y", height + margin.bottom - 100)
+            .text("Indian Ocean");
+
+		svg.append("text")
+            .attr("class", "xlabel")
+            .attr("text-anchor", "middle")
+            .attr("x", width / 2)
+            .attr("y", 0 + margin.top)
+            .text("West Pacific");
+
+		svg.append("text")
+            .attr("class", "ylabel")
+            .attr("y", 0 - margin.left + 100) // x and y switched due to rotation!!
+            .attr("x", 0 - (height / 2))
+            .attr("dy", "1em")
+            .attr("transform", "rotate(-90)")
+            .style("text-anchor", "middle")
+            .text("West Hem. & Africa");
+
+		svg.append("text")
+            .attr("class", "ylabel")
+            .attr("y", width - margin.right) // x and y switched due to rotation!!
+            .attr("x", 0 - (height / 2))
+            .attr("dy", "1em")
+            .attr("transform", "rotate(-90)")
+            .style("text-anchor", "middle")
+            .text("Maritime Continent");
 
         svg.append("text")
             .attr("class", "graphtitle")
@@ -234,7 +317,7 @@ var RmmDemo = React.createClass({
             .attr('y2',y(4))
 
 
-       
+
 
         var data = this.filterDataByDate(this.props.graphData)
 
@@ -267,6 +350,21 @@ var RmmDemo = React.createClass({
             .enter().append("circle")
                 .attr('cx', 0 )
                 .attr('cy', 0 )
+				.on('mouseover', function(d){
+					if(scope.props.mouseoverPoint){
+						var n = {};
+						n.x = d3.event.clientX;
+						n.y = d3.event.clientY;
+						//console.log(n,d3.event.clientX)
+						n.d = d;
+						scope.props.mouseoverPoint(n);
+					}
+				})
+				.on('mouseout', function(d) {
+					if(scope.props.mouseoutPoint){
+						scope.props.mouseoutPoint();
+					}
+				})
             .transition()
                 .duration(750)
                 .attr('class', 'dot')
@@ -279,7 +377,7 @@ var RmmDemo = React.createClass({
                 .attr('stroke', function(d){
                     return colorScale( d.date.split('-')[1] )
                 })
-                .attr('stroke-width', '3')
+                .attr('stroke-width', '9')
 
         dots
             .exit().transition()

@@ -4,11 +4,11 @@ var React = require("react"),
 	Brush = require('react-d3-components').Brush,
 	//--coponents
 	RmmGraph = require('../components/graphs/RmmDemo.react'),
-	RmmTable = require('../components/tables/rmmtable.react');
-	
-	
+	RmmTable = require('../components/tables/rmmtable.react'),
+	RmmToolTip = require('../components/layout/tooltip.react');
+
 var DemoPage = React.createClass({
-	
+
 	getInitialState:function(){
 		return  {
 			elemWidth: 400,
@@ -18,7 +18,7 @@ var DemoPage = React.createClass({
 		}
 	},
 
-	
+
 	componentDidMount:function(){
 	 	var scope = this,
 	 		element = document.querySelector('#brush'),
@@ -36,11 +36,11 @@ var DemoPage = React.createClass({
 
 
 	_onChange: function(extent) {
-      
+
 
        	var endDate = extent[1],
        		timeDiff = Math.abs(extent[0].getTime() - extent[1].getTime()),
-			diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24)); 
+			diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
  		console.log('daydiff',diffDays)
 
  		if(diffDays > 90){
@@ -53,21 +53,41 @@ var DemoPage = React.createClass({
        	})
     },
 
+	mouseover:function(data) {
+		console.log(data)
+		d3.select('#nytg-tooltip')
+			.style('display', 'block')
+			.style('left', data.x+'px')
+			.style('top', data.y-10+'px')
+		d3.select('.nytg-department')
+			.text(data.d.date)
+		d3.select('.nytg-name')
+			.html(
+				'RMM1: '+data.d.rmm1.toFixed(2)+'<br />'+
+				'RMM2: '+data.d.rmm2.toFixed(2)+'<br />'+
+				'Phase: '+data.d.phase+'<br />'+
+				'Amplitude: '+data.d.amp.toFixed(2)
+			)
+	},
+
+	mouseout:function(data) {
+		d3.select('#nytg-tooltip')
+			.style('display', 'none')
+	},
+
 	render:function(){
-		
 
 		var  xScaleBrush = d3.time.scale().domain([new Date(1974, 6, 1), new Date(2015, 10, 5)]).range([0, this.state.elemWidth - 70]);
 
-
-
-
 		return (
-	
+
 			<div className="container main">
-	            <RmmGraph 
+	            <RmmGraph
 	            	graphData={this.state.graphData}
-	            	startDate={this.state.startDate} 
-	            	endDate={this.state.endDate}/>
+	            	startDate={this.state.startDate}
+	            	endDate={this.state.endDate}
+					mouseoverPoint={this.mouseover}
+					mouseoutPoint={this.mouseout}/>
 	            <div className="brush" id="brush">
 		            <Brush
 	                   width={this.state.elemWidth}
@@ -80,8 +100,9 @@ var DemoPage = React.createClass({
                 </div>
                   <RmmTable
 	            	graphData={this.state.graphData}
-	            	startDate={this.state.startDate} 
+	            	startDate={this.state.startDate}
 	            	endDate={this.state.endDate}/>
+				<RmmToolTip/>
 	        </div>
 
 		);
@@ -90,5 +111,3 @@ var DemoPage = React.createClass({
 });
 
 module.exports = DemoPage;
-
-
