@@ -52,7 +52,7 @@ var RmmDemo = React.createClass({
 			elemWidth = parseInt(window.getComputedStyle(element).width),
 			margin = {top: 60, right: 60, bottom: 60, left: 75},
         	width = elemWidth - margin.left - margin.right,
-        	height = (elemWidth*0.8) - margin.top - margin.bottom;
+        	height = (elemWidth) - margin.top - margin.bottom;
 
 		console.log('height', height, 'width', width)
 
@@ -108,7 +108,7 @@ var RmmDemo = React.createClass({
 
 		svg.append("line:g")
 			.attr("class", "axis")
-			.attr("transform", "translate(0, " + height + ")")
+			.attr("transform", "translate( 0,0)")
 			.call(xAxisTop);
 
 		// svg.append("svg:g")
@@ -190,21 +190,52 @@ var RmmDemo = React.createClass({
             .domain([-4, 4])
             .range([this.state.height, 0]);
 
-		//console.log('x y', x, y);
+        svg.append('circle')
+            .attr('class','centerCircle')
+            .attr('cx',this.state.width/2)
+            .attr('cy',this.state.height/2)
+            .attr('r',x(-3))
 
-		// var tip = d3Tip()
-  //           .attr('class', 'd3-tip')
-  //           .offset([120, 40])
-  //           .html(function(d) {
-  //               return "<strong>" + d.date +
-  //               "</strong><br><br>RMM 1: " +
-  //               d.rmm1.toFixed(2) + "<br>RMM 2: " +
-  //               d.rmm2.toFixed(2) + "<br>Phase: " +
-  //               d.phase + "<br>Amplitude: " +
-  //               d.amp.toFixed(2) + "<br>";
-  //           });
+         svg.append('line')
+            .attr('class','myline')
+            .style('stoke-width',2)
+            .style('stroke','#000')
+            .attr('x1',x(-4) )
+            .attr('x2',x(4) )
+            .attr('y1',y(-4))
+            .attr('y2',y(4))
 
-		//console.log('tip', tip);
+        svg.append('line')
+            .attr('class','myline')
+            .style('stoke-width',2)
+            .style('stroke','#000')
+            .attr('x1',x(4) )
+            .attr('x2',x(-4) )
+            .attr('y1',y(-4))
+            .attr('y2',y(4))
+
+        svg.append('line')
+            .attr('class','myline')
+            .style('stoke-width',2)
+            .style('stroke','#000')
+            .attr('x1',x(-4) )
+            .attr('x2',x(4) )
+            .attr('y1',y(0))
+            .attr('y2',y(0))
+
+
+        svg.append('line')
+            .attr('class','myline')
+            .style('stoke-width',2)
+            .style('stroke','#000')
+            .attr('x1',x(0) )
+            .attr('x2',x(0) )
+            .attr('y1',y(-4))
+            .attr('y2',y(4))
+
+
+       
+
         var data = this.filterDataByDate(this.props.graphData)
 
         var dots = svg.selectAll(".dot")

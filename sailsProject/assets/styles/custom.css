@@ -41,3 +41,15 @@
 rect.background {
   fill: #ddd;
 }
+
+.centerCircle{
+    fill:none;
+    stroke-width:2px;
+    stroke:#000;
+    
+    
+}
+
+.myline{
+    stroke-dasharray:5, 5;
+}
