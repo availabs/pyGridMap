@@ -7,7 +7,7 @@ var RmmDemo = React.createClass({
 
     getDefaultProps:function(){
         return {
-            
+
             startDate:moment().subtract(120, 'days'),
             endDate: moment(),
             graphData:[]
@@ -18,7 +18,7 @@ var RmmDemo = React.createClass({
 
 	getInitialState:function(){
 		return {
-			
+
 			width:0,
 			height:0
 		}
@@ -35,12 +35,12 @@ var RmmDemo = React.createClass({
         var scope = this;
 
         return data.filter(function(d,i){
-                
+
             var n = new Date(d.date),
                 s = new Date(scope.props.startDate),
                 e = new Date(scope.props.endDate);
 
-            
+
             return d && n >= s  && n <= e;
         })
 
@@ -51,28 +51,48 @@ var RmmDemo = React.createClass({
 		var element = document.querySelector('#graphDiv'),
 			elemWidth = parseInt(window.getComputedStyle(element).width),
 			margin = {top: 60, right: 60, bottom: 60, left: 75},
-        	width = elemWidth- margin.left - margin.right,
+        	width = elemWidth - margin.left - margin.right,
         	height = (elemWidth*0.8) - margin.top - margin.bottom;
+
+		console.log('height', height, 'width', width)
 
         this.setState({width:width,height:height});
 
-       	var x = d3.scale.linear()
+       	var x1 = d3.scale.linear()
             .domain([-4, 4])
             .range([0, width]);
 
-        var y = d3.scale.linear()
+		var x2 = d3.scale.linear()
+            .domain([-4, 4])
+            .range([0, width]);
+
+        var y1 = d3.scale.linear()
+            .domain([-4, 4])
+            .range([height, 0]);
+
+		var y2 = d3.scale.linear()
             .domain([-4, 4])
             .range([height, 0]);
 
         var xAxisBottom = d3.svg.axis()
-            .scale(x)
-            .ticks(10)
-            .orient("bottom");
+            .scale(x1)
+            .ticks(8)
+			.orient("bottom");
+
+		var xAxisTop = d3.svg.axis()
+            .scale(x1)
+            .ticks(8)
+            .orient("top");
 
         var yAxisLeft = d3.svg.axis()
-            .scale(y)
-            .ticks(7)
+            .scale(y1)
+            .ticks(8)
             .orient("left");
+
+		var yAxisRight = d3.svg.axis()
+			.scale(y2)
+			.ticks(8)
+			.orient("right");
 
         var svg = d3.select("#graphDiv").append("svg")
             .attr("width", width + margin.left + margin.right)
@@ -80,6 +100,26 @@ var RmmDemo = React.createClass({
             .append("g")
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
             .attr('class','graphCanvas');
+
+		// svg.append("svg:g")
+		// 	.attr("class", "axis")
+		// 	.attr("transform", "translate(0, " + (-height) + ")")
+		// 	.call(xAxisBottom);
+
+		svg.append("line:g")
+			.attr("class", "axis")
+			.attr("transform", "translate(0, " + height + ")")
+			.call(xAxisTop);
+
+		// svg.append("svg:g")
+		// 	.attr("class", "axis")
+		// 	.attr("transform", "translate(-4, 0)")
+		// 	.call(yAxisLeft);
+
+		svg.append("line:g")
+			.attr("class", "axis")
+			.attr("transform", "translate(" + width + ", 0)")
+			.call(yAxisRight);
 
         // var tip = d3Tip()
         //     .attr('class', 'd3-tip')
@@ -139,7 +179,7 @@ var RmmDemo = React.createClass({
 	renderData:function(){
         var scope = this
 		var svg = d3.select(".graphCanvas");
-            
+
 		var colorScale = d3.scale.category20();
 
 		var x = d3.scale.linear()
@@ -166,16 +206,16 @@ var RmmDemo = React.createClass({
 
 		//console.log('tip', tip);
         var data = this.filterDataByDate(this.props.graphData)
-		
+
         var dots = svg.selectAll(".dot")
             .data(data)
 
 
         var lines = svg.selectAll(".linedata")
             .data(data)
-        
 
-         
+
+
 
        dots
         .transition()
@@ -209,7 +249,7 @@ var RmmDemo = React.createClass({
                     return colorScale( d.date.split('-')[1] )
                 })
                 .attr('stroke-width', '3')
-            
+
         dots
             .exit().transition()
                 .duration(750)
@@ -230,7 +270,7 @@ var RmmDemo = React.createClass({
                 if(next){
                     return 'M'+x(d.rmm1)+' '+y(d.rmm2)+' L'+x(next.rmm1)+' '+y(next.rmm2)
                 }
-                
+
             })
             .attr("stroke", function(d) {
                 return colorScale( d.date.split('-')[1] );
@@ -244,7 +284,7 @@ var RmmDemo = React.createClass({
                 if(next){
                     return 'M'+0+' '+0+' L'+0+' '+0
                 }
-                
+
             })
             .transition()
             .duration(750)
@@ -254,7 +294,7 @@ var RmmDemo = React.createClass({
                 if(next){
                     return 'M'+x(d.rmm1)+' '+y(d.rmm2)+' L'+x(next.rmm1)+' '+y(next.rmm2)
                 }
-                
+
             })
             .attr("stroke", function(d) {
                 return colorScale( d.date.split('-')[1] );
@@ -271,9 +311,9 @@ var RmmDemo = React.createClass({
                     if(next){
                         return 'M'+scope.state.width+' '+scope.state.width+' L'+scope.state.width+' '+scope.state.width;
                     }
-                    
+
                 })
-            .remove() 
+            .remove()
 	},
 
 	render:function(){
