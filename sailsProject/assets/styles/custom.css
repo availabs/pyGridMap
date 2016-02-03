@@ -57,6 +57,11 @@ rect.background {
     font-size: 35px;
 }
 
+.voronoi path {
+    fill: none;
+    pointer-events: all;
+}
+
 /********************************
 toolTip
 ********************************/
@@ -80,7 +85,7 @@ toolTip
 #nytg-tooltip {
  text-align:center;
   z-index: 1000;
-  position: fixed;
+  position: absolute;
   display: none;
 }
 

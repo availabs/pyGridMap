@@ -1,7 +1,8 @@
 var React = require("react"),
 	d3 = require('d3'),
 	d3Tip = require('d3-tip'),
-    moment = require('moment');
+    moment = require('moment'),
+	RmmToolTip = require('../layout/tooltip.react');
 
 var RmmDemo = React.createClass({
 
@@ -40,7 +41,6 @@ var RmmDemo = React.createClass({
                 s = new Date(scope.props.startDate),
                 e = new Date(scope.props.endDate);
 
-
             return d && n >= s  && n <= e;
         })
 
@@ -71,8 +71,6 @@ var RmmDemo = React.createClass({
 			{value: 45, label: "8"},
 			{value: 45, label: "7"}
 		]
-
-		console.log('height', height, 'width', width)
 
         this.setState({width:width,height:height});
 
@@ -119,20 +117,10 @@ var RmmDemo = React.createClass({
             .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
             .attr('class','graphCanvas');
 
-		// svg.append("svg:g")
-		// 	.attr("class", "axis")
-		// 	.attr("transform", "translate(0, " + (-height) + ")")
-		// 	.call(xAxisBottom);
-
 		svg.append("line:g")
 			.attr("class", "axis")
 			.attr("transform", "translate( 0,0)")
 			.call(xAxisTop);
-
-		// svg.append("svg:g")
-		// 	.attr("class", "axis")
-		// 	.attr("transform", "translate(-4, 0)")
-		// 	.call(yAxisLeft);
 
 		svg.append("line:g")
 			.attr("class", "axis")
@@ -161,7 +149,6 @@ var RmmDemo = React.createClass({
 			.append("text")
 			.attr("transform", function(d){
 				var pos = outerArc.centroid(d);
-				//pos[0] = radius * (midAngle(d) < Math.PI ? 1 : -1);
 				return "translate(" + pos + ")";
 			})
 			.attr("dy", ".35em")
@@ -169,20 +156,6 @@ var RmmDemo = React.createClass({
 				console.log(outerArc.centroid(d),d)
 				return d.data.label;
 			});
-
-        // var tip = d3Tip()
-        //     .attr('class', 'd3-tip')
-        //     .offset([120, 40])
-        //     .html(function(d) {
-        //         return "<strong>" + d.date +
-        //         "</strong><br><br>RMM 1: " +
-        //         d.rmm1.toFixed(2) + "<br>RMM 2: " +
-        //         d.rmm2.toFixed(2) + "<br>Phase: " +
-        //         d.phase + "<br>Amplitude: " +
-        //         d.amp.toFixed(2) + "<br>";
-        //     });
-
-        // svg.call(tip);
 
         // add the x axis and x-label
         svg.append("g")
@@ -260,8 +233,16 @@ var RmmDemo = React.createClass({
 	},
 
 	renderData:function(){
+
         var scope = this
 		var svg = d3.select(".graphCanvas");
+
+		var element = document.querySelector('#graphDiv'),
+			elemWidth = parseInt(window.getComputedStyle(element).width),
+			margin = {top: 60, right: 60, bottom: 60, left: 75},
+        	width = elemWidth - margin.left - margin.right,
+        	height = (elemWidth) - margin.top - margin.bottom,
+			radius = Math.min(width, height) / 2;
 
 		var colorScale = d3.scale.category20();
 
@@ -316,25 +297,89 @@ var RmmDemo = React.createClass({
             .attr('y1',y(-4))
             .attr('y2',y(4))
 
-
-
-
         var data = this.filterDataByDate(this.props.graphData)
+			data = data.map(function(d, i){
+				d.values = {rmm1:d.rmm1,rmm2:d.rmm2,'index':i}
+				return d;
+			})
+
+		console.log('data', data)
+
+		// TODO Fix voronoi functionality
+
+		// Mouseover function
+		function mouseover(d) {
+			var dot = d3.select('.index_' + d.index)
+			.attr('r', 6)
+			// The magic function.
+			var x = +dot.attr('cx'),
+				y = +dot.attr('cy')
+			var n = {};
+			console.log('pos',x,y,x+200)
+			n.x =  x +220;
+			n.y =  y + 130;
+			n.d = data[d.index];
+			//scope.props.mouseoverPoint(n);
+			console.log('mouseover', d);
+		}
+
+		// Mouseout function
+		function mouseout(d) {
+			d3.select('.index_' + d.index)
+			.attr('r', 3)
+			console.log('mouseout', d);
+		}
+
+		var voronoi = d3.geom.voronoi()
+		    .x(function(d) { return x(d.rmm1); })
+		    .y(function(d) { return y(d.rmm2); })
+		    .clipExtent([[-margin.left, -margin.top], [width + margin.right, height + margin.bottom]]);
+
+		var voronoiGroup = svg.append("g")
+	      	.attr("class", "voronoi");
+
+		//remove coincident points for voronoi
+		var thisdata=d3.nest()
+			.key(function(d) { return x(d.rmm1) + "," + y(d.rmm2); })
+			.rollup(function(v) {
+			      return v[0];
+			})
+			.entries(data.map(function(d) { return d.values; }))
+			.map(function(d){ return d.values })
+
+
+		console.log('thisdata', thisdata)
+			//.map(function(d) { return d; })
+
+		// vg = voronoiGroup.selectAll("path")
+	    //   	.data(voronoi(thisdata), function(d) { return d; })
+    	// vg.enter().append("path")
+		// 	.attr("d", function(d) { return "M" + d.join("L") + "Z"; })
+		// 	.datum(function(d) { return d.point; })
+		// 	.on("mouseover", mouseover)
+		// 	.on("mouseout", mouseout);
+
+		var voronoiGroup=svg.selectAll(".voronoi").selectAll("path")
+	        .data(voronoi(thisdata),function(d) {return d;})
+	    voronoiGroup.exit().remove();
+	    voronoiGroup.enter().append("path")
+			.attr("d", function(d) {  return "M" + d.join("L") + "Z"; })
+			.datum(function(d) {  return d.point; })
+			.on("mouseover", mouseover)
+			.on("mouseout", mouseout);
 
         var dots = svg.selectAll(".dot")
             .data(data)
 
-
         var lines = svg.selectAll(".linedata")
             .data(data)
 
-
-
-
-       dots
-        .transition()
+       	dots
+        	.transition()
             .duration(750)
-            .attr('class', 'dot')
+            .attr('class', function(d, i) {
+				return 'dot index_' + i
+			})
             .attr('cx', function(d) { return x(d.rmm1); })
             .attr('cy', function(d) { return y(d.rmm2); })
             .attr('r', 3)
@@ -350,12 +395,14 @@ var RmmDemo = React.createClass({
             .enter().append("circle")
                 .attr('cx', 0 )
                 .attr('cy', 0 )
+				.attr('class', function(d, i) {
+					return 'dot index_' + i
+				})
 				.on('mouseover', function(d){
 					if(scope.props.mouseoverPoint){
 						var n = {};
 						n.x = d3.event.clientX;
 						n.y = d3.event.clientY;
-						//console.log(n,d3.event.clientX)
 						n.d = d;
 						scope.props.mouseoverPoint(n);
 					}
@@ -367,28 +414,25 @@ var RmmDemo = React.createClass({
 				})
             .transition()
                 .duration(750)
-                .attr('class', 'dot')
+                .attr('class', function(d, i) {
+					return 'dot index_' + i
+				})
                 .attr('cx', function(d) { return x(d.rmm1); })
                 .attr('cy', function(d) { return y(d.rmm2); })
                 .attr('r', 3)
-                .attr('fill', function(d){
+                .attr('fill', function(d) {
                     return colorScale( d.date.split('-')[1] )
                 })
-                .attr('stroke', function(d){
+                .attr('stroke', function(d) {
                     return colorScale( d.date.split('-')[1] )
                 })
-                .attr('stroke-width', '9')
+                .attr('stroke-width', '3')
 
         dots
             .exit().transition()
                 .duration(750)
                 .attr('cx', this.state.width )
                 .attr('cy', 0).remove()
-            // .on('mouseover', tip.show)
-            // .on('mouseout', tip.hide);
-
-			// console.log('data', this.state.graphData)
-			// console.log('tip', this.tip)
 
         lines
             .transition()
@@ -430,8 +474,6 @@ var RmmDemo = React.createClass({
             })
             .attr("stroke-width", "3");
 
-
-
          lines
             .exit().transition()
                 .duration(750)
@@ -454,7 +496,7 @@ var RmmDemo = React.createClass({
 		return (
 
 			<div id="graphDiv" style={{width:'100%'}} >
-
+				<RmmToolTip/>
             </div>
 
 		);

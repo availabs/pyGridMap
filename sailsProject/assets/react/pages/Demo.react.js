@@ -54,11 +54,10 @@ var DemoPage = React.createClass({
     },
 
 	mouseover:function(data) {
-		console.log(data)
 		d3.select('#nytg-tooltip')
 			.style('display', 'block')
-			.style('left', data.x+'px')
-			.style('top', data.y-10+'px')
+			// .style('left', data.x+'px')
+			// .style('top', data.y-10+'px')
 		d3.select('.nytg-department')
 			.text(data.d.date)
 		d3.select('.nytg-name')
@@ -102,7 +101,7 @@ var DemoPage = React.createClass({
 	            	graphData={this.state.graphData}
 	            	startDate={this.state.startDate}
 	            	endDate={this.state.endDate}/>
-				<RmmToolTip/>
+
 	        </div>
 
 		);
