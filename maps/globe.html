@@ -17,7 +17,6 @@
 	</div>
 
 	<script src="bower_components/underscore/underscore.js"></script>
-	<!-- <script src="backbone/1.1.0/backbone.js"></script> -->
 	<script src="bower_components/d3/d3.js"></script>
 	<script src="bower_components/topojson/topojson.js"></script>
 
@@ -28,9 +27,7 @@
 	<script src="js/earth/globes.js"></script>
 	<script src="js/src/colorGrids.js"></script>
 	<script src="js/src/canvasDisplay.js"></script>
-	<!-- <script src="js/earth/micro.js"></script> -->
-	<!-- <script src="js/earth/products.js"></script> -->
-
+	
 	<script>
 
 	var op = null;
@@ -132,9 +129,9 @@
 		var lakes = d3.select(".lakes");
 		var grids = d3.select(".colorGrids");
 		//colorGrids.draw(grids,path)
-		canvasDisplay.animateGrids(globe)
+		//canvasDisplay.animateGrids(globe)
 		//canvasDisplay.drawGrids(globe)
-		//canvasDisplay.drawHeights(globe)
+		canvasDisplay.drawHeights(globe)
 
 		//---- activate the canvas!
 		var width = view.width, height = view.height;

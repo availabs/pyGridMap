@@ -519,8 +519,19 @@ var canvasDisplay = (function(){
 		// Temp addition to add another field of data
 		drawHeights:function(globe){
 
-            loadData('processing/heightData4.json',function(data){
-                console.log('INIT the data grid',data)
+            loadData('http://localhost:5000/grids/500/2011/06/01/00',function(data){
+			//loadData('http://localhost:5000/phase/5/amp/1/season/7/lat/15/lon/135/radius/5',function(data){
+
+                console.log('INIT the data grid',data,[d3.min(data.data),d3.max(data.data)])
+				var testScale = d3.scale.linear().domain([d3.min(data.data),d3.max(data.data)]).range([-100,100])
+				console.log(testScale.domain(), testScale.range())
+				data.data = data.data.map(function(d,i){
+					if (isNaN(testScale(d))){
+						console.log(d,testScale(d))
+					}
+					return testScale(d)
+				})
+				console.log('mapped',data.data)
                 overlayData = Object.assign(gridBuilder, buildGrid(gridBuilder.builder([data])));
                 console.log('overlayData',overlayData);
                 drawOverlay(overlayData,globe);
