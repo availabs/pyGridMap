@@ -5,8 +5,8 @@ Populate a PostgreSQL database with data stored in JSON files.
 #---------------
 # Import modules
 #---------------
-from os import listdir
-from os.path import isfile, join
+import glob
+import re
 import psycopg2
 import json
 import sys
@@ -15,14 +15,16 @@ import sys
 # Parameters
 #-----------
 path        = '/Users/Larry/data/converted/'
-files       = [f for f in listdir(path) if isfile(join(path, f))]
-num_files   = 100 # A temp variable to only process first 100 files
+v1_files    = glob.glob(path + 'pgblnl*.json')
+v2_files    = glob.glob(path + 'cdas1*.json')
+files       = v1_files + v2_files
+num_files   = len(files)
 
 #-----------------------------------
 # Connect to the server and database
 #-----------------------------------
-con = psycopg2.connect(host='localhost', database='height', user='postgres',
-    password='e@rthwx1288')
+con = psycopg2.connect(host='mars.availabs.org', database='height', user='postgres',
+    password='Jedi21funk')
 cur = con.cursor()
 cur.execute('SELECT version()')
 ver = cur.fetchone()
@@ -33,9 +35,9 @@ print ver
 #--------------------------------------------
 for n in xrange(num_files):
 
-    print "File " + str(n) # File number check
+    print 'File number ' + str(n) + ': ' + files[n] # File number check
 
-    with open(path + files[n]) as f:
+    with open(files[n]) as f:
 
         #----------
         # Load data
