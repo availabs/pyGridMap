@@ -1,15 +1,12 @@
 #!flask/bin/python
-#==============================================================================
+#---------------
 # Import modules
-#==============================================================================
+#---------------
 from flask import Flask, jsonify, abort
 from flask.ext.cors import CORS
 import numpy as np
 import simplejson
-from os import listdir
-from os.path import isfile, join
 import psycopg2
-import json
 import sys
 
 months = {
@@ -36,16 +33,15 @@ cur = con.cursor()
 cur.execute('SELECT version()')
 ver = cur.fetchone()
 
-#==============================================================================
-# Loop over phase to print x-grid, y-grid, and corresponding values
-#==============================================================================
 app = Flask(__name__)
 CORS(app) # Allow restricted resource to be requested from outside domain
 
+# Route 1
 @app.route('/')
 def index():
     return "Hello, World!"
 
+# Route 2
 @app.route('/grids/<int:height>/<int:year>/<int:month>/<int:day>/<int:hour>', methods=['GET'])
 def get_field_by_datetime(height, year, month, day, hour):
 
@@ -79,12 +75,9 @@ def get_field_by_datetime(height, year, month, day, hour):
 
     return simplejson.dumps(output)
 
+# Route 3
 @app.route('/phase/<int:phase>/amp/<int:amp>/season/<int:season>/lat/<int:lat>/lon/<int:lon>/radius/<int:radius>', methods=['GET'])
 def get_field_by_phase_position(phase, amp, season, lat, lon, radius):
-
-    # query = 'SELECT "surface1Value", nx, ny, id, "refTime" FROM public.header_values ' + \
-    #     'WHERE "surface1Value" = ' + str(height) + ' AND "refTime" = timestamp ' + \
-    #     '\'' + str(year) + '-' + str(month) + '-' + str(day) + ' ' + str(hour) + ':00\';'
 
     query = 'select index, avg(value), count(1) from gph_500 where header_id in (' \
         'select id from header_values where "refTime" in' \
@@ -97,19 +90,10 @@ def get_field_by_phase_position(phase, amp, season, lat, lon, radius):
           ' order by year,month,day))' \
         ' group by index;'
 
-    print query
-
     cur.execute(query)
-    # header = cur.fetchone()
-    #
-    # header_index = header[3]
-
-    # query = 'SELECT value FROM gph_' + str(height) + ' WHERE header_id = ' + str(header_index) + \
-    #     'ORDER BY index ASC;'
-    # cur.execute(query)
 
     data = cur.fetchall()
-    data = [i[0] for i in data]
+    data = [i[1] for i in data]
     print data
 
     output = {

@@ -519,8 +519,8 @@ var canvasDisplay = (function(){
 		// Temp addition to add another field of data
 		drawHeights:function(globe){
 
-            loadData('http://localhost:5000/grids/500/2011/06/01/00',function(data){
-			//loadData('http://localhost:5000/phase/5/amp/1/season/7/lat/15/lon/135/radius/5',function(data){
+            //loadData('http://localhost:5000/grids/500/2011/06/01/00',function(data){
+			loadData('http://localhost:5000/phase/5/amp/1/season/10/lat/15/lon/135/radius/5',function(data){
 
                 console.log('INIT the data grid',data,[d3.min(data.data),d3.max(data.data)])
 				var testScale = d3.scale.linear().domain([d3.min(data.data),d3.max(data.data)]).range([-100,100])
