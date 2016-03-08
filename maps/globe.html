@@ -38,8 +38,6 @@
 
 	d3.json('data/earth-topo.json',function(err,topo){
 
-		// Specify mobile device settings later
-		// Figure out where 'mesh' is defined in earth.js
 		var o = topo.objects;
 		var coastLo = topojson.feature(topo, o.coastline_110m);
 		var coastHi = topojson.feature(topo, o.coastline_50m);

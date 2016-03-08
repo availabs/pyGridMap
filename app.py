@@ -17,11 +17,6 @@ lats = np.arange(90,-91,-2.5)
 lons = np.arange(0,360,2.5)
 numVals = lats.size*lons.size
 
-#==============================================================================
-# Load data
-#==============================================================================
-data = sio.loadmat('./son_tc_counts.mat')
-rmmCountArray = data['rmmCountArray']
 
 #==============================================================================
 # Loop over phase to print x-grid, y-grid, and corresponding values
@@ -35,36 +30,7 @@ def index():
 
 @app.route('/grids/<int:phase>', methods=['GET'])
 def get_phase(phase):
-
-    print 'getting phase ' + str(phase)
-
-    # Phases can only be between 1 and 8, inclusive
-    if phase < 1 or phase > 8:
-        abort(404)
-
-    # Define grid and convert to vector
-    lonArray, latArray = np.meshgrid(lons, lats)
-    lonVector = lonArray.ravel(0)
-    latVector = latArray.ravel(0)
-
-    # Contour fill density
-    tempValues = rmmCountArray[phase-1,:,:]
-    tempValues = tempValues.ravel(0)
-    tempValues[np.isnan(tempValues)] = -999 # Missing value flag
-
-    # Populate vectors
-    phaseNum = np.repeat(phase, numVals)
-    lonGrid = lonVector
-    latGrid = latVector
-    values = tempValues
-
-    # Concatenate vectors and write data
-    printArray = np.concatenate((phaseNum[:,None], latGrid[:,None], lonGrid[:,None],
-                                 values[:,None]), 1)
-
-    print printArray
-
-    return simplejson.dumps(printArray.tolist()) # Returns JSON formatted string
+    return 'test123' # Returns JSON formatted string
 
 if __name__ == '__main__':
     app.run(debug=True)
