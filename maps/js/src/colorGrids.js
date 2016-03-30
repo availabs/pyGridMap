@@ -3,14 +3,26 @@ var colorGrids = (function(){
 
 	return {
 		draw:function(grids,path){
-			
+
 			d3.json('data/console.json',function(err,data) {
 			//console.log('new data', grids.data(data.features).enter().append("path"));
-				
+
 				console.log('data size', grids.selectAll(".colorGrids")
 					.data(data.features)
 					.enter().size())
-				
+
+				options = {
+					class: 'features',
+					opacity: 1,
+					'stroke-opacity': 1,
+					'stroke-width': 1,
+					'stroke': 'yellow',
+					'fill': 'black',
+					'mouseover': null,
+					'mouseout': null,
+					'click': null
+				}
+
 				grids.selectAll(".colorGrids")
 					.data(data.features)
 					.enter()
@@ -29,9 +41,9 @@ var colorGrids = (function(){
 					.on('mouseover',function(){
 						var elem = d3.select(this);
 						//console.log('mouseover',elem)
-						
+
 						elem.attr('stroke-width',5)
-							.attr('stroke','#f00')					
+							.attr('stroke','#f00')
 					})
 					.on('mouseout',function(){
 						var elem = d3.select(this)
@@ -46,8 +58,6 @@ var colorGrids = (function(){
 					})
 					;
 
-
-				
 				 d3.selectAll("path").attr("d", path)
 
 			})

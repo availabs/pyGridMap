@@ -5,12 +5,12 @@ var globe = {
 	display: null,
 	view: {},
 	projection: 'orthographic',
-	map:null,
+	map: null,
 	zoomLevel: 350,
-} 
-
-
-
+	REDRAW_WAIT: 15,
+	op: null,
+	path: null
+}
 
 globe.init = function (container, options) {
 	this.container = container
@@ -23,7 +23,7 @@ globe.init = function (container, options) {
 		.append('svg')
 		.attr('id', 'map')
 		.attr('class', 'fill-screen')
-	
+
 	globe.display
 		.append('canvas')
 		.attr('id', 'animation')
@@ -39,23 +39,22 @@ globe.init = function (container, options) {
 		.attr('id', 'foreground')
 		.attr('class', 'fill-screen')
 
-	//console.log('display',display)
-
 	this.view = this.getView()
+
 	if (options && options.projection) {
 		var valid_projections = ['atlantis','azimuthal_equidistant','conic_equidistant','equirectangular','orthographic','stereographic','waterman','winkel3']
 		if(valid_projections.indexOf(options.projection) >= 0){
 			this.projection = options.projection
 		}
 	}
-	
+
 	this.map = globes.get(this.projection)(this.view);
 	this.map.defineMap(d3.select("#map"), d3.select("#foreground"));
 	//zoom.scaleExtent(this.map.scaleExtent()); // Confines scale of globe
 	this.map.orientation('-60, 0, ' + globe.zoomLevel.toString() ,this.view); // Sets initial globe position
 
 	this.loadGeo({},() => {
-		var path = d3.geo.path().projection(globe.map.projection).pointRadius(7);
+		globe.path = d3.geo.path().projection(globe.map.projection).pointRadius(7);
 		var coastline = d3.select(".coastline");
 		var lakes = d3.select(".lakes");
 		var grids = d3.select(".colorGrids");
@@ -67,10 +66,11 @@ globe.init = function (container, options) {
 			coastline.datum(coastData);
 			lakes.datum(lakeData);
 
-		d3.selectAll("path").attr("d", path)
+		d3.selectAll("path").attr("d", globe.path)
+		globe.display.call(globe.zoom);
 
 	})
-		
+
 
 }
 
@@ -104,64 +104,107 @@ globe.newOp = function (startMouse, startScale) {
 		type: "click",  // initially assumed to be a click operation
 		startMouse: startMouse,
 		startScale: startScale,
-		manipulator: globe.manipulator(startMouse, startScale)
+		manipulator: globe.map.manipulator(startMouse, startScale)
 	};
 }
 
 globe.zoom = d3.behavior.zoom()
 	.scale(globe.zoomLevel)
 	.on("zoomstart", function() {
-		op = op || globe.newOp(d3.mouse(this), zoom.scale());  // a new operation begins
+		globe.op = globe.op || globe.newOp(d3.mouse(this), globe.zoom.scale());  // a new operation begins
 		// Render lo-res coastlines and lakes
 		var coastline = globe.display.select('.coastline')
 		var lakes = globe.display.select('.lakes')
 		coastline.datum(globe.coastLo);
 		lakes.datum(globe.lakesLo);
 		console.log('zoom')
-		console.log('op', op);
+		console.log('op', globe.op);
 		//canvasDisplay.hide();
 	})
 	.on("zoom", function() {
 		var currentMouse = d3.mouse(this), currentScale = d3.event.scale;
 		//console.log()
-		op = op || globe.newOp(currentMouse, 1);  // Fix bug on some browsers where zoomstart fires out of order.
-		if (op.type === "click" || op.type === "spurious") {
-			var distanceMoved = distance(currentMouse, op.startMouse);
-			if (currentScale === op.startScale && distanceMoved < 4) {
+		globe.op = globe.op || globe.newOp(currentMouse, 1);  // Fix bug on some browsers where zoomstart fires out of order.
+		if (globe.op.type === "click" || globe.op.type === "spurious") {
+			var distanceMoved = distance(currentMouse, globe.op.startMouse);
+			if (currentScale === globe.op.startScale && distanceMoved < 4) {
 				// to reduce annoyance, ignore op if mouse has barely moved and no zoom is occurring
-				op.type = distanceMoved > 0 ? "click" : "spurious";
+				globe.op.type = distanceMoved > 0 ? "click" : "spurious";
 				return;
 			}
 			//dispatch.trigger("moveStart");
-			doDraw_throttled()
+			globe.doDraw_throttled()
 			//op.type = "drag";
 		}
-		if (currentScale != op.startScale) {
-			op.type = "zoom";  // whenever a scale change is detected, (stickily) switch to a zoom operation
+		if (currentScale != globe.op.startScale) {
+			globe.op.type = "zoom";  // whenever a scale change is detected, (stickily) switch to a zoom operation
 		}
 
 		// when zooming, ignore whatever the mouse is doing--really cleans up behavior on touch devices
-		op.manipulator.move(op.type === "zoom" ? null : currentMouse, currentScale);
+		globe.op.manipulator.move(globe.op.type === "zoom" ? null : currentMouse, currentScale);
 		//console.log('zoom2',op.type === "zoom" ? null : currentMouse, currentScale);
-		doDraw_throttled();
+		globe.doDraw_throttled();
 	})
 	.on("zoomend", function() {
-		op.manipulator.end();
+		globe.op.manipulator.end();
 		// Render hi-res coastlines and lakes
-		coastline.datum(coastHi);
-		lakes.datum(lakesHi);
-		d3.selectAll("path").attr("d", path);
-		if (op.type === "click") {
+		var coastline = globe.display.select('.coastline')
+		var lakes = globe.display.select('.lakes')
+		coastline.datum(globe.coastHi);
+		lakes.datum(globe.lakesHi);
+		globe.display.selectAll("path").attr("d", globe.path);
+		if (globe.op.type === "click") {
 			//dispatch.trigger("click", op.startMouse, globe.projection.invert(op.startMouse) || []);
 		}
-		else if (op.type !== "spurious") {
+		else if (globe.op.type !== "spurious") {
 			//signalEnd();
 		}
-		canvasDisplay.update(globe);
-		op = null;  // the drag/zoom/click operation is over
+		//canvasDisplay.update(globe);
+		globe.op = null;  // the drag/zoom/click operation is over
 	});
+	globe.doDraw = function() {
+		//console.log('draw')
+		globe.display.selectAll("path").attr("d", globe.path);
+		//rendererAgent.trigger("redraw");
+		globe.doDraw_throttled = throttle(globe.doDraw, globe.REDRAW_WAIT, {leading: false});
+	}
 
+globe.doDraw_throttled = throttle(globe.doDraw, globe.REDRAW_WAIT, {leading: false});
 
+globe.drawGeoJson = function(mapData, options) {
+
+	if(!options) options = {};
+
+	var defaultOptions = {
+		class: 'features',
+		opacity: 1,
+		'stroke-opacity': 1,
+		'stroke-width': 1,
+		'stroke': 'yellow',
+		'fill': 'black',
+		'mouseover': null,
+		'mouseout': null,
+		'click': null
+	}
+
+	var geoJsonLayer = globe.display.select(".geojsonlayer");
+
+	geoJsonLayer.selectAll(".feature").data(mapData.features)
+		.enter()
+		.append("path")
+		.attr("stroke", "yellow")
+		.attr("class", options.class || defaultOptions.class)
+		.attr("opacity", options.opacity || defaultOptions.opacity)
+		.attr("stroke-opacity", options['stroke-opacity'] || defaultOptions['stroke-opacity'])
+		.attr("stroke-width", options['stroke-width'] || defaultOptions['stroke-width'])
+		.attr("stroke", options['stroke'] || defaultOptions['stroke'])
+		.attr("fill", options['fill'] || defaultOptions['fill'])
+		.on('mouseover', options['mouseover'] || defaultOptions['mouseover'])
+		.on('mouseout', options['mouseout'] || defaultOptions['nouseout'])
+		.on('click', options['click'] || defaultOptions['click']);
+	globe.display.selectAll("path")
+		.attr("d", globe.path)
+}
 /********************************************************************************************************
  * globes - a set of models of the earth, each having their own kind of projection and onscreen behavior.
  *
@@ -352,7 +395,7 @@ var globes = function() {
                 mapSvg.append("path")
                     .attr("class", "lakes");
                 foregroundSvg.append("g")
-                    .attr("class", "colorGrids");
+                    .attr("class", "geojsonlayer");
                 foregroundSvg.append("use")
                     .attr("xlink:href", "#sphere")
                     .attr("class", "foreground-sphere");
@@ -438,7 +481,7 @@ var globes = function() {
                 mapSvg.append("path")
                     .attr("class", "lakes");
                 foregroundSvg.append("g")
-                    .attr("class", "colorGrids");
+                    .attr("class", "geojsonlayer");
                 foregroundSvg.append("use")
                     .attr("xlink:href", "#sphere")
                     .attr("class", "foreground-sphere");
@@ -491,6 +534,8 @@ var globes = function() {
                 mapSvg.append("path")
                     .attr("class", "lakes")
                     .attr("clip-path", "url(#clip)");
+				foregroundSvg.append("g")
+                    .attr("class", "geojsonlayer");
                 foregroundSvg.append("use")
                     .attr("xlink:href", "#sphere")
                     .attr("class", "foreground-sphere");
@@ -555,7 +600,7 @@ function throttle (func, wait, options) {
     };
 
     var throttled = function() {
-      var now =Date.now;
+      var now = Date.now;
       if (!previous && options.leading === false) previous = now;
       var remaining = wait - (now - previous);
       context = this;
@@ -582,3 +627,9 @@ function throttle (func, wait, options) {
 
     return throttled;
   };
+
+  function distance(a, b) {
+	  var Δx = b[0] - a[0];
+	  var Δy = b[1] - a[1];
+	  return Math.sqrt(Δx * Δx + Δy * Δy);
+  }

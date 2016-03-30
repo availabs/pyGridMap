@@ -6,14 +6,25 @@
 	<link rel="stylesheet" href="../src/globe.css" />
 	<script src='https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.16/d3.js'></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/topojson/1.6.20/topojson.min.js"></script>
-	
+
 	<script src="../src/globe.js" charset="utf-8"></script>
 
-	
+
 </head>
 <body>
 <script>
-	globe.init('body',{projection:'orthographic'})
+	globe.init('body',{projection:'stereographic'})
+	d3.json('../data/rmmGrids.json', function(err,data){
+		console.log('data?', data)
+		var funscale = d3.scale.linear().domain([0, data.features.length]).range(['#f00', '#00f'])
+		var options = {
+			'stroke': 'blue',
+			'fill': function(d, i) {
+				return funscale(i)
+			}
+		}
+		globe.drawGeoJson(data, options)
+	})
 </script>
 </body>
 </html>
