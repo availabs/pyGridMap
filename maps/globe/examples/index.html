@@ -13,17 +13,20 @@
 </head>
 <body>
 <script>
-	globe.init('body',{projection:'stereographic'})
-	d3.json('../data/rmmGrids.json', function(err,data){
-		console.log('data?', data)
-		var funscale = d3.scale.linear().domain([0, data.features.length]).range(['#f00', '#00f'])
-		var options = {
-			'stroke': 'blue',
-			'fill': function(d, i) {
-				return funscale(i)
-			}
-		}
-		globe.drawGeoJson(data, options)
+	globe.init('body',{projection: 'orthographic'})
+	// d3.json('../data/rmmGrids.json', function(err,data){
+	// 	console.log('data?', data)
+	// 	// var funscale = d3.scale.linear().domain([0, data.features.length]).range(['#f00', '#00f'])
+	// 	var options = {
+	// 		'stroke': 'blue',
+	// 		'fill': function(d, i) {
+	// 			return d.properties.color
+	// 		}
+	// 	}
+	// 	globe.drawGeoJson(data, options)
+	// })
+	d3.json('../data/canvasGrid.json', function(err,data) {
+		globe.drawCanvas(data)
 	})
 </script>
 </body>
