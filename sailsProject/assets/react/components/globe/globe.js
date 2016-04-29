@@ -1,3 +1,5 @@
+var d3 = require('d3')
+var topojson = require('topojson');
 
 var globe = {
 	version: '0.0.1',
@@ -16,7 +18,7 @@ var globe = {
 
 globe.init = function (container, options) {
 	this.container = container
-    scope = this
+    var scope = this;
 	globe.display = d3.select(container)
 		  	.append('div')
 		  	.attr('class', 'display')
@@ -70,9 +72,10 @@ globe.init = function (container, options) {
             .attr("height", scope.view.height)
             .style({
                 'position': 'absolute',
-                'top': scope.view.top,
-                'left': scope.view.left
+                'top': scope.view.top + 'px',
+                'left': scope.view.left + 'px'
             })
+            
 		
 
         coastline.datum(coastData);
@@ -85,7 +88,7 @@ globe.init = function (container, options) {
 
 globe.loadGeo = function(options, cb){
 
-	d3.json('../data/earth-topo.json',function(err,topo){
+	d3.json('/data/earth-topo.json',function(err,topo){
 
 		globe.topo = topo
 		globe.o = topo.objects;
@@ -104,7 +107,8 @@ globe.getView = function(){
 	var b = document.querySelector(this.container);
     var x = b.clientWidth;
 	var y = b.clientHeight;
-    var rect = b.getBoundingClientRect();
+    //var rect = getPosition(b);
+    var rect =  b.getBoundingClientRect();
     console.log('get view', this.container, b , x, y, rect)
     
 	return {width: x, height: y, left: rect.left, top: rect.top};
@@ -420,6 +424,10 @@ globe.defaultCanvas = {
     }
 }
 
+var getGlobe = function() {
+    return globe
+};
+module.exports = new getGlobe();
 // ------------------- Canvas Util Functions ------------------------------------------------------------
 function buildGrid(builder) {
     // var builder = createBuilder(data);
@@ -1115,3 +1123,30 @@ var HOLE_VECTOR = [NaN, NaN, null];       // singleton that signifies a hole in 
 var TRANSPARENT_BLACK = [0, 0, 0, 0];     // singleton 0 rgba
 var REMAINING = "▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫▫";   // glyphs for remaining progress bar
 var COMPLETED = "▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪";   // glyphs for completed progress bar
+
+// Helper function to get an element's exact position
+function getPosition(el) {
+  var xPos = 0;
+  var yPos = 0;
+ 
+  while (el) {
+    if (el.tagName == "BODY") {
+      // deal with browser quirks with body/window/document and page scroll
+      var xScroll = el.scrollLeft || document.documentElement.scrollLeft;
+      var yScroll = el.scrollTop || document.documentElement.scrollTop;
+ 
+      xPos += (el.offsetLeft - xScroll + el.clientLeft);
+      yPos += (el.offsetTop - yScroll + el.clientTop);
+    } else {
+      // for all other non-BODY elements
+      xPos += (el.offsetLeft - el.scrollLeft + el.clientLeft);
+      yPos += (el.offsetTop - el.scrollTop + el.clientTop);
+    }
+ 
+    el = el.offsetParent;
+  }
+  return {
+    top: xPos,
+    left: yPos
+  };
+}

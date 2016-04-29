@@ -61,9 +61,10 @@ svg {
     overflow: hidden;  /* Do not let IE draw outside the bounds of the svg element. */
 }
 
-body {
+html,body {
     color: #eeeeee;
     background: #000005;
+    height: 100%
 }
 
 #warn {
@@ -79,8 +80,6 @@ body {
 
 #map, #animation, #overlay, #foreground {
     position: absolute;
-    top: 0;
-    left: 0;
 }
 
 #sponsor {
