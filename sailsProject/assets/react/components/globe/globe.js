@@ -72,7 +72,7 @@ globe.init = function (container, options) {
             .attr("height", scope.view.height)
             .style({
                 'position': 'absolute',
-                'top': scope.view.top + 'px',
+                //'top': scope.view.top + 'px',
                 'left': scope.view.left + 'px'
             })
 

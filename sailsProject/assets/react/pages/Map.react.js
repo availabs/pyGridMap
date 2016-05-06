@@ -8,6 +8,7 @@ var MapPage = React.createClass({
 	getInitialState:function(){
 		return  {
 			elemWidth: 400,
+			loading: false,
 			canvasData:null,
 			startDate: moment().subtract(180, 'days')._d,
 			endDate: moment().subtract(90, 'days')._d
@@ -21,6 +22,7 @@ var MapPage = React.createClass({
 	loadData: function(year){
 		var scope = this;
 		// console.log('loading  data')
+		this.setState({loading:true})
 		d3.json('http://localhost:5000/grids/500/'+year+'/06/18/00', function(err,data){
 			// console.log('got data', data)
 			var funscale = d3.scale.linear().domain(
@@ -34,7 +36,8 @@ var MapPage = React.createClass({
 			})
 
 			scope.setState({
-				canvasData:data
+				canvasData:data,
+				loading: false
 			})
 		})
 	},
@@ -64,25 +67,30 @@ var MapPage = React.createClass({
 
 		return (
 
-			<div className="container main">
+			<div className="container-fluid main">
 	            A globe is gonna go here.
+	            {this.state.loading ? 'loading' : 'done'}
+	            <br />
+                {this.state.startDate.toString()}
+	            <br />
+	            {this.state.canvasData ?  this.state.canvasData.length : 'no canvasData' }
+	            <div>
+		            <Brush
+	                   width={this.state.elemWidth}
+	                   height={75}
+	                   margin={{top: 0, bottom: 30, left: 50, right: 20}}
+	                   xScale={xScaleBrush}
+	                   extent={[this.state.startDate, this.state.endDate]}
+	                   onChange={this._onChange}
+	                   xAxis={{tickValues: xScaleBrush.ticks(d3.time.year, 5), tickFormat: d3.time.format("%y")}} />
+                </div>
 	            <div className='row'>
-	            	<div className='col-xs-12'>
-	            		 <Globe canvasData={this.state.canvasData} date={this.state.startDate}/>
+	            	<div className='col-xs-12' style={{border: '1px solid red'}}>
+	            		<Globe canvasData={this.state.canvasData} date={this.state.startDate}/>
 	            	</div>
 	            </div>
 
-	           <div>
-	            <Brush
-                   width={this.state.elemWidth}
-                   height={75}
-                   margin={{top: 0, bottom: 30, left: 50, right: 20}}
-                   xScale={xScaleBrush}
-                   extent={[this.state.startDate, this.state.endDate]}
-                   onChange={this._onChange}
-                   xAxis={{tickValues: xScaleBrush.ticks(d3.time.year, 5), tickFormat: d3.time.format("%y")}} />
-                 </div>
-                  {this.state.startDate.toString()}
+	          
 	        </div>
 
 		);
