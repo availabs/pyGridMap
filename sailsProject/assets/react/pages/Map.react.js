@@ -20,12 +20,12 @@ var MapPage = React.createClass({
 
 	loadData: function(year){
 		var scope = this;
-		console.log('loading  data')
+		// console.log('loading  data')
 		d3.json('http://localhost:5000/grids/500/'+year+'/06/18/00', function(err,data){
-			console.log('got data', data)
+			// console.log('got data', data)
 			var funscale = d3.scale.linear().domain(
 			[
-				d3.min(data.data), 
+				d3.min(data.data),
 				d3.max(data.data)
 			]).range([-100, 100])
 
@@ -45,7 +45,7 @@ var MapPage = React.createClass({
        	var endDate = extent[1],
        		timeDiff = Math.abs(extent[0].getTime() - extent[1].getTime()),
 			diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
- 		console.log('daydiff',diffDays)
+ 		// console.log('daydiff',diffDays)
 
  		if(diffDays > 90){
  			endDate = moment(extent[0]).add(90,'days')._d;
@@ -71,7 +71,7 @@ var MapPage = React.createClass({
 	            		 <Globe canvasData={this.state.canvasData} date={this.state.startDate}/>
 	            	</div>
 	            </div>
-	          
+
 	           <div>
 	            <Brush
                    width={this.state.elemWidth}

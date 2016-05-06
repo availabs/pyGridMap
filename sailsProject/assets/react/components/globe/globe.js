@@ -32,13 +32,13 @@ globe.init = function (container, options) {
 		.append('canvas')
 		.attr('id', 'animation')
 		.attr('class', 'fill-screen')
-        
+
 
 	globe.display
 		.append('canvas')
 		.attr('id', 'overlay')
 		.attr('class', 'fill-screen')
-        
+
 
 	globe.display
 		.append('svg')
@@ -75,8 +75,8 @@ globe.init = function (container, options) {
                 'top': scope.view.top + 'px',
                 'left': scope.view.left + 'px'
             })
-            
-		
+
+
 
         coastline.datum(coastData);
 		lakes.datum(lakeData);
@@ -101,7 +101,7 @@ globe.loadGeo = function(options, cb){
 }
 
 globe.getView = function(){
-	console.log('get view', this.container)
+	// console.log('get view', this.container)
 	var w = window;
 	var d = document && document.documentElement;
 	var b = document.querySelector(this.container);
@@ -109,8 +109,8 @@ globe.getView = function(){
 	var y = b.clientHeight;
     //var rect = getPosition(b);
     var rect =  b.getBoundingClientRect();
-    console.log('get view', this.container, b , x, y, rect)
-    
+    // console.log('get view', this.container, b , x, y, rect)
+
 	return {width: x, height: y, left: rect.left, top: rect.top};
 }
 
@@ -252,8 +252,6 @@ globe.interpolateField = function(grids, cb) {
     var primaryGrid = {};//grids;//.primaryGrid;
     var overlayGrid = grids;//.overlayGrid;
 
-    //console.time("interpolating field");
-    //console.log('interpolating field',overlayGrid)
     //var d = when.defer(), cancel = this.cancel;
 
     var projection = globe.map.projection;
@@ -268,7 +266,6 @@ globe.interpolateField = function(grids, cb) {
     //var interpolate = primaryGrid.interpolate;
 
     var overlayInterpolate = overlayGrid.interpolate;
-    //console.log('overlayInterpolate',overlayInterpolate)
     var hasDistinctOverlay = primaryGrid !== overlayGrid;
     var scale = overlayGrid.scale;
 
@@ -292,10 +289,8 @@ globe.interpolateField = function(grids, cb) {
                             scalar = wind[2];
                         }
                         if (true) {
-                            //console.log(λ, φ)
                             scalar = overlayInterpolate(λ, φ);
                         }
-                        //console.log(scalar)
                         if (isValue(scalar)) {
                             color = scale.gradient(scalar, OVERLAY_ALPHA);
                         }
@@ -317,13 +312,12 @@ globe.interpolateField = function(grids, cb) {
             x += 2;
             if ((Date.now() - start) > MAX_TASK_TIME) {
                 // Interpolation is taking too long. Schedule the next batch for later and yield.
-                console.log(' Interpolation is taking too long. Schedule the next batch for later and yield.')
+                // console.log(' Interpolation is taking too long. Schedule the next batch for later and yield.')
                 setTimeout(batchInterpolate, MIN_SLEEP_TIME);
                 return;
             }
         }
         var field = createField(columns, bounds, mask)
-        //console.log('the field',columns,bounds,mask)
         cb(mask.imageData);
 
         //report.progress(1);  // 100% complete
@@ -335,13 +329,11 @@ globe.interpolateField = function(grids, cb) {
 globe.drawCanvas = function(mapData, options){
 
     globe.overlayData = Object.assign(globe.defaultCanvas, buildGrid(globe.defaultCanvas.builder([mapData])));
-    
-    setTimeout(function(){ 
+
+    setTimeout(function(){
         globe.drawOverlay();
     },100)
-    
-    //console.log('draw canvas', overlayData)
-                
+
 }
 
 globe.drawGeoJson = function(mapData, options) {
@@ -409,17 +401,17 @@ globe.defaultCanvas = {
     scale: {
         bounds: [-100, 100],
         gradient: segmentedColorScale([
-            [-100,     [37, 4, 42]],
-            [-80,     [41, 10, 130]],
-            [-60,     [81, 40, 40]],
-            [-40,  [192, 37, 149]],  // -40 C/F
-            [-20, [70, 215, 215]],  // 0 F
-            [0,  [21, 84, 187]],   // 0 C
-            [20,  [24, 132, 14]],   // just above 0 C
-            [40,     [247, 251, 59]],
-            [60,     [235, 167, 21]],
-            [80,     [230, 71, 39]],
-            [100,     [88, 27, 67]]
+            [-100,	[37, 4, 42]],
+            [-80,   [41, 10, 130]],
+            [-60,   [81, 40, 40]],
+            [-40,  	[192, 37, 149]],  // -40 C/F
+            [-20, 	[70, 215, 215]],  // 0 F
+            [0,  	[21, 84, 187]],   // 0 C
+            [20,  	[24, 132, 14]],   // just above 0 C
+            [40,    [247, 251, 59]],
+            [60,    [235, 167, 21]],
+            [80,    [230, 71, 39]],
+            [100,   [88, 27, 67]]
         ])
     }
 }
@@ -928,52 +920,12 @@ function throttle (func, wait, options) {
     return throttled;
 };
 
-function distance(a, b) {
-  var Δx = b[0] - a[0];
-  var Δy = b[1] - a[1];
-  return Math.sqrt(Δx * Δx + Δy * Δy);
-}
-
-function colorInterpolator(start, end) {
-	var r = start[0], g = start[1], b = start[2];
-	var Δr = end[0] - r, Δg = end[1] - g, Δb = end[2] - b;
-	return function(i, a) {
-		return [Math.floor(r + i * Δr), Math.floor(g + i * Δg), Math.floor(b + i * Δb), a];
-	};
-}
-
-function segmentedColorScale(segments) {
-	var points = [], interpolators = [], ranges = [];
-	for (var i = 0; i < segments.length - 1; i++) {
-		points.push(segments[i+1][0]);
-		interpolators.push(colorInterpolator(segments[i][1], segments[i+1][1]));
-		ranges.push([segments[i][0], segments[i+1][0]]);
-	}
-
-	return function(point, alpha) {
-		var i;
-		for (i = 0; i < points.length - 1; i++) {
-			if (point <= points[i]) {
-				break;
-			}
-		}
-		var range = ranges[i];
-		return interpolators[i](proportion(point, range[0], range[1]), alpha);
-	};
-}
-
 function bilinearInterpolateScalar(x, y, g00, g10, g01, g11) {
 	//console.log(x, y, g00, g10, g01, g11)
 	var rx = (1 - x);
 	var ry = (1 - y);
 	return g00 * rx * ry + g10 * x * ry + g01 * rx * y + g11 * x * y;
 }
-
-  function distance(a, b) {
-	  var Δx = b[0] - a[0];
-	  var Δy = b[1] - a[1];
-	  return Math.sqrt(Δx * Δx + Δy * Δy);
-  }
 
 function segmentedColorScale(segments) {
     var points = [], interpolators = [], ranges = [];
@@ -1002,13 +954,6 @@ function colorInterpolator(start, end) {
     return function(i, a) {
         return [Math.floor(r + i * Δr), Math.floor(g + i * Δg), Math.floor(b + i * Δb), a];
     };
-}
-
-function bilinearInterpolateScalar(x, y, g00, g10, g01, g11) {
-    //console.log(x, y, g00, g10, g01, g11)
-    var rx = (1 - x);
-    var ry = (1 - y);
-    return g00 * rx * ry + g10 * x * ry + g01 * rx * y + g11 * x * y;
 }
 
  /**
@@ -1128,13 +1073,13 @@ var COMPLETED = "▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪▪
 function getPosition(el) {
   var xPos = 0;
   var yPos = 0;
- 
+
   while (el) {
     if (el.tagName == "BODY") {
       // deal with browser quirks with body/window/document and page scroll
       var xScroll = el.scrollLeft || document.documentElement.scrollLeft;
       var yScroll = el.scrollTop || document.documentElement.scrollTop;
- 
+
       xPos += (el.offsetLeft - xScroll + el.clientLeft);
       yPos += (el.offsetTop - yScroll + el.clientTop);
     } else {
@@ -1142,7 +1087,7 @@ function getPosition(el) {
       xPos += (el.offsetLeft - el.scrollLeft + el.clientLeft);
       yPos += (el.offsetTop - el.scrollTop + el.clientTop);
     }
- 
+
     el = el.offsetParent;
   }
   return {

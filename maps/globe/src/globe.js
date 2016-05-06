@@ -30,13 +30,13 @@ globe.init = function (container, options) {
 		.append('canvas')
 		.attr('id', 'animation')
 		.attr('class', 'fill-screen')
-        
+
 
 	globe.display
 		.append('canvas')
 		.attr('id', 'overlay')
 		.attr('class', 'fill-screen')
-        
+
 
 	globe.display
 		.append('svg')
@@ -73,7 +73,7 @@ globe.init = function (container, options) {
                 'top': scope.view.top,
                 'left': scope.view.left
             })
-		
+
 
         coastline.datum(coastData);
 		lakes.datum(lakeData);
@@ -98,15 +98,15 @@ globe.loadGeo = function(options, cb){
 }
 
 globe.getView = function(){
-	console.log('get view', this.container)
+	// console.log('get view', this.container)
 	var w = window;
 	var d = document && document.documentElement;
 	var b = document.querySelector(this.container);
     var x = b.clientWidth;
 	var y = b.clientHeight;
     var rect = b.getBoundingClientRect();
-    console.log('get view', this.container, b , x, y, rect)
-    
+    // console.log('get view', this.container, b , x, y, rect)
+
 	return {width: x, height: y, left: rect.left, top: rect.top};
 }
 
@@ -313,7 +313,7 @@ globe.interpolateField = function(grids, cb) {
             x += 2;
             if ((Date.now() - start) > MAX_TASK_TIME) {
                 // Interpolation is taking too long. Schedule the next batch for later and yield.
-                console.log(' Interpolation is taking too long. Schedule the next batch for later and yield.')
+                // console.log(' Interpolation is taking too long. Schedule the next batch for later and yield.')
                 setTimeout(batchInterpolate, MIN_SLEEP_TIME);
                 return;
             }
@@ -331,13 +331,13 @@ globe.interpolateField = function(grids, cb) {
 globe.drawCanvas = function(mapData, options){
 
     globe.overlayData = Object.assign(globe.defaultCanvas, buildGrid(globe.defaultCanvas.builder([mapData])));
-    
-    setTimeout(function(){ 
+
+    setTimeout(function(){
         globe.drawOverlay();
     },100)
-    
+
     //console.log('draw canvas', overlayData)
-                
+
 }
 
 globe.drawGeoJson = function(mapData, options) {
