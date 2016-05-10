@@ -21,13 +21,14 @@ var RmmDemo = React.createClass({
 	},
 
     componentWillReceiveProps:function(nextProps){
-        if(!this.props.canvasData && nextProps.canvasData){
-            globe.drawCanvas(nextProps.canvasData);
-        }
-        else if(this.props.canvasData && nextProps.canvasData && this.props.date !== nextProps.date){
-            console.log('redrawing canvas')
-            globe.drawCanvas(nextProps.canvasData);
-        }
+    	globe.drawCanvas(nextProps.canvasData);
+        // if(!this.props.canvasData && nextProps.canvasData){
+        //     globe.drawCanvas(nextProps.canvasData);
+        // }
+        // else if(this.props.canvasData && nextProps.canvasData && this.props.date !== nextProps.date){
+        //     console.log('redrawing canvas')
+            
+        // }
     },
 
 	render:function(){
