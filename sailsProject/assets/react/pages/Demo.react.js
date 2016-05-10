@@ -18,7 +18,6 @@ var DemoPage = React.createClass({
 		}
 	},
 
-
 	componentDidMount:function(){
 	 	var scope = this,
 	 		element = document.querySelector('#brush'),
@@ -34,9 +33,7 @@ var DemoPage = React.createClass({
 
 	},
 
-
 	_onChange: function(extent) {
-
 
        	var endDate = extent[1],
        		timeDiff = Math.abs(extent[0].getTime() - extent[1].getTime()),

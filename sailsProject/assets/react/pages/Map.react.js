@@ -1,30 +1,51 @@
-var React = require("react"),
+var React = require('react'),
 	Globe = require('../components/globe/globe.react'),
 	Brush = require('react-d3-components').Brush,
-	moment = require('moment');
+	moment = require('moment'),
+	DateTimeField = require('react-bootstrap-datetimepicker');
 
 var MapPage = React.createClass({
 
-	getInitialState:function(){
+	getInitialState: function(){
 		return  {
-			elemWidth: 400,
+			elemWidth: 800,
 			loading: false,
-			canvasData:null,
-			startDate: moment().subtract(180, 'days')._d,
-			endDate: moment().subtract(90, 'days')._d
+			canvasData: null,
+			date: "1993-03-14",
+			format: "YYYY-MM-DD",
+			inputFormat: "MM-DD-YYYY",
+			mode: "date"
 		}
 	},
 
 	componentDidMount:function (){
-		this.loadData(1999)
+		this.loadData(850, 1993, 3, 14, 0)
 	},
 
-	loadData: function(year){
+	loadData: function(height, year, month, day, hour){
 		var scope = this;
-		// console.log('loading  data')
+		this.setState({loading: true})
+		d3.json('http://localhost:5000/grids/'+height+'/'+year+'/'+month+'/'+day+'/'+hour, function(err,data){
+			var funscale = d3.scale.linear().domain([
+					d3.min(data.data),
+					d3.max(data.data)
+				]).range([-100, 100])
+
+			data.data = data.data.map(function(d){
+				return funscale(d);
+			})
+
+			scope.setState({
+				canvasData:data,
+				loading: false
+			})
+		})
+	},
+
+	loadRmmTcData: function(phase, amp, season, lat, lon, radius){
+		var scope = this;
 		this.setState({loading:true})
-		d3.json('http://localhost:5000/grids/500/'+year+'/06/18/00', function(err,data){
-			// console.log('got data', data)
+		d3.json('http://localhost:5000/phase/'+phase+'/amp/'+amp+'/season/'+season+'/lat/'+lat+'/lon/'+lon+'/radius/'+radius, function(err,data){
 			var funscale = d3.scale.linear().domain(
 			[
 				d3.min(data.data),
@@ -42,38 +63,38 @@ var MapPage = React.createClass({
 		})
 	},
 
-	_onChange: function(extent) {
+	_onChange: function(dateString) {
 
-
-       	var endDate = extent[1],
-       		timeDiff = Math.abs(extent[0].getTime() - extent[1].getTime()),
-			diffDays = Math.ceil(timeDiff / (1000 * 3600 * 24));
- 		// console.log('daydiff',diffDays)
-
- 		if(diffDays > 90){
- 			endDate = moment(extent[0]).add(90,'days')._d;
- 		}
-
- 		this.loadData(extent[0].getFullYear())
+		var newDate = new Date(dateString)
+ 		this.loadData(newDate.getFullYear(), newDate.getMonth()+1, newDate.getDate()+1)
        	this.setState({
-       		startDate:extent[0],
-       		endDate:endDate
+			date: newDate
        	})
     },
 
-	render:function(){
+	render: function(){
 
-	var  xScaleBrush = d3.time.scale().domain([new Date(1974, 6, 1), new Date(2015, 10, 5)]).range([0, this.state.elemWidth - 70]);
+	const {date, format, mode, inputFormat} = this.state;
+	var  xScaleBrush = d3.time.scale().domain([new Date(1979, 1, 1), new Date(2015, 12, 31)]).range([0, this.state.elemWidth - 70]);
 
 		return (
 
 			<div className="container-fluid main">
 	            A globe is gonna go here.
-	            {this.state.loading ? 'loading' : 'done'}
+	            {this.state.loading ? ' Loading.' : ' Done.'}
 	            <br />
-                {this.state.startDate.toString()}
+                {this.state.newDate}
 	            <br />
-	            {this.state.canvasData ?  this.state.canvasData.length : 'no canvasData' }
+	            {this.state.canvasData ? this.state.canvasData.length : 'no canvasData' }
+				<div>
+					<DateTimeField
+						dateTime={date}
+						format={format}
+						viewMode={mode}
+						inputFormat={inputFormat}
+						onChange={this._onChange}
+					/>
+				</div>
 	            <div>
 		            <Brush
 	                   width={this.state.elemWidth}
@@ -90,7 +111,7 @@ var MapPage = React.createClass({
 	            	</div>
 	            </div>
 
-	          
+
 	        </div>
 
 		);

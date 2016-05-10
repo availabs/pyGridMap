@@ -62,18 +62,20 @@ def get_field_by_datetime(height, year, month, day, hour):
     query = 'SELECT "surface1Value", nx, ny, id, "refTime" FROM public.header_values ' + \
         'WHERE "surface1Value" = ' + str(height) + ' AND "refTime" = timestamp ' + \
         '\'' + str(year) + '-' + str(month) + '-' + str(day) + ' ' + str(hour) + ':00\';'
+    print query
     cur.execute(query)
     header = cur.fetchone()
 
     header_index = header[3]
 
     query = 'SELECT value FROM gph_' + str(height) + ' WHERE header_id = ' + str(header_index) + \
-        'ORDER BY index ASC;'
+        ' ORDER BY index ASC;'
+    print query
     cur.execute(query)
 
     data = cur.fetchall()
     data = [i[0] for i in data]
-    print data
+    # print data
 
     output = {
         "header": {
@@ -88,6 +90,40 @@ def get_field_by_datetime(height, year, month, day, hour):
     }
 
     return simplejson.dumps(output)
+
+# @app.route('/grids/<int:height>/<int:startyear>', methods=['GET'])
+# def get_field_by_datetime(height, startyear):
+#
+#     query = 'SELECT "surface1Value", nx, ny, id, "refTime" FROM public.header_values ' + \
+#         'WHERE "surface1Value" = ' + str(height) + ' AND "refTime" = timestamp ' + \
+#         '\'' + str(year) + '-' + str(month) + '-' + str(day) + ' ' + str(hour) + ':00\';'
+#     cur.execute(query)
+#     header = cur.fetchone()
+#
+#     header_index = header[3]
+#
+#     query = 'SELECT value FROM gph_' + str(height) + ' WHERE header_id = ' + str(header_index) + \
+#         'ORDER BY index ASC;'
+#     cur.execute(query)
+#
+#     data = cur.fetchall()
+#     data = [i[0] for i in data]
+#     # print data
+#
+#     output = {
+#         "header": {
+#             "lo1": 0,
+#             "la1": 90,
+#             "dx": 2.5,
+#             "dy": 2.5,
+#             "nx": header[1],
+#             "ny": header[2]
+#         },
+#         "data": data
+#     }
+#
+#     return simplejson.dumps(output)
+
 
 # Route 3
 @app.route('/phase/<int:phase>/amp/<int:amp>/season/<int:season>/lat/<int:lat>/lon/<int:lon>/radius/<int:radius>', methods=['GET'])
@@ -108,7 +144,7 @@ def get_field_by_phase_position(phase, amp, season, lat, lon, radius):
 
     data = cur.fetchall()
     data = [i[1] for i in data]
-    print data
+    # print data
 
     output = {
         "header": {
@@ -123,6 +159,8 @@ def get_field_by_phase_position(phase, amp, season, lat, lon, radius):
     }
 
     return simplejson.dumps(output)
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)

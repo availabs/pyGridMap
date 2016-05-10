@@ -10,7 +10,7 @@ var globe = {
 
 	projection: 'orthographic',
 	map: null,
-	zoomLevel: 250,
+	zoomLevel: 290,
 	REDRAW_WAIT: 15,
 	newOp: null,
 	path: null,

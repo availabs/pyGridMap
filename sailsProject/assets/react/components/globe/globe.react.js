@@ -33,7 +33,7 @@ var RmmDemo = React.createClass({
 	render:function(){
         var container = this.props.container || "globeDiv"
 		return (
-			<div id={container} style={{width:'100%',height:'90vh'}} >
+			<div id={container} style={{width:'100%',height:'600px'}} >
             </div>
 		);
 	}
