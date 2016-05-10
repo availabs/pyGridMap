@@ -10,7 +10,7 @@ var MapPage = React.createClass({
 			elemWidth: 800,
 			loading: false,
 			canvasData: null,
-			date: new Date(2015, 12, 1, 0),
+			date: new Date(2015, 11, 31, 0),
 			format: "YYYY-MM-DD",
 			inputFormat: "MM-DD-YYYY",
 			mode: "date",
@@ -19,7 +19,8 @@ var MapPage = React.createClass({
 	},
 
 	componentDidMount:function (){
-		this.loadData(this.state.height, 1993, 3, 14, 0)
+		let newDate = this.state.date
+		this.loadData(this.state.height, newDate.getFullYear(), newDate.getMonth()+1, newDate.getDate(), newDate.getHours())
 	},
 
 	loadData: function(height, year, month, day, hour){
@@ -122,10 +123,16 @@ var MapPage = React.createClass({
 	var  xScaleBrush = d3.time.scale().domain([new Date(1979, 1, 1), new Date(2015, 12, 31)]).range([0, this.state.elemWidth - 70]);
 	
 	let dateStyle = {
-		fontSize: 24,
-		margin: 7
+		fontSize: 20,
+		margin: '0px 7px 7px 7px'
+
 	}
 	let secondDate = moment(this.state.date).add(30, 'days')._d
+	let labelStyle = {
+		paddingLeft: 10,
+		fontWeight: 'bold',
+		fontSize: 12
+	}
 	console.log('date', date.getFullYear())
 		return (
 
@@ -140,41 +147,52 @@ var MapPage = React.createClass({
 					
 				</div>
 	            <div>
-	            	<div className='row'>
+	            	<div className='row' style={{
+	            		boxShadow: '2px 2px 2px #5d5d5d',
+	            		backgroundColor: '#efefef', marginBottom: 15}}>
+	            		<div className='col-xs-2' />
 		            	<div className='col-xs-2'>
-		            		<select onChange={this._heightChange} name='height' className="form-control" value={this.state.height}>
+		            		<span style={labelStyle}>GPH Height</span>
+		            		<select style={dateStyle} onChange={this._heightChange} name='height' className="form-control" value={this.state.height}>
 		            			<option value='500'>500</option>
 		            			<option value='850'>850</option>
 		            		</select>
-		            		{this.state.height}
 		            	</div>
-		            </div>
-		            <div className='row'>
 		            	<div className='col-xs-6'>
 			            	<div className='row'>
 			            		<div className='col-xs-3'>
+			            			<span style={labelStyle}>Year</span>
 			            			<input className='form-control' style={dateStyle} min="1979" max="2015" type='number' name='year' onChange={this._dateChange} value={this.state.date.getFullYear()} />
 			            		</div>
 			            		<div className='col-xs-3'>
+			            			<span style={labelStyle}>Month</span>
 			            			<input className='form-control' style={dateStyle} min="1" max="12" type='number' name='month' onChange={this._dateChange} value={this.state.date.getMonth()+1} /> 
 			            		</div>
 			            		<div className='col-xs-3'>
+			            			<span style={labelStyle}>Day</span>
 			            			<input className='form-control' style={dateStyle} min="1" max="31" type='number' name='day' onChange={this._dateChange} value={this.state.date.getDate()} /> 
 			            		</div>
 			            		<div className='col-xs-3'>
-			            		<input className='form-control' style={dateStyle} min="0" max="24" type='number' name= 'hour' onChange={this._dateChange} value={this.state.date.getHours()}  step="6" />
+			            			<span style={labelStyle}>Hour</span>
+			            			<input className='form-control' style={dateStyle} min="0" max="24" type='number' name= 'hour' onChange={this._dateChange} value={this.state.date.getHours()}  step="6" />
 			            		</div>
 			            	</div>
 			            </div>
+		            </div>
+		            <div className='row'>
+		            	<div className='col-xs-3' />
+		            	<div className='col-xs-6'>
+			            	<Brush
+			                   width={this.state.elemWidth}
+			                   height={75}
+			                   margin={{top: 0, bottom: 30, left: 50, right: 20}}
+			                   xScale={xScaleBrush}
+			                   onChange={this._onChange}
+			                   extent={[this.state.date, secondDate]}
+			                   xAxis={{tickValues: xScaleBrush.ticks(d3.time.year, 5), tickFormat: d3.time.format("%y")}} />
+				        	</div>
 			        </div>
-		            <Brush
-	                   width={this.state.elemWidth}
-	                   height={75}
-	                   margin={{top: 0, bottom: 30, left: 50, right: 20}}
-	                   xScale={xScaleBrush}
-	                   onChange={this._onChange}
-	                   extent={[this.state.date, secondDate]}
-	                   xAxis={{tickValues: xScaleBrush.ticks(d3.time.year, 5), tickFormat: d3.time.format("%y")}} />
+		           
                 </div>
 	            <div className='row'>
 	            	<div className='col-xs-12' style={{border: '1px solid red'}}>
