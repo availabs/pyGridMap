@@ -76,31 +76,36 @@ var MapPage = React.createClass({
        	})
     },
 
-    _dateChange: function(e) {	
+    _dateChange: function(e) {
     	console.log('_dateChange', e.target.value, e.target.name )
     	let newDate = this.state.date
+		console.log('newDate', newDate)
     	switch( e.target.name ) {
     		case 'year':
-    			
     			newDate.setFullYear(e.target.value)
     			this.loadData(this.state.height, newDate.getFullYear(), newDate.getMonth()+1, newDate.getDate(), this.state.date.getHours())
     			this.setState({date: newDate})
     		break;
     		case 'month':
-    			newDate.setMonth(e.target.value-1)
+				newDate.setMonth(e.target.value-1)
     			this.loadData(this.state.height, newDate.getFullYear(), newDate.getMonth()+1, newDate.getDate(), this.state.date.getHours())
     			this.setState({date: newDate})
-    		break; 
+    		break;
     		case 'day':
-    			newDate.setDate(e.target.value)
+				// @TODO: If not a leap year, and date is 29 January or 29 March,
+				// and want to go to 29 February, should we go to 28 Februay or 1 March?
+				// Default is 1 March.
+				newDate.setDate(e.target.value)
     			this.loadData(this.state.height, newDate.getFullYear(), newDate.getMonth()+1, newDate.getDate(), this.state.date.getHours())
     			this.setState({date: newDate})
     		break;
     		case 'hour':
-    			if(e.target.value === 24){
+    			if(e.target.value === 24) {
     				newDate.setHours(0)
     				newDate = moment(newDate).add(1,'days')._d
-    			
+				} else if (e.target.value === -6) {
+					newDate.setHours(18)
+					newDate = moment(newDate).subtract(1,'days')._d
     			} else {
     				newDate.setHours(e.target.value)
     			}
@@ -111,29 +116,33 @@ var MapPage = React.createClass({
     },
 
     _heightChange(e){
+
     	let newDate = this.state.date
     	this.setState({height:e.target.value})
     	this.loadData(e.target.value, newDate.getFullYear(), newDate.getMonth()+1, newDate.getDate(), this.state.date.getHours())
-    			
+
     },
 
 	render: function(){
 
-	const {date, format, mode, inputFormat} = this.state;
-	var  xScaleBrush = d3.time.scale().domain([new Date(1979, 1, 1), new Date(2015, 12, 31)]).range([0, this.state.elemWidth - 70]);
-	
-	let dateStyle = {
-		fontSize: 20,
-		margin: '0px 7px 7px 7px'
+		const {date, format, mode, inputFormat} = this.state;
 
-	}
-	let secondDate = moment(this.state.date).add(30, 'days')._d
-	let labelStyle = {
-		paddingLeft: 10,
-		fontWeight: 'bold',
-		fontSize: 12
-	}
-	console.log('date', date.getFullYear())
+		var  xScaleBrush = d3.time.scale().domain([new Date(1979, 1, 1), new Date(2015, 12, 31)]).range([0, this.state.elemWidth - 70]);
+
+		let dateStyle = {
+			fontSize: 20,
+			margin: '0px 7px 7px 7px'
+
+		}
+
+		let labelStyle = {
+			paddingLeft: 10,
+			fontWeight: 'bold',
+			fontSize: 12
+		}
+
+		let secondDate = moment(this.state.date).add(30, 'days')._d
+
 		return (
 
 			<div className="container-fluid main">
@@ -144,7 +153,7 @@ var MapPage = React.createClass({
 	            <br />
 	            {this.state.canvasData ? this.state.canvasData.length : 'no canvasData' }
 				<div>
-					
+
 				</div>
 	            <div>
 	            	<div className='row' style={{
@@ -154,8 +163,8 @@ var MapPage = React.createClass({
 		            	<div className='col-xs-2'>
 		            		<span style={labelStyle}>GPH Height</span>
 		            		<select style={dateStyle} onChange={this._heightChange} name='height' className="form-control" value={this.state.height}>
-		            			<option value='500'>500</option>
-		            			<option value='850'>850</option>
+		            			<option value='500'>500 hPa</option>
+		            			<option value='850'>850 hPa</option>
 		            		</select>
 		            	</div>
 		            	<div className='col-xs-6'>
@@ -166,15 +175,15 @@ var MapPage = React.createClass({
 			            		</div>
 			            		<div className='col-xs-3'>
 			            			<span style={labelStyle}>Month</span>
-			            			<input className='form-control' style={dateStyle} min="1" max="12" type='number' name='month' onChange={this._dateChange} value={this.state.date.getMonth()+1} /> 
+			            			<input className='form-control' style={dateStyle} min="0" max="13" type='number' name='month' onChange={this._dateChange} value={this.state.date.getMonth()+1} />
 			            		</div>
 			            		<div className='col-xs-3'>
 			            			<span style={labelStyle}>Day</span>
-			            			<input className='form-control' style={dateStyle} min="1" max="31" type='number' name='day' onChange={this._dateChange} value={this.state.date.getDate()} /> 
+			            			<input className='form-control' style={dateStyle} min="0" max="32" type='number' name='day' onChange={this._dateChange} value={this.state.date.getDate()} />
 			            		</div>
 			            		<div className='col-xs-3'>
 			            			<span style={labelStyle}>Hour</span>
-			            			<input className='form-control' style={dateStyle} min="0" max="24" type='number' name= 'hour' onChange={this._dateChange} value={this.state.date.getHours()}  step="6" />
+			            			<input className='form-control' style={dateStyle} min="-6" max="24" type='number' name= 'hour' onChange={this._dateChange} value={this.state.date.getHours()}  step="6" />
 			            		</div>
 			            	</div>
 			            </div>
@@ -192,7 +201,7 @@ var MapPage = React.createClass({
 			                   xAxis={{tickValues: xScaleBrush.ticks(d3.time.year, 5), tickFormat: d3.time.format("%y")}} />
 				        	</div>
 			        </div>
-		           
+
                 </div>
 	            <div className='row'>
 	            	<div className='col-xs-12' style={{border: '1px solid red'}}>
