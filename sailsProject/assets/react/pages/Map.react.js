@@ -161,7 +161,7 @@ var MapPage = React.createClass({
 	            		backgroundColor: '#efefef', marginBottom: 15}}>
 	            		<div className='col-xs-2' />
 		            	<div className='col-xs-2'>
-		            		<span style={labelStyle}>GPH Height</span>
+		            		<span style={labelStyle}>Level</span>
 		            		<select style={dateStyle} onChange={this._heightChange} name='height' className="form-control" value={this.state.height}>
 		            			<option value='500'>500 hPa</option>
 		            			<option value='850'>850 hPa</option>
