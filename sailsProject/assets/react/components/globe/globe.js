@@ -7,7 +7,6 @@ var globe = {
 	display: null,
 	getView: {},
     overlayData: null,
-
 	projection: 'orthographic',
 	map: null,
 	zoomLevel: 290,
@@ -15,6 +14,8 @@ var globe = {
 	newOp: null,
 	path: null,
 }
+
+console.log('globe', globe)
 
 globe.init = function (container, options) {
 	this.container = container
@@ -194,8 +195,6 @@ globe.zoom = d3.behavior.zoom()
 	}
 
 globe.doDraw_throttled = throttle(globe.doDraw, globe.REDRAW_WAIT, {leading: false});
-
-
 
 globe.drawOverlay = function(){
     var ctx = d3.select("#overlay").node().getContext("2d");
@@ -798,7 +797,7 @@ var globes = function() {
     }
 
     function waterman() {
-        wGlobe({
+        return newGlobe({
             newProjection: function() {
                 return d3.geo.polyhedron.waterman().rotate([20, 0]).precision(0.1);
             },

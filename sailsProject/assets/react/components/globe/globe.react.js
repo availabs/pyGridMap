@@ -3,42 +3,42 @@ var React = require("react"),
 	d3Tip = require('d3-tip'),
     globe = require('./globe');
 
-var RmmDemo = React.createClass({
+var GlobeDemo = React.createClass({
 
-	getInitialState:function(){
+	getInitialState: function(){
 		return {
 			width:0,
 			height:0
 		}
 	},
 
-	componentDidMount:function(){
+	componentDidMount: function(){
 		var scope = this;
-		globe.init('#globeDiv',{projection:'orthoginal'})
+		globe.init('#globeDiv', {projection: this.state.projection})
         if(this.props.canvasData){
             globe.drawCanvas(this.props.canvasData);
         }
 	},
 
-    componentWillReceiveProps:function(nextProps){
+    componentWillReceiveProps: function(nextProps){
     	globe.drawCanvas(nextProps.canvasData);
         // if(!this.props.canvasData && nextProps.canvasData){
         //     globe.drawCanvas(nextProps.canvasData);
         // }
         // else if(this.props.canvasData && nextProps.canvasData && this.props.date !== nextProps.date){
         //     console.log('redrawing canvas')
-            
+
         // }
     },
 
-	render:function(){
+	render: function(){
         var container = this.props.container || "globeDiv"
 		return (
-			<div id={container} style={{width:'100%',height:'600px'}} >
+			<div id={container} style={{width:'100%', height:'600px'}}>
             </div>
 		);
 	}
 
 });
 
-module.exports = RmmDemo;
+module.exports = GlobeDemo;
