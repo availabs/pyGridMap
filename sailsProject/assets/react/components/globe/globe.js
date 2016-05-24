@@ -382,7 +382,8 @@ globe.defaultCanvas = {
     date: new Date(),
 
     builder: function(file) {
-        var record = file[0], data = record.data;
+        var record = file[0]
+        var data = record.data
         return {
             header: record.header,
             interpolate: bilinearInterpolateScalar,

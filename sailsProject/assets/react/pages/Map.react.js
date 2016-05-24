@@ -137,16 +137,9 @@ var MapPage = React.createClass({
 		return (
 
 			<div className="container-fluid main">
-	            A globe is gonna go here.
-	            {this.state.loading ? ' Loading.' : ' Done.'}
-	            <br />
-                {this.state.newDate}
-	            <br />
-	            {this.state.canvasData ? this.state.canvasData.length : 'no canvasData' }
-				<div>
+	           
 					
-				</div>
-	            <div>
+				 <div>
 	            	<div className='row' style={{
 	            		boxShadow: '2px 2px 2px #5d5d5d',
 	            		backgroundColor: '#efefef', marginBottom: 15}}>
