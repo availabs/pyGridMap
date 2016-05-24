@@ -1,7 +1,8 @@
 var React = require('react'),
 	Globe = require('../components/globe/globe.react'),
 	Brush = require('react-d3-components').Brush,
-	moment = require('moment');
+	moment = require('moment'),
+	d3 = require('d3');
 
 var MapPage = React.createClass({
 
@@ -16,7 +17,11 @@ var MapPage = React.createClass({
 			format: "YYYY-MM-DD",
 			inputFormat: "MM-DD-YYYY",
 			mode: "date",
-			height: 500
+			height: 500,
+			scale: d3.scale.quantile()
+		        .domain([-100,-80,-60,-40,-20, 20, 40, 60, 80, 100])
+		        .range(["#543005","#8c510a","#bf812d","#dfc27d","#f6e8c3","#f5f5f5","#c7eae5","#80cdc1","#35978f","#01665e","#003c30"])
+		        	//["#67001f","#b2182b","#d6604d","#f4a582","#fddbc7","#f7f7f7","#d1e5f0","#92c5de","#4393c3","#2166ac","#053061"])
 		}
 
 	},
@@ -46,6 +51,9 @@ var MapPage = React.createClass({
 
 			scope.setState({
 				canvasData: data,
+				scale: d3.scale.quantile()
+					.domain(data.data)
+					.range(["#67001f","#b2182b","#d6604d","#f4a582","#fddbc7","#f7f7f7","#d1e5f0","#92c5de","#4393c3","#2166ac","#053061"].reverse()),
 				loading: false
 			})
 		})
@@ -217,7 +225,7 @@ var MapPage = React.createClass({
 	            <div className='row'>
 	            	<div className='col-xs-12' style={{border: '1px solid red'}}>
 	            		 {this.state.projection}
-	            		<Globe canvasData={this.state.canvasData} projection={this.state.projection} />
+	            		<Globe canvasData={this.state.canvasData} projection={this.state.projection} scale={this.state.scale} />
 	            	</div>
 	            </div>
 	        </div>

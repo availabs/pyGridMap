@@ -13,6 +13,9 @@ var globe = {
 	REDRAW_WAIT: 15,
 	newOp: null,
 	path: null,
+    scale: d3.scale.quantile()
+        .domain([-100,-80,-60,-40,-20, 20, 40, 60, 80, 100])
+        .range(["#67001f","#b2182b","#d6604d","#f4a582","#fddbc7","#f7f7f7","#d1e5f0","#92c5de","#4393c3","#2166ac","#053061"])
 }
 
 console.log('globe', globe)
@@ -267,6 +270,8 @@ globe.interpolateField = function(grids, cb) {
     var overlayInterpolate = overlayGrid.interpolate;
     var hasDistinctOverlay = primaryGrid !== overlayGrid;
     var scale = overlayGrid.scale;
+    console.log('testing', scale.gradient.range(), )
+    scale.gradient = globe.scale
 
     function interpolateColumn(x) {
         var column = [];
@@ -291,7 +296,8 @@ globe.interpolateField = function(grids, cb) {
                             scalar = overlayInterpolate(λ, φ);
                         }
                         if (isValue(scalar)) {
-                            color = scale.gradient(scalar, OVERLAY_ALPHA);
+                            color = convertHex( scale.gradient(scalar), OVERLAY_ALPHA);
+                            //console.log('color',color)
                         }
                     }
                 }
@@ -326,6 +332,7 @@ globe.interpolateField = function(grids, cb) {
 }
 
 globe.drawCanvas = function(mapData, options){
+    console.log('globe scale?', globe.scale.range())
 
     globe.overlayData = Object.assign(globe.defaultCanvas, buildGrid(globe.defaultCanvas.builder([mapData])));
 
@@ -400,20 +407,25 @@ globe.defaultCanvas = {
 
     scale: {
         bounds: [-100, 100],
-        gradient: segmentedColorScale([
-            [-100,	[37, 4, 42]],
-            [-80,   [41, 10, 130]],
-            [-60,   [81, 40, 40]],
-            [-40,  	[192, 37, 149]],  // -40 C/F
-            [-20, 	[70, 215, 215]],  // 0 F
-            [0,  	[21, 84, 187]],   // 0 C
-            [20,  	[24, 132, 14]],   // just above 0 C
-            [40,    [247, 251, 59]],
-            [60,    [235, 167, 21]],
-            [80,    [230, 71, 39]],
-            [100,   [88, 27, 67]]
-        ])
+        gradient: globe.scale
+        // gradient: segmentedColorScale([
+        //     [-100,	[37, 4, 42]],
+        //     [-80,   [41, 10, 130]],
+        //     [-60,   [81, 40, 40]],
+        //     [-40,  	[192, 37, 149]],  // -40 C/F
+        //     [-20, 	[70, 215, 215]],  // 0 F
+        //     [0,  	[21, 84, 187]],   // 0 C
+        //     [20,  	[24, 132, 14]],   // just above 0 C
+        //     [40,    [247, 251, 59]],
+        //     [60,    [235, 167, 21]],
+        //     [80,    [230, 71, 39]],
+        //     [100,   [88, 27, 67]]
+        // ])
     }
+}
+
+globe.setScale = function(scale){
+    globe.scale = scale;
 }
 
 var getGlobe = function() {
@@ -1094,4 +1106,12 @@ function getPosition(el) {
     top: xPos,
     left: yPos
   };
+}
+
+function convertHex(hex,a){
+    var hex = hex.replace('#','');
+    var r = parseInt(hex.substring(0,2), 16);
+    var g = parseInt(hex.substring(2,4), 16);
+    var b = parseInt(hex.substring(4,6), 16);
+    return [r,g,b,a];
 }

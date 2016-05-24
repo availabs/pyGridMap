@@ -20,7 +20,12 @@ var GlobeDemo = React.createClass({
 
 	initGlobe: function (props){
 		var container = props.container || "globeDiv"
+		console.log('scale?', this.props.scale.range())
+		
 		globe.init('#'+container, {projection: props.projection})
+		if(this.props.scale){
+			globe.setScale(this.props.scale)
+		}
 	    if(props.canvasData){
 	        globe.drawCanvas(props.canvasData);
 	    }
@@ -39,6 +44,9 @@ var GlobeDemo = React.createClass({
     		console.log('redrawing', nextProps.canvasData)
     		globe.drawCanvas(nextProps.canvasData);
     	}
+    	if(nextProps.scale){
+			globe.setScale(nextProps.scale)
+		}
         // if(!this.props.canvasData && nextProps.canvasData){
         //     globe.drawCanvas(nextProps.canvasData);
         // }
