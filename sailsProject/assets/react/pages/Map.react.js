@@ -11,7 +11,7 @@ var MapPage = React.createClass({
 			elemWidth: 800,
 			loading: false,
 			canvasData: null,
-			projection: "orthographic",
+			projection: "waterman",
 			date: new Date(2015, 11, 31, 0),
 			format: "YYYY-MM-DD",
 			inputFormat: "MM-DD-YYYY",
@@ -214,7 +214,8 @@ var MapPage = React.createClass({
                 </div>
 	            <div className='row'>
 	            	<div className='col-xs-12' style={{border: '1px solid red'}}>
-	            		<Globe canvasData={this.state.canvasData} />
+	            		 {this.state.projection}
+	            		<Globe canvasData={this.state.canvasData} projection={this.state.projection} />
 	            	</div>
 	            </div>
 	        </div>
