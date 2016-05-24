@@ -11,7 +11,7 @@ var MapPage = React.createClass({
 			elemWidth: 800,
 			loading: false,
 			canvasData: null,
-			projection: "waterman",
+			projection: "orthographic",
 			date: new Date(2015, 11, 31, 0),
 			format: "YYYY-MM-DD",
 			inputFormat: "MM-DD-YYYY",
@@ -41,6 +41,8 @@ var MapPage = React.createClass({
 			data.data = data.data.map(function(d){
 				return funscale(d);
 			})
+
+			data.header.date = new Date(year, month, day, hour)
 
 			scope.setState({
 				canvasData: data,

@@ -27,12 +27,17 @@ var GlobeDemo = React.createClass({
 	},
 
     componentWillReceiveProps: function(nextProps){
-    	globe.drawCanvas(nextProps.canvasData);
     	if(this.props.projection !== nextProps.projection){
     		var container = this.props.container || "globeDiv"
     		//console.log('new projection', '#'+container+' .display', d3.selectAll('#'+this.props.container+' .display'))
     		d3.selectAll('#' + container + ' .display').remove()
     		this.initGlobe(nextProps)
+    	}
+    	var current_date = this.props.canvasData ? this.props.canvasData.header.date : null
+    	var next_date = nextProps.canvasData ? nextProps.canvasData.header.date : null
+    	if( (nextProps.canvasData && !this.props.canvasData) || ( current_date !== next_date) ) {
+    		console.log('redrawing', nextProps.canvasData)
+    		globe.drawCanvas(nextProps.canvasData);
     	}
         // if(!this.props.canvasData && nextProps.canvasData){
         //     globe.drawCanvas(nextProps.canvasData);
