@@ -12,22 +12,29 @@ var Legend = React.createClass({
 
 	render: function() {
         var scope = this;
+        console.log('quantiles?', this.props.scale, this.props.scale.quantiles);
         var values = this.props.scale.quantiles ? this.props.scale.quantiles() : this.props.scale.domain()
-        var scale = values.map(function(d,i){
+        var scale = values
+        .filter(function(d,i) { return i < values.length -1})
+        .map(function(d,i){
             return (
-                <div style={{backgroundColor: scope.props.scale(d), flex: 1, height: 20}}>
+                <div style={{backgroundColor: scope.props.scale(d), flex: 1, height: 20, border: '1px solid white'}}>
                 </div>
             )
         })
-        var scaleValues = values.map(function(d,i){
+        var scaleValues = values
+        .filter(function(d,i) { return i < values.length -1})
+        .map(function(d,i){
             return (
-                <div style={{flex: 1, height: 20, textAlign: 'right'}}>
-                    <span style={{position: 'relative', right: -20, fontSize: 12, fontWeight: 'bold'}}>
-                        {i < values.length - 1 ? d.toLocaleString() : ''}
+                <div style={{flex: 1, height: 20, textAlign: 'left'}}>
+                    <span style={{position: 'relative', right: 10, fontSize: 12, fontWeight: 'bold'}}>
+                        { d.toLocaleString() }
+                        {  i === values.length - 2 ? <span className='pull-right' style={{position:'relative', right:-20, top:2}}> {values[values.length-1]} </span>: ''}
                     </span>
                 </div>
             )
         })
+
 		return (
             <div>
     			<div style={{display: 'flex'}}>{scaleValues}</div>

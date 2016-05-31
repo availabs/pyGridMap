@@ -3,7 +3,10 @@ var React = require('react'),
 	Brush = require('react-d3-components').Brush,
 	moment = require('moment'),
 	d3 = require('d3'),
-	Legend = require('../components/tools/legend.react');
+	Legend = require('../components/tools/legend.react'),
+	refernceScale = d3.scale.linear()
+	   .domain([492,522,(600+492)/2,570,600])
+	   .range(["#053061","#4393c3","#f7f7f7","#f4a582","#67001f"]);
 
 var MapPage = React.createClass({
 
@@ -19,9 +22,10 @@ var MapPage = React.createClass({
 			inputFormat: "MM-DD-YYYY",
 			mode: "date",
 			height: 500,
-			scale: d3.scale.linear()
-		        .domain(d3.range(492, 601, 12))
-		        .range(["#543005","#8c510a","#bf812d","#dfc27d","#f6e8c3","#f5f5f5","#c7eae5","#80cdc1","#35978f","#01665e","#003c30"])
+			scale:
+				d3.scale.threshold()
+		        .domain(d3.range(492, 601, 6))
+		        .range(d3.range(492,601,6).map(function(d){ return refernceScale(d)}))
 		        	//["#67001f","#b2182b","#d6604d","#f4a582","#fddbc7","#f7f7f7","#d1e5f0","#92c5de","#4393c3","#2166ac","#053061"])
 		}
 
