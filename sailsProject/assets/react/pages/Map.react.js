@@ -5,7 +5,7 @@ var React = require('react'),
 	d3 = require('d3'),
 	Legend = require('../components/tools/legend.react'),
 	refernceScale = d3.scale.linear()
-	   .domain([492,522,(600+492)/2,570,600])
+	   .domain([492, 522, (600+492)/2, 570, 600])
 	   .range(["#053061","#4393c3","#f7f7f7","#f4a582","#67001f"]);
 
 var MapPage = React.createClass({
