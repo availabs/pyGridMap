@@ -10,10 +10,11 @@ var React = require('react'),
 
 var MapPage = React.createClass({
 
-	getInitialState: function(){
+	getInitialState: function() {
 
 		return {
 			elemWidth: 800,
+			screenHeight: 600,
 			loading: false,
 			canvasData: null,
 			projection: "orthographic",
@@ -22,6 +23,7 @@ var MapPage = React.createClass({
 			inputFormat: "MM-DD-YYYY",
 			mode: "date",
 			height: 500,
+			activeTab: "mapControls",
 			scale:
 				d3.scale.threshold()
 		        .domain(d3.range(492, 601, 6))
@@ -31,24 +33,30 @@ var MapPage = React.createClass({
 
 	},
 
-	componentDidMount: function (){
+	componentWillMount: function() {
 
-		let newDate = this.state.date
-		this.loadData(this.state.height, newDate.getFullYear(), newDate.getMonth()+1, newDate.getDate(), newDate.getHours())
+		this.setState({screenHeight: window.innerHeight});
 
 	},
 
-	loadData: function(height, year, month, day, hour){
+	componentDidMount: function () {
+
+		let newDate = this.state.date;
+		this.loadData(this.state.height, newDate.getFullYear(), newDate.getMonth()+1, newDate.getDate(), newDate.getHours());
+
+	},
+
+	loadData: function(height, year, month, day, hour) {
 
 		var scope = this;
 		this.setState({loading: true})
-		d3.json('http://localhost:5000/grids/'+height+'/'+year+'/'+month+'/'+day+'/'+hour, function(err,data){
+		d3.json('http://localhost:5000/grids/'+height+'/'+year+'/'+month+'/'+day+'/'+hour, function(err,data) {
 			var funscale = d3.scale.linear().domain([
 					d3.min(data.data),
 					d3.max(data.data)
 				]).range([-100, 100])
 
-			data.data = data.data.map(function(d){
+			data.data = data.data.map(function(d) {
 				return d/10;
 			})
 
@@ -116,9 +124,6 @@ var MapPage = React.createClass({
     			this.setState({date: newDate})
     		break;
     		case 'day':
-				// TODO: If not a leap year, and date is 29 January or 29 March,
-				// and want to go to 29 February, should we go to 28 Februay or 1 March?
-				// Default is 1 March.
 				newDate.setDate(e.target.value)
     			this.loadData(this.state.height, newDate.getFullYear(), newDate.getMonth()+1, newDate.getDate(), this.state.date.getHours())
     			this.setState({date: newDate})
@@ -140,7 +145,7 @@ var MapPage = React.createClass({
 
     },
 
-    _heightChange(e){
+    _heightChange(e) {
 
     	let newDate = this.state.date
     	this.setState({height: e.target.value})
@@ -148,95 +153,211 @@ var MapPage = React.createClass({
 
     },
 
-	_projectionChange(e){
+	_projectionChange(e) {
 
-		// TODO: Debug projection change utility.
 		let newDate = this.state.date
 		this.setState({projection: e.target.value})
 		this.loadData(this.state.height, newDate.getFullYear(), newDate.getMonth()+1, newDate.getDate(), this.state.date.getHours())
-		console.log('projection', this.state.projection)
 
 	},
 
-	render: function(){
+	_setActiveTab(tab) {
+		this.setState({
+			activeTab: tab
+		})
+	},
+
+	_showActiveTab(tab) {
+		return this.state.activeTab === tab ? "block" : "none"
+	},
+
+	_isTabActive(tab) {
+		return this.state.activeTab === tab ? "active" : "inactive"
+	},
+
+	render: function() {
 
 		const {date, format, mode, inputFormat} = this.state;
-
-		// var  xScaleBrush = d3.time.scale().domain([new Date(1979, 1, 1), new Date(2015, 12, 31)]).range([0, this.state.elemWidth - 70]);
-
-		let dateStyle = {
-			fontSize: 20,
-			margin: '0px 7px 7px 7px'
-
-		}
-
-		let labelStyle = {
-			paddingLeft: 10,
-			fontWeight: 'bold',
-			fontSize: 12
-		}
-
-		// let secondDate = moment(this.state.date).add(30, 'days')._d
 
 		return (
 
 			<div className="container-fluid main">
-				 <div>
-	            	<div className='row' style={{
-	            		boxShadow: '2px 2px 2px #5d5d5d',
-	            		backgroundColor: '#efefef', marginBottom: 15}}>
-	            		<div className='col-xs-1'></div>
-						<div className='col-xs-2'>
-		            		<span style={labelStyle}>Projection</span>
-		            		<select style={dateStyle} onChange={this._projectionChange} name='projection' className="form-control" value={this.state.projection}>
-		            			<option value='orthographic'>Orthographic</option>
-								<option value='azimuthal_equidistant'>Azimuthal Equidistant</option>
-		            			<option value='conic_equidistant'>Conic Equidistant</option>
-								<option value='equirectangular'>Equirectangular</option>
-								<option value='stereographic'>Stereographic</option>
-								<option value='waterman'>Waterman</option>
-								<option value='winkel3'>Winkel3</option>
-		            		</select>
-		            	</div>
-		            	<div className='col-xs-2'>
-		            		<span style={labelStyle}>Level</span>
-		            		<select style={dateStyle} onChange={this._heightChange} name='height' className="form-control" value={this.state.height}>
-		            			<option value='500'>500 hPa</option>
-		            			<option value='850'>850 hPa</option>
-		            		</select>
-		            	</div>
-		            	<div className='col-xs-6'>
-			            	<div className='row'>
-			            		<div className='col-xs-3'>
-			            			<span style={labelStyle}>Year</span>
-			            			<input className='form-control' style={dateStyle} min="1979" max="2015" type='number' name='year' onChange={this._dateChange} value={this.state.date.getFullYear()} />
-			            		</div>
-			            		<div className='col-xs-3'>
-			            			<span style={labelStyle}>Month</span>
-			            			<input className='form-control' style={dateStyle} min="0" max="13" type='number' name='month' onChange={this._dateChange} value={this.state.date.getMonth()+1} />
-			            		</div>
-			            		<div className='col-xs-3'>
-			            			<span style={labelStyle}>Day</span>
-			            			<input className='form-control' style={dateStyle} min="0" max="32" type='number' name='day' onChange={this._dateChange} value={this.state.date.getDate()} />
-			            		</div>
-			            		<div className='col-xs-3'>
-			            			<span style={labelStyle}>Hour</span>
-			            			<input className='form-control' style={dateStyle} min="-6" max="24" type='number' name= 'hour' onChange={this._dateChange} value={this.state.date.getHours()}  step="6" />
-			            		</div>
-			            	</div>
-			            </div>
-		            </div>
-                </div>
-				<div className='row'>
-	            	<div className='col-xs-12' style={{border: '1px solid red'}}>
-	            		<Legend scale={this.state.scale} />
-	            	</div>
-	            </div>
-	            <div className='row'>
-	            	<div className='col-xs-12' style={{border: '1px solid red'}}>
-	            		<Globe canvasData={this.state.canvasData} projection={this.state.projection} scale={this.state.scale} />
-	            	</div>
-	            </div>
+    			<div className="row nav-container">
+    				<div className="col-xs-2 hidden-xs side-nav">
+						<a className="title-logo" href="#">
+							<div className="header">
+								<span className="navbar-brand title">
+									<span className="emphasize">Wx</span>
+									Atlas
+									<sup className="version">
+										v.0.1
+									</sup>
+								</span>
+							</div>
+						</a>
+    					<nav>
+    						<ul className="nav">
+    							<li className={this._isTabActive("mapControls")} onClick={this._setActiveTab.bind(null, "mapControls")}>
+									<a href="#">
+										<span className="glyphicon glyphicon-cog">
+										</span>
+										<span className="nav-label">
+											Map Settings
+										</span>
+									</a>
+									<ul className="nav sub-nav nav-stacked controls" style={{display: this._showActiveTab("mapControls")}}>
+										<li>
+											<span>PROJECTION</span>
+											<select onChange={this._projectionChange} name="projection" className="form-control" value={this.state.projection}>
+												<option value="orthographic">Orthographic</option>
+												<option value="equirectangular">Equirectangular</option>
+												<option value="winkel3">Winkel III</option>
+											</select>
+										</li>
+										<li>
+											<span>LEVEL</span>
+											<select onChange={this._heightChange} name="height" className="form-control" value={this.state.height}>
+												<option value="500">500 hPa</option>
+												<option value="850">850 hPa</option>
+											</select>
+										</li>
+										<li>
+											<div className="col-sm-3 year">
+												<span>YEAR</span>
+												<input className="form-control" min="1979" max="2015" type="number" name="year" onChange={this._dateChange} value={this.state.date.getFullYear()} />
+											</div>
+											<div className="col-sm-3 month">
+												<span>MONTH</span>
+												<input className="form-control" min="0" max="13" type="number" name="month" onChange={this._dateChange} value={this.state.date.getMonth()+1} />
+											</div>
+											<div className="col-sm-3 day">
+												<span>DAY</span>
+												<input className="form-control" min="0" max="32" type="number" name="day" onChange={this._dateChange} value={this.state.date.getDate()} />
+											</div>
+											<div className="col-sm-3 hour">
+												<span>HOUR</span>
+												<input className="form-control" min="-6" max="24" type="number" name="hour" onChange={this._dateChange} value={this.state.date.getHours()}  step="6" />
+											</div>
+										</li>
+									</ul>
+								</li>
+								<li className={this._isTabActive("home")} onClick={this._setActiveTab.bind(null, "home")}>
+    								<a href="#">
+                                        <span className="glyphicon glyphicon-home">
+                                        </span>
+                                        <span className="nav-label">
+                                            Home
+                                        </span>
+                                    </a>
+									<ul className="nav sub-nav nav-stacked" style={{display: this._showActiveTab("home")}}>
+										<a href="#">
+											<li>
+												<span>Option 1</span>
+											</li>
+										</a>
+										<a href="#">
+											<li>
+												<span>Option 2</span>
+											</li>
+										</a>
+										<a href="#">
+											<li>
+												<span>Option 3</span>
+											</li>
+										</a>
+										<a href="#">
+											<li>
+												<span>Option 4</span>
+											</li>
+										</a>
+									</ul>
+								</li>
+								<li className={this._isTabActive("globe")} onClick={this._setActiveTab.bind(null, "globe")}>
+    								<a href="#">
+                                        <span className="glyphicon glyphicon-globe">
+                                        </span>
+                                        <span className="nav-label">
+                                            Globe
+                                        </span>
+                                    </a>
+									<ul className="nav sub-nav nav-stacked" style={{display: this._showActiveTab("globe")}}>
+										<a href="#">
+											<li>
+												<span>Option 1</span>
+											</li>
+										</a>
+										<a href="#">
+											<li>
+												<span>Option 2</span>
+											</li>
+										</a>
+										<a href="#">
+											<li>
+												<span>Option 3</span>
+											</li>
+										</a>
+										<a href="#">
+											<li>
+												<span>Option 4</span>
+											</li>
+										</a>
+									</ul>
+								</li>
+								<li className={this._isTabActive("dashboard")} onClick={this._setActiveTab.bind(null, "dashboard")}>
+									<a href="#">
+										<span className="glyphicon glyphicon-dashboard">
+										</span>
+										<span className="nav-label">
+											Dashboard
+										</span>
+									</a>
+									<ul className="nav sub-nav nav-stacked" style={{display: this._showActiveTab("dashboard")}}>
+										<a href="#">
+											<li>
+												<span>Option 1</span>
+											</li>
+										</a>
+										<a href="#">
+											<li>
+												<span>Option 2</span>
+											</li>
+										</a>
+										<a href="#">
+											<li>
+												<span>Option 3</span>
+											</li>
+										</a>
+										<a href="#">
+											<li>
+												<span>Option 4</span>
+											</li>
+										</a>
+									</ul>
+    							</li>
+    						</ul>
+    					</nav>
+    				</div>
+    				<div className="col-sm-10 map-content">
+						<div className="row">
+							<div className="col-sm-9 map">
+								<div className="widget map-container">
+			    					<Globe
+										canvasData={this.state.canvasData}
+										projection={this.state.projection}
+										scale={this.state.scale}
+										height={this.state.screenHeight}
+										leftOffset={20}
+									/>
+								</div>
+							</div>
+							<div className="col-sm-3 overview">
+								<div className="widget map-analytics">
+									<span>Overview</span>
+								</div>
+							</div>
+						</div>
+    				</div>
+    	        </div>
 	        </div>
 
 		);
@@ -245,9 +366,9 @@ var MapPage = React.createClass({
 });
 
 // -----------------------------BRUSH CODE--------------------------------------
-// <div className='row'>
-// 	<div className='col-xs-3' />
-// 	<div className='col-xs-6'>
+// <div className="row">
+// 	<div className="col-xs-3' />
+// 	<div className="col-xs-6">
 //     	<Brush
 //            width={this.state.elemWidth}
 //            height={75}

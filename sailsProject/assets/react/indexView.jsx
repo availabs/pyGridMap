@@ -13,14 +13,14 @@ var React = require("react"),
 	App = require("./pages/layout.react"),
     // Components
     //DemoOne =   require("./pages/DemoOne.react"),
-     MapPage =  require("./pages/Map.react"),
+    MapPage =  require("./pages/Map.react"),
     DemoPage =  require("./pages/Demo.react");
 
-       
+
     var routes = (
     	<Route name="app" path="/" handler={App}>
             <Route name="map" path="/map" handler={MapPage} />
-    		<DefaultRoute handler={DemoPage} />
+    		<DefaultRoute handler={MapPage} />
     	</Route>
     );
 

@@ -15,13 +15,15 @@ var GlobeDemo = React.createClass({
 	componentDidMount: function(){
 		var scope = this;
 		this.initGlobe(this.props)
-		
+
 	},
 
 	initGlobe: function (props){
 		var container = props.container || "globeDiv"
 		console.log('scale?', this.props.scale.range())
-		
+		if(props.leftOffset){
+			globe.leftOffset = props.leftOffset
+		}
 		globe.init('#'+container, {projection: props.projection})
 		if(this.props.scale){
 			globe.setScale(this.props.scale)
@@ -34,7 +36,6 @@ var GlobeDemo = React.createClass({
     componentWillReceiveProps: function(nextProps){
     	if(this.props.projection !== nextProps.projection){
     		var container = this.props.container || "globeDiv"
-    		//console.log('new projection', '#'+container+' .display', d3.selectAll('#'+this.props.container+' .display'))
     		d3.selectAll('#' + container + ' .display').remove()
     		this.initGlobe(nextProps)
     	}
@@ -45,7 +46,7 @@ var GlobeDemo = React.createClass({
     		globe.drawCanvas(nextProps.canvasData);
     	}
     	if(nextProps.scale){
-			globe.setScale(nextProps.scale)
+			globe.setScale(nextProps.scale);
 		}
         // if(!this.props.canvasData && nextProps.canvasData){
         //     globe.drawCanvas(nextProps.canvasData);
@@ -59,7 +60,7 @@ var GlobeDemo = React.createClass({
 	render: function(){
         var container = this.props.container || "globeDiv"
 		return (
-			<div id={container} style={{width:'100%', height:'600px'}}>
+			<div id={container} style={{width: '100%', height: this.props.height || '600px'}}>
             </div>
 		);
 	}

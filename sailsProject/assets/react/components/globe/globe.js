@@ -9,18 +9,17 @@ var globe = {
     overlayData: null,
 	projection: 'orthographic',
 	map: null,
-	zoomLevel: 290,
+	zoomLevel: 320,
 	REDRAW_WAIT: 15,
 	newOp: null,
 	path: null,
+	leftOffset: 0,
     scale: d3.scale.quantile()
         .domain([-100,-80,-60,-40,-20, 20, 40, 60, 80, 100])
         .range(["#67001f","#b2182b","#d6604d","#f4a582","#fddbc7","#f7f7f7","#d1e5f0","#92c5de","#4393c3","#2166ac","#053061"])
 }
 
-console.log('globe', globe)
-
-globe.init = function (container, options) {
+globe.init = function(container, options) {
 	this.container = container
     var scope = this;
 	globe.display = d3.select(container)
@@ -37,12 +36,10 @@ globe.init = function (container, options) {
 		.attr('id', 'animation')
 		.attr('class', 'fill-screen')
 
-
 	globe.display
 		.append('canvas')
 		.attr('id', 'overlay')
 		.attr('class', 'fill-screen')
-
 
 	globe.display
 		.append('svg')
@@ -62,6 +59,10 @@ globe.init = function (container, options) {
 	this.map.defineMap(d3.select("#map"), d3.select("#foreground"));
 	this.map.orientation('-60, 0, ' + globe.zoomLevel.toString() ,this.view);
 
+	//TODO: Figure out why leftOffset isn't being passed properly
+
+	console.log('leftoffset', globe.leftOffset);
+
 	this.loadGeo({},function () {
 		globe.path = d3.geo.path().projection(globe.map.projection).pointRadius(7);
 		var coastline = d3.select(".coastline");
@@ -76,11 +77,8 @@ globe.init = function (container, options) {
             .attr("height", scope.view.height)
             .style({
                 'position': 'absolute',
-                //'top': scope.view.top + 'px',
-                'left': scope.view.left + 'px'
-            })
-
-
+                'left': globe.leftOffset + 'px'
+            });
 
         coastline.datum(coastData);
 		lakes.datum(lakeData);
@@ -88,6 +86,18 @@ globe.init = function (container, options) {
 		d3.selectAll("path").attr("d", globe.path)
 		globe.display.call(globe.zoom);
 	})
+
+	window.onresize = function() {
+		console.log('window is resizing');
+		globe.view = globe.getView();
+		d3.selectAll(".fill-screen")
+            .attr("width", scope.view.width)
+            .attr("height", scope.view.height)
+            .style({
+                'position': 'absolute',
+                'left': globe.leftOffset + 'px'
+            });
+	}
 }
 
 globe.loadGeo = function(options, cb){
@@ -109,8 +119,8 @@ globe.getView = function(){
 	var w = window;
 	var d = document && document.documentElement;
 	var b = document.querySelector(this.container);
-    var x = b.clientWidth;
-	var y = b.clientHeight;
+    var x = b.offsetWidth;
+	var y = b.offsetHeight;
     //var rect = getPosition(b);
     var rect =  b.getBoundingClientRect();
     // console.log('get view', this.container, b , x, y, rect)
@@ -218,6 +228,7 @@ globe.createMask = function () {
 
     // Create a detached canvas, ask the model to define the mask polygon, then fill with an opaque color.
     var width = globe.view.width, height = globe.view.height;
+	console.log('mask width height', width, height)
     var canvas = d3.select(document.createElement("canvas")).attr("width", width).attr("height", height).node();
     var context = globe.map.defineMask(canvas.getContext("2d"));
     context.fillStyle = "rgba(255, 0, 0, 1)";
@@ -506,8 +517,6 @@ function buildGrid(builder) {
         }
     };
 }
-
-
 
 /********************************************************************************************************
  * globes - a set of models of the earth, each having their own kind of projection and onscreen behavior.
