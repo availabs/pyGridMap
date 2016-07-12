@@ -249,7 +249,7 @@ var MapPage = React.createClass({
                                             Home
                                         </span>
                                     </a>
-									<ul className="nav sub-nav nav-stacked" style={{display: this._showActiveTab("home")}}>
+									<ul className="nav sub-nav nav-stacked sub-options" style={{display: this._showActiveTab("home")}}>
 										<a href="#">
 											<li>
 												<span>Option 1</span>
@@ -280,7 +280,7 @@ var MapPage = React.createClass({
                                             Globe
                                         </span>
                                     </a>
-									<ul className="nav sub-nav nav-stacked" style={{display: this._showActiveTab("globe")}}>
+									<ul className="nav sub-nav nav-stacked sub-options" style={{display: this._showActiveTab("globe")}}>
 										<a href="#">
 											<li>
 												<span>Option 1</span>
@@ -311,7 +311,7 @@ var MapPage = React.createClass({
 											Dashboard
 										</span>
 									</a>
-									<ul className="nav sub-nav nav-stacked" style={{display: this._showActiveTab("dashboard")}}>
+									<ul className="nav sub-nav nav-stacked sub-options" style={{display: this._showActiveTab("dashboard")}}>
 										<a href="#">
 											<li>
 												<span>Option 1</span>
@@ -339,22 +339,13 @@ var MapPage = React.createClass({
     				</div>
     				<div className="col-sm-10 map-content">
 						<div className="row">
-							<div className="col-sm-9 map">
-								<div className="widget map-container">
-			    					<Globe
-										canvasData={this.state.canvasData}
-										projection={this.state.projection}
-										scale={this.state.scale}
-										height={this.state.screenHeight}
-										leftOffset={20}
-									/>
-								</div>
-							</div>
-							<div className="col-sm-3 overview">
-								<div className="widget map-analytics">
-									<span>Overview</span>
-								</div>
-							</div>
+	    					<Globe
+								canvasData={this.state.canvasData}
+								projection={this.state.projection}
+								scale={this.state.scale}
+								height={this.state.screenHeight}
+								leftOffset={20}
+							/>
 						</div>
     				</div>
     	        </div>
@@ -364,6 +355,12 @@ var MapPage = React.createClass({
 	}
 
 });
+
+// <div className="col-sm-3 overview">
+// 	<div className="widget map-analytics">
+// 		<span>Overview</span>
+// 	</div>
+// </div>
 
 // -----------------------------BRUSH CODE--------------------------------------
 // <div className="row">
