@@ -18,7 +18,7 @@ var MapPage = React.createClass({
 			loading: false,
 			canvasData: null,
 			projection: "orthographic",
-			date: new Date(2015, 11, 31, 0),
+			date: new Date(2010, 11, 31, 0),
 			format: "YYYY-MM-DD",
 			inputFormat: "MM-DD-YYYY",
 			mode: "date",
@@ -28,7 +28,7 @@ var MapPage = React.createClass({
 				d3.scale.threshold()
 		        .domain(d3.range(492, 601, 6))
 		        .range(d3.range(492,601,6).map(function(d){ return refernceScale(d)}))
-		        	//["#67001f","#b2182b","#d6604d","#f4a582","#fddbc7","#f7f7f7","#d1e5f0","#92c5de","#4393c3","#2166ac","#053061"])
+		        	// ["#67001f","#b2182b","#d6604d","#f4a582","#fddbc7","#f7f7f7","#d1e5f0","#92c5de","#4393c3","#2166ac","#053061"])
 		}
 
 	},
@@ -50,7 +50,7 @@ var MapPage = React.createClass({
 
 		var scope = this;
 		this.setState({loading: true})
-		d3.json('http://localhost:5000/grids/'+height+'/'+year+'/'+month+'/'+day+'/'+hour, function(err,data) {
+		d3.json('http://db-wxatlas.rit.albany.edu/grids_anom/gph/'+height+'/'+year+'/'+month+'/'+day+'/'+hour, function(err,data) {
 			var funscale = d3.scale.linear().domain([
 					d3.min(data.data),
 					d3.max(data.data)
@@ -64,9 +64,9 @@ var MapPage = React.createClass({
 
 			scope.setState({
 				canvasData: data,
-				// scale: d3.scale.quantile()
-				// 	.domain(data.data)
-				// 	.range(["#67001f","#b2182b","#d6604d","#f4a582","#fddbc7","#f7f7f7","#d1e5f0","#92c5de","#4393c3","#2166ac","#053061"].reverse()),
+				scale: d3.scale.quantile()
+					.domain(data.data)
+					.range(["#67001f","#b2182b","#d6604d","#f4a582","#fddbc7","#f7f7f7","#d1e5f0","#92c5de","#4393c3","#2166ac","#053061"].reverse()),
 				loading: false
 			})
 		})
@@ -217,14 +217,23 @@ var MapPage = React.createClass({
 										<li>
 											<span>LEVEL</span>
 											<select onChange={this._heightChange} name="height" className="form-control" value={this.state.height}>
-												<option value="500">500 hPa</option>
+												<option value="1000">1000 hPa</option>
+												<option value="925">925 hPa</option>
 												<option value="850">850 hPa</option>
+												<option value="700">700 hPa</option>
+												<option value="500">500 hPa</option>
+												<option value="300">300 hPa</option>
+												<option value="250">250 hPa</option>
+												<option value="200">200 hPa</option>
+												<option value="100">100 hPa</option>
+												<option value="50">50 hPa</option>
+												<option value="10">10 hPa</option>
 											</select>
 										</li>
 										<li>
 											<div className="col-sm-3 year">
 												<span>YEAR</span>
-												<input className="form-control" min="1979" max="2015" type="number" name="year" onChange={this._dateChange} value={this.state.date.getFullYear()} />
+												<input className="form-control" min="1979" max="2010" type="number" name="year" onChange={this._dateChange} value={this.state.date.getFullYear()} />
 											</div>
 											<div className="col-sm-3 month">
 												<span>MONTH</span>
