@@ -52,6 +52,7 @@ var MapPage = React.createClass({
 
 		var scope = this;
 		this.setState({loading: true})
+		console.log('http://db-wxatlas.rit.albany.edu/'+type+'/'+variable+'/'+height+'/'+year+'/'+month+'/'+day+'/'+hour)
 		d3.json('http://db-wxatlas.rit.albany.edu/'+type+'/'+variable+'/'+height+'/'+year+'/'+month+'/'+day+'/'+hour, function(err,data) {
 			var funscale = d3.scale.linear().domain([
 					d3.min(data.data),

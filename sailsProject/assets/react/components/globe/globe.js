@@ -1,5 +1,6 @@
 var d3 = require('d3')
 var topojson = require('topojson');
+var _ = require('underscore')
 
 var globe = {
 	version: '0.0.1',
@@ -10,7 +11,7 @@ var globe = {
 	projection: 'orthographic',
 	map: null,
 	zoomLevel: 320,
-	REDRAW_WAIT: 15,
+	REDRAW_WAIT: 5,
 	newOp: null,
 	path: null,
 	leftOffset: 0,
@@ -151,8 +152,11 @@ globe.zoom = d3.behavior.zoom()
 		// console.log('op', globe.op);
 		//canvasDisplay.hide();
         if(globe.overlayData){
+            console.time('clearCanvas')
             clearCanvas(d3.select("#overlay").node());
+            console.timeEnd('clearCanvas')
         }
+        console.log('zoomstart')
 
 	})
 	.on("zoom", function() {
@@ -173,7 +177,7 @@ globe.zoom = d3.behavior.zoom()
 		if (currentScale != globe.op.startScale) {
 			globe.op.type = "zoom";  // whenever a scale change is detected, (stickily) switch to a zoom operation
 		}
-
+        //console.log('zooming', currentMouse, currentScale)
 		// when zooming, ignore whatever the mouse is doing--really cleans up behavior on touch devices
 		globe.op.manipulator.move(globe.op.type === "zoom" ? null : currentMouse, currentScale);
 		//console.log('zoom2',op.type === "zoom" ? null : currentMouse, currentScale);
@@ -182,11 +186,7 @@ globe.zoom = d3.behavior.zoom()
 	.on("zoomend", function() {
 		globe.op.manipulator.end();
 		// Render hi-res coastlines and lakes
-		var coastline = globe.display.select('.coastline')
-		var lakes = globe.display.select('.lakes')
-		coastline.datum(globe.coastHi);
-		lakes.datum(globe.lakesHi);
-		globe.display.selectAll("path").attr("d", globe.path);
+		
 		if (globe.op.type === "click") {
 			//dispatch.trigger("click", op.startMouse, globe.projection.invert(op.startMouse) || []);
 		}
@@ -201,13 +201,14 @@ globe.zoom = d3.behavior.zoom()
 		globe.op = null;  // the drag/zoom/click operation is over
 	});
 	globe.doDraw = function() {
-		//console.log('draw')
+		// console.timeEnd('draw')
 		globe.display.selectAll("path").attr("d", globe.path);
 		//rendererAgent.trigger("redraw");
-		globe.doDraw_throttled = throttle(globe.doDraw, globe.REDRAW_WAIT, {leading: false});
+		globe.doDraw_throttled = _.throttle(globe.doDraw, globe.REDRAW_WAIT, {leading: false});
+        // console.time('draw')
 	}
 
-globe.doDraw_throttled = throttle(globe.doDraw, globe.REDRAW_WAIT, {leading: false});
+globe.doDraw_throttled = _.throttle(globe.doDraw, globe.REDRAW_WAIT, {leading: false});
 
 globe.drawOverlay = function(){
     var ctx = d3.select("#overlay").node().getContext("2d");
@@ -215,8 +216,15 @@ globe.drawOverlay = function(){
     clearCanvas(d3.select("#overlay").node());
     //clearCanvas(d3.select("#scale").node());
 
+    console.time('interpolate')
     globe.interpolateField(globe.overlayData,function(overlay){
+        console.timeEnd('interpolate')
         ctx.putImageData(overlay, 0, 0);
+        var coastline = globe.display.select('.coastline')
+        var lakes = globe.display.select('.lakes')
+        coastline.datum(globe.coastHi);
+        lakes.datum(globe.lakesHi);
+        globe.display.selectAll("path").attr("d", globe.path);
         //drawGridPoints(ctx, grid,globe);
     })
 }
@@ -261,6 +269,7 @@ globe.createMask = function () {
 globe.interpolateField = function(grids, cb) {
     if (!globe.map || !grids) return null;
 
+    console.time('init')
     var mask = globe.createMask();
     var primaryGrid = {};//grids;//.primaryGrid;
     var overlayGrid = grids;//.overlayGrid;
@@ -281,10 +290,12 @@ globe.interpolateField = function(grids, cb) {
     var overlayInterpolate = overlayGrid.interpolate;
     var hasDistinctOverlay = primaryGrid !== overlayGrid;
     var scale = overlayGrid.scale;
+    console.timeEnd('init')
     console.log('testing', scale.gradient.range(), )
     scale.gradient = globe.scale
 
     function interpolateColumn(x) {
+        console.time('interpolating column')
         var column = [];
         for (var y = bounds.y; y <= bounds.yMax; y += 2) {
             if (mask.isVisible(x, y)) {
@@ -312,12 +323,17 @@ globe.interpolateField = function(grids, cb) {
                         }
                     }
                 }
-
-                column[y+1] = column[y] = wind || [NaN, NaN, null];
+                // if(scalar) {
+                //     console.log('val', scalar, y)    
+                // }
+                
+                //column[y+1] = column[y] = wind || [NaN, NaN, null];
                 mask.set(x, y, color).set(x+1, y, color).set(x, y+1, color).set(x+1, y+1, color);
             }
         }
+        //console.log('c size', column.length, bounds)
         columns[x+1] = columns[x] = column;
+        //console.timeEnd('interpolating column')
     }
 
     (function batchInterpolate() {
@@ -328,7 +344,7 @@ globe.interpolateField = function(grids, cb) {
             x += 2;
             if ((Date.now() - start) > MAX_TASK_TIME) {
                 // Interpolation is taking too long. Schedule the next batch for later and yield.
-                // console.log(' Interpolation is taking too long. Schedule the next batch for later and yield.')
+                console.log(' Interpolation is taking too long. Schedule the next batch for later and yield.')
                 setTimeout(batchInterpolate, MIN_SLEEP_TIME);
                 return;
             }
@@ -1071,8 +1087,8 @@ function random(min, max) {
 var SECOND = 1000;
 var MINUTE = 60 * SECOND;
 var HOUR = 60 * MINUTE;
-var MAX_TASK_TIME = 100;                  // amount of time before a task yields control (millis)
-var MIN_SLEEP_TIME = 25;                  // amount of time a task waits before resuming (millis)
+var MAX_TASK_TIME = 250;                  // amount of time before a task yields control (millis)
+var MIN_SLEEP_TIME = 5;                  // amount of time a task waits before resuming (millis)
 var MIN_MOVE = 4;                         // slack before a drag operation beings (pixels)
 var MOVE_END_WAIT = 1000;                 // time to wait for a move operation to be considered done (millis)
 
