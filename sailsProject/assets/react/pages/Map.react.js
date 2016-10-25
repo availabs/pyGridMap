@@ -22,7 +22,9 @@ var MapPage = React.createClass({
 			format: "YYYY-MM-DD",
 			inputFormat: "MM-DD-YYYY",
 			mode: "date",
+			variable: "gph",
 			height: 500,
+			type: "grids",
 			activeTab: "mapControls",
 			scale:
 				d3.scale.threshold()
@@ -42,15 +44,15 @@ var MapPage = React.createClass({
 	componentDidMount: function () {
 
 		let newDate = this.state.date;
-		this.loadData(this.state.height, newDate.getFullYear(), newDate.getMonth()+1, newDate.getDate(), newDate.getHours());
+		this.loadData(this.state.type, this.state.variable, this.state.height, newDate.getFullYear(), newDate.getMonth()+1, newDate.getDate(), newDate.getHours());
 
 	},
 
-	loadData: function(height, year, month, day, hour) {
+	loadData: function(type, variable, height, year, month, day, hour) {
 
 		var scope = this;
 		this.setState({loading: true})
-		d3.json('http://db-wxatlas.rit.albany.edu/grids_anom/gph/'+height+'/'+year+'/'+month+'/'+day+'/'+hour, function(err,data) {
+		d3.json('http://db-wxatlas.rit.albany.edu/'+type+'/'+variable+'/'+height+'/'+year+'/'+month+'/'+day+'/'+hour, function(err,data) {
 			var funscale = d3.scale.linear().domain([
 					d3.min(data.data),
 					d3.max(data.data)
@@ -69,6 +71,7 @@ var MapPage = React.createClass({
 					.range(["#67001f","#b2182b","#d6604d","#f4a582","#fddbc7","#f7f7f7","#d1e5f0","#92c5de","#4393c3","#2166ac","#053061"].reverse()),
 				loading: false
 			})
+
 		})
 
 	},
@@ -100,7 +103,7 @@ var MapPage = React.createClass({
 
 		var newDate = new Date(dateString[0])
 		let hour = newDate.getHours() % 6 === 0 ? newDate.getHours() : parseInt(newDate.getHours()/6) * 6
-		this.loadData(this.state.height, newDate.getFullYear(), newDate.getMonth()+1, newDate.getDate(), hour)
+		this.loadData(this.state.type, this.state.variable, this.state.height, newDate.getFullYear(), newDate.getMonth()+1, newDate.getDate(), hour)
 		newDate.setHours(hour)
        	this.setState({
 			date: newDate
@@ -114,18 +117,18 @@ var MapPage = React.createClass({
     	switch( e.target.name ) {
     		case 'year':
     			newDate.setFullYear(e.target.value)
-    			this.loadData(this.state.height, newDate.getFullYear(), newDate.getMonth()+1, newDate.getDate(), this.state.date.getHours())
+    			this.loadData(this.state.type, this.state.variable, this.state.height, newDate.getFullYear(), newDate.getMonth()+1, newDate.getDate(), this.state.date.getHours())
     			this.setState({date: newDate})
 				console.log('date', this.state.date)
     		break;
     		case 'month':
 				newDate.setMonth(e.target.value-1)
-    			this.loadData(this.state.height, newDate.getFullYear(), newDate.getMonth()+1, newDate.getDate(), this.state.date.getHours())
+    			this.loadData(this.state.type, this.state.variable, this.state.height, newDate.getFullYear(), newDate.getMonth()+1, newDate.getDate(), this.state.date.getHours())
     			this.setState({date: newDate})
     		break;
     		case 'day':
 				newDate.setDate(e.target.value)
-    			this.loadData(this.state.height, newDate.getFullYear(), newDate.getMonth()+1, newDate.getDate(), this.state.date.getHours())
+    			this.loadData(this.state.type, this.state.variable, this.state.height, newDate.getFullYear(), newDate.getMonth()+1, newDate.getDate(), this.state.date.getHours())
     			this.setState({date: newDate})
     		break;
     		case 'hour':
@@ -138,7 +141,7 @@ var MapPage = React.createClass({
     			} else {
     				newDate.setHours(e.target.value)
     			}
-    			this.loadData(this.state.height, newDate.getFullYear(), newDate.getMonth()+1, newDate.getDate(), this.state.date.getHours())
+    			this.loadData(this.state.type, this.state.variable, this.state.height, newDate.getFullYear(), newDate.getMonth()+1, newDate.getDate(), this.state.date.getHours())
     			this.setState({date: newDate})
     		break;
     	}
@@ -149,7 +152,23 @@ var MapPage = React.createClass({
 
     	let newDate = this.state.date
     	this.setState({height: e.target.value})
-    	this.loadData(e.target.value, newDate.getFullYear(), newDate.getMonth()+1, newDate.getDate(), this.state.date.getHours())
+    	this.loadData(this.state.type, this.state.variable, e.target.value, newDate.getFullYear(), newDate.getMonth()+1, newDate.getDate(), this.state.date.getHours())
+
+    },
+
+	_variableChange(e) {
+
+    	let newDate = this.state.date
+    	this.setState({variable: e.target.value})
+    	this.loadData(this.state.type, e.target.value, this.state.height, newDate.getFullYear(), newDate.getMonth()+1, newDate.getDate(), this.state.date.getHours())
+
+    },
+
+	_typeChange(e) {
+
+    	let newDate = this.state.date
+    	this.setState({type: e.target.value})
+    	this.loadData(e.target.value, this.state.variable, this.state.height, newDate.getFullYear(), newDate.getMonth()+1, newDate.getDate(), this.state.date.getHours())
 
     },
 
@@ -157,7 +176,7 @@ var MapPage = React.createClass({
 
 		let newDate = this.state.date
 		this.setState({projection: e.target.value})
-		this.loadData(this.state.height, newDate.getFullYear(), newDate.getMonth()+1, newDate.getDate(), this.state.date.getHours())
+		this.loadData(this.state.type, this.state.variable, this.state.height, newDate.getFullYear(), newDate.getMonth()+1, newDate.getDate(), this.state.date.getHours())
 
 	},
 
@@ -215,6 +234,14 @@ var MapPage = React.createClass({
 											</select>
 										</li>
 										<li>
+											<span>VARIABLE</span>
+											<select onChange={this._variableChange} name="height" className="form-control" value={this.state.variable}>
+												<option value="gph">Geopotential Height</option>
+												<option value="uwnd">Zonal Wind</option>
+												<option value="vwnd">Meridional Wind</option>
+											</select>
+										</li>
+										<li>
 											<span>LEVEL</span>
 											<select onChange={this._heightChange} name="height" className="form-control" value={this.state.height}>
 												<option value="1000">1000 hPa</option>
@@ -228,6 +255,13 @@ var MapPage = React.createClass({
 												<option value="100">100 hPa</option>
 												<option value="50">50 hPa</option>
 												<option value="10">10 hPa</option>
+											</select>
+										</li>
+										<li>
+											<span>TYPE</span>
+											<select onChange={this._typeChange} name="height" className="form-control" value={this.state.type}>
+												<option value="grids">Total</option>
+												<option value="anoms">Anomaly</option>
 											</select>
 										</li>
 										<li>
