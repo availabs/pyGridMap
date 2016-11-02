@@ -53,7 +53,7 @@ var MapPage = React.createClass({
 		var scope = this;
 		this.setState({loading: true})
 		console.log('http://db-wxatlas.rit.albany.edu/'+type+'/'+variable+'/'+height+'/'+year+'/'+month+'/'+day+'/'+hour)
-		d3.json('http://db-wxatlas.rit.albany.edu/'+type+'/'+variable+'/'+height+'/'+year+'/'+month+'/'+day+'/'+hour, function(err,data) {
+		d3.json('http://db-wxatlas.rit.albany.edu/'+type+'/'+variable+'/'+height+'/'+year+'/'+month+'/'+day+'/'+hour, (err,data) =>{
 			var funscale = d3.scale.linear().domain([
 					d3.min(data.data),
 					d3.max(data.data)
@@ -67,9 +67,10 @@ var MapPage = React.createClass({
 
 			scope.setState({
 				canvasData: data,
-				scale: d3.scale.quantile()
-					.domain(data.data)
-					.range(["#67001f","#b2182b","#d6604d","#f4a582","#fddbc7","#f7f7f7","#d1e5f0","#92c5de","#4393c3","#2166ac","#053061"].reverse()),
+				scale: this.state.scale,
+					//d3.scale.quantile()
+					//.domain(data.data)
+					//.range(["#67001f","#b2182b","#d6604d","#f4a582","#fddbc7","#f7f7f7","#d1e5f0","#92c5de","#4393c3","#2166ac","#053061"].reverse()),
 				loading: false
 			})
 
