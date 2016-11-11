@@ -23,60 +23,44 @@ var selectedCountryFill = "#007ea3",
     flightPathColor = "#007ea3",
     landFill = "#b9b5ad",
     seaFill = "#e9e4da";
-var startCountry = "Australia";
-var endCountry = "United Kingdom";
 
-//interpolator from http://bl.ocks.org/jasondavies/4183701
-var d3_geo_greatArcInterpolator = function() {
-    var d3_radians = Math.PI / 180;
-    var x0, y0, cy0, sy0, kx0, ky0,
-        x1, y1, cy1, sy1, kx1, ky1,
-        d,
-        k;
+var flightPath ={}
+    flightPath.type = "LineString";
+    flightPath.coordinates = [[0,0], [179,0]];
 
-    function interpolate(t) {
-        var B = Math.sin(t *= d) * k,
-            A = Math.sin(d - t) * k,
-            x = A * kx0 + B * kx1,
-            y = A * ky0 + B * ky1,
-            z = A * sy0 + B * sy1;
-        return [
-            Math.atan2(y, x) / d3_radians,
-            Math.atan2(z, Math.sqrt(x * x + y * y)) / d3_radians
-        ];
+var currentData = null
+
+
+
+console.log('interpolate',(0.1))
+
+function drawGradientLine(start, end, startColor, endColor, delta){
+    var colorRange = d3.scale.linear().domain([0,1]).range([startColor,endColor])
+    var xscale = d3.scale.linear().domain([0,1]).range([start[0],end[0]])
+    var yscale = d3.scale.linear().domain([0,1]).range([start[1],end[1]])
+    var current = start
+    var gradientPath = {
+        type:'LineString',
+        coordinates: [
+            start
+        ]
     }
-
-    interpolate.distance = function() {
-        if (d == null) k = 1 / Math.sin(d = Math.acos(Math.max(-1, Math.min(1, sy0 * sy1 + cy0 * cy1 * Math.cos(x1 - x0)))));
-        return d;
-    };
-
-    interpolate.source = function(_) {
-        var cx0 = Math.cos(x0 = _[0] * d3_radians),
-            sx0 = Math.sin(x0);
-        cy0 = Math.cos(y0 = _[1] * d3_radians);
-        sy0 = Math.sin(y0);
-        kx0 = cy0 * cx0;
-        ky0 = cy0 * sx0;
-        d = null;
-        return interpolate;
-    };
-
-    interpolate.target = function(_) {
-        var cx1 = Math.cos(x1 = _[0] * d3_radians),
-            sx1 = Math.sin(x1);
-        cy1 = Math.cos(y1 = _[1] * d3_radians);
-        sy1 = Math.sin(y1);
-        kx1 = cy1 * cx1;
-        ky1 = cy1 * sx1;
-        d = null;
-        return interpolate;
-    };
-
-    return interpolate;
+    var next = start
+    for(var i = 0; i < delta;i++){
+        var t = i/delta
+        next = [xscale(t), yscale(t)]
+        //console.log(next)
+        gradientPath.coordinates[1] = next
+        c.strokeStyle = colorRange(t), c.lineWidth = 1
+        c.beginPath(), path(gradientPath)
+        c.stroke()
+        gradientPath.coordinates[0] = next
+    }
+    gradientPath.coordinates[1] = end
+    c.strokeStyle = colorRange(t), c.lineWidth = 1
+    c.beginPath(), path(gradientPath)
+    c.stroke()
 }
-
-
 
 function ready(error, world) {
     if (error) throw error;
@@ -85,21 +69,6 @@ function ready(error, world) {
         land = topojson.feature(world, world.objects.land),
         countries = topojson.feature(world, world.objects.countries).features,
         i = -1;
-
-
-
-    
-    // var n = countries.length;
-    // var startCoord = d3.geo.centroid(journey[0]),
-    //     endCoord = d3.geo.centroid(journey[1])
-    // var coords = [-startCoord[0], -startCoord[1]]
-
-    // var flightPath ={}
-    // flightPath.type = "LineString";
-    // flightPath.coordinates = [startCoord, endCoord];
-
-    // var plane = document.getElementById('plane');
-
 
     //projection.rotate(coords);
      var dragBehaviour = d3.behavior.drag()
@@ -128,26 +97,6 @@ function ready(error, world) {
     var canvas = d3.select("#globeParent").select('canvas')
     var context = canvas.node().getContext("2d");
     function zoom() {
-
-      // console.log(d3.event.dx , d3.event.dy )
-
-      //   var dx = d3.event.translate[0]/10;
-      //   var dy = d3.event.translate[1]/10;
-
-      //   var rotation = projection.rotate();
-      //   var radius = projection.scale();
-      //   var scale = d3.scale.linear()
-      //       .domain([-1 * radius, radius])
-      //       .range([-90, 90]);
-      //   var degX = scale(dx);
-      //   var degY = scale(dy);
-      //   rotation[0] += degX;
-      //   rotation[1] -= degY;
-      //   if (rotation[1] > 90)   rotation[1] = 90;
-      //   if (rotation[1] < -90)  rotation[1] = -90;
-
-      //   if (rotation[0] >= 180) rotation[0] -= 360;
-      //   projection.rotate(rotation);
       context.save();
       context.clearRect(0, 0, width, height);
       context.translate(d3.event.translate[0], d3.event.translate[1]);
@@ -155,7 +104,7 @@ function ready(error, world) {
       redraw();
       context.restore();
     }
-    //console.log('test', canvas)
+    
     redraw()
     canvas
     .call(dragBehaviour)
@@ -170,17 +119,71 @@ function ready(error, world) {
         c.shadowBlur = 0, c.shadowOffsetX = 0, c.shadowOffsetY = 0;
         c.fillStyle = seaFill, c.beginPath(), path(globe), c.fill();
         c.fillStyle = landFill, c.beginPath(), path(land), c.fill();
-        //fills for start and end countries
-        //c.fillStyle = selectedCountryFill, c.beginPath(), path(journey[0]), c.fill();
-        //c.fillStyle = selectedCountryFill, c.beginPath(), path(journey[1]), c.fill();
-        //flight path
-        //c.strokeStyle = selectedCountryFill, c.lineWidth = 3, c.setLineDash([10, 10])
-          //  c.beginPath(), path(flightPath),
-            //c.shadowColor = "#373633",
-            //c.shadowBlur = 20, c.shadowOffsetX = 5, c.shadowOffsetY = 20,
-        // c.stroke();
+        //c.strokeStyle = flightPathColor, c.lineWidth = 3
+        //console.log('test', path(flightPath))
+        if (currentData) {
+            //drawData(2.5)
+        }
+        //c.shadowColor = "#373633",
+        //c.shadowBlur = 20, c.shadowOffsetX = 5, c.shadowOffsetY = 20,
+        
+       
+    }
+    function drawData (delta) {
+        var prev = null,
+            prevColor = null,
+            current = null,
+            currentColor = null,
+            x = null,
+            y = null
+
+        var refernceScale = d3.scale.linear()
+            .domain([492, 522, (600+492)/2, 570, 600])
+            .range(["#053061","#4393c3","#f7f7f7","#f4a582","#67001f"]);
+        var colorScale = d3.scale.threshold()
+            .domain(d3.range(492, 601, 6))
+            .range(d3.range(492,601,6).map(function(d){ return refernceScale(d)}))
+
+        currentData.forEach((d,i) => {
+                y = 90 - Math.floor(i / (360/delta))*delta
+                x = (i % (360/delta)) * delta
+                if(i > 5000 && i < 5100) {
+                    //console.log(x,y,d,colorScale(d))
+                }
+                
+                current = [x, y]
+                currentColor = colorScale(d)
+                if(prev && x !== 0) {
+                    drawGradientLine(prev,current,prevColor,currentColor, 1)
+                }
+                prev = current
+                prevColor = currentColor
+        })
+
     }
 
+   function getData() {
+        d3.json('http://db-wxatlas.rit.albany.edu/grids/gph/500/2010/12/31/0', (err,data) => {
+            console.log('got data')
+            var funscale = d3.scale.linear().domain([
+                    d3.min(data.data),
+                    d3.max(data.data)
+                ]).range([-100, 100])
+
+            data.data = data.data.map(function(d) {
+                return d/10
+            })
+
+            //data.header.date = new Date(year, month, day, hour)
+            console.log(data.header)
+
+            currentData = data.data
+            console.log(currentData)
+            redraw()
+        })
+    }
+
+getData()
    
     //letting you drag the globe around but setting it so you can't tilt the globe over
    
@@ -193,59 +196,7 @@ function ready(error, world) {
         return Math.atan2(deltaY, deltaX);
     }
 
-    //this is to make the globe rotate and the plane fly along the path
-    // function customTransition(journey){
-    //     var rotateFunc = d3_geo_greatArcInterpolator();
-    //     d3.transition()
-    //         .delay(250)
-    //         .duration(5050)
-    //         .tween("rotate", function() {
-    //             var point = d3.geo.centroid(journey[1])
-    //             rotateFunc.source(projection.rotate()).target([-point[0], -point[1]]).distance();
-    //             var pathInterpolate = d3.geo.interpolate(projection.rotate(), [-point[0], -point[1]]);
-    //             var oldPath = startCoord;
-    //                 return function (t) {
-    //                     projection.rotate(rotateFunc(t));
-    //                     var newPath = [-pathInterpolate(t)[0], -pathInterpolate(t)[1]];
-    //                     var planeAngle = calcAngle(projection(oldPath), projection(newPath));
-    //                     var flightPathDynamic = {}
-    //                     flightPathDynamic.type = "LineString";
-    //                     flightPathDynamic.coordinates = [startCoord, [-pathInterpolate(t)[0], -pathInterpolate(t)[1]]];
-    //                     var maxPlaneSize =  0.1 * projection.scale();
-    //                     //this makes the plane grows and shrinks at the takeoff, landing
-    //                     if (t <0.1){
-    //                         redraw3(flightPathDynamic, planeAngle, Math.pow(t/0.1, 0.5) * maxPlaneSize);
-    //                     }else if(t > 0.9){
-    //                         redraw3(flightPathDynamic, planeAngle, Math.pow((1-t)/0.1, 0.5) * maxPlaneSize );
-    //                     }else{
-    //                         redraw3(flightPathDynamic, planeAngle, maxPlaneSize);
-    //                     }
-    //                     //redraw3(flightPathDynamic, (planeAngle))
-    //                 };
-    //             //}
-    //         }).each("end", function(){
-    //             //make the plane disappears after it's reached the destination
-    //             //also enable the drag interaction at this point
-    //             redraw();
-    //            
-    //         })
-    // }
 
-    // //add the plane to the canvas and rotate it
-    // function drawPlane(context, image, xPos, yPos, angleInRad, imageWidth, imageHeight){
-    //     context.save();
-    //     context.translate(xPos, yPos);
-    //     // rotate around that point, converting our
-    //     // angle from degrees to radians
-    //     context.rotate(angleInRad);
-    //     // draw it up and to the left by half the width
-    //     // and height of the image, plus add some shadow
-    //     //context.shadowColor = "#373633", context.shadowBlur = 20, context.shadowOffsetX = 5, context.shadowOffsetY = 10;
-    //     context.drawImage(image, -(imageWidth/2), -(imageHeight/2), imageWidth, imageHeight);
-
-    //     // and restore the co-ords to how they were when we began
-    //     context.restore();
-    // }
 
 }
 
