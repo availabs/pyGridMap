@@ -22,7 +22,8 @@ var path = d3.geo.path()
 var selectedCountryFill = "#007ea3",
     flightPathColor = "#007ea3",
     landFill = "#b9b5ad",
-    seaFill = "#e9e4da";
+    seaFill = "#e9e4da",
+    gridFill = 'rgba(255,0,0,0.70)'
 
 var flightPath ={}
     flightPath.type = "LineString";
@@ -37,38 +38,32 @@ var currentData = [{
 
 console.log('interpolate',(0.1))
 
-function getSqaure(a,b,c,d, startColor, endColor, delta){
-    var colorRange = d3.scale.linear().domain([0,1]).range([startColor,endColor])
-    var xscale = d3.scale.linear().domain([0,1]).range([start[0],end[0]])
-    var yscale = d3.scale.linear().domain([0,1]).range([start[1],end[1]])
-    var current = start
+function getSqaure(a, delta){
+    // var xscale = d3.scale.linear().domain([0,1]).range([start[0],end[0]])
+    // var yscale = d3.scale.linear().domain([0,1]).range([start[1],end[1]])
+    // var current = start
+
+    // a[0] = a[0] + 0.01
+    // a[1] = a[1] + 0.
+    a = a.reverse()
     var polygon = {
         type:'Polygon',
         coordinates: [
             [
-                [a,b],
-                [b,c],
-                [c,d],
-                [d,a]
+                a,
+                [a[0] + delta , a[1]],
+                [a[0] + delta , a[1] + delta],
+                [a[0] , a[1] + delta],
+                a
+                
             ]
         ]
     }
-    //var next = start
-    // for(var i = 0; i < delta;i++){
-    //     var t = i/delta
-    //     next = [xscale(t), yscale(t)]
-    //     //console.log(next)
-    //     gradientPath.coordinates[1] = next
-    //     c.strokeStyle = colorRange(t), c.lineWidth = 7
-    //     c.beginPath(), path(gradientPath)
-    //     c.stroke()
-    //     gradientPath.coordinates[0] = next
-    // }
-    //gradientPath.coordinates[1] = end
-    //c.strokeStyle = colorRange(t), c.lineWidth = 7
-    //c.beginPath(), path(gradientPath)
-    //c.stroke()
-    return polygon 
+    return {
+        type: "Feature",
+        properties: {},
+        geometry:polygon 
+    }
 }
 
 
@@ -155,49 +150,22 @@ function ready(error, world) {
         c.clearRect(0, 0, width, height);
         //base globe
         c.shadowBlur = 0, c.shadowOffsetX = 0, c.shadowOffsetY = 0;
+        console.log('land', land)
         c.fillStyle = seaFill, c.beginPath(), path(globe), c.fill();
         c.fillStyle = landFill, c.beginPath(), path(land), c.fill();
+        currentData.forEach(d => {
+            console.log('current Data',d)
+            c.fillStyle = gridFill, c.beginPath(), path(d), c.fill();
+        })
         //c.strokeStyle = flightPathColor, c.lineWidth = 3
         //console.log('test', path(flightPath))
-        if (currentData) {
-            // /drawData(2.5)
-        }
+        // if (currentData) {
+        //     // /drawData(2.5)
+        // }
         //c.shadowColor = "#373633",
         //c.shadowBlur = 20, c.shadowOffsetX = 5, c.shadowOffsetY = 20,
         
        
-    }
-    function drawData (delta) {
-        var prev = null,
-            prevColor = null,
-            current = null,
-            currentColor = null,
-            x = null,
-            y = null
-
-        var refernceScale = d3.scale.linear()
-            .domain([492, 522, (600+492)/2, 570, 600])
-            .range(["#053061","#4393c3","#f7f7f7","#f4a582","#67001f"]);
-        var colorScale = d3.scale.threshold()
-            .domain(d3.range(492, 601, 6))
-            .range(d3.range(492,601,6).map(function(d){ return refernceScale(d)}))
-
-        currentData.forEach((d,i) => {
-                y = 90 - Math.floor(i / (360/delta))*delta
-                x = (i % (360/delta)) * delta
-                if(i > 5000 && i < 5100) {
-                    //console.log(x,y,d,colorScale(d))
-                }
-                
-                current = [x, y]
-                currentColor = colorScale(d)
-                if(prev && x !== 0) {
-                    drawGradientLine(prev,current,prevColor,currentColor, 1)
-                }
-                prev = current
-                prevColor = currentColor
-        })
-
     }
 
    function getData() {
@@ -211,12 +179,29 @@ function ready(error, world) {
             data.data = data.data.map(function(d) {
                 return d/10
             })
+            
 
-            //data.header.date = new Date(year, month, day, hour)
-            console.log(data.header)
-
-            currentData = data.data
+            //data.header.date = new Date(year, month, day, hour)\
+            var delta = 2.5
+            currentData[0].features = data.data.map( (d,i) => {
+                y = 90 - Math.floor(i / (360/delta))*delta
+                x = (i % (360/delta)) * delta
+                return getSqaure([x,y], 2.5)
+            })
+            // .filter((d,i) => i > 200 && i < 210)
+            // .map((d,i) => {
+            //     console.log('coord', 
+            //         d.geometry.coordinates[0][0], 
+            //         d.geometry.coordinates[0][1],
+            //         d.geometry.coordinates[0][2],
+            //         d.geometry.coordinates[0][3]
+            //     )
+            //     return d
+            // })
             console.log(currentData)
+
+            //currentData = data.data
+            //console.log(currentData)
             redraw()
         })
     }
