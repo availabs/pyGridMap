@@ -15,6 +15,7 @@ var globe = {
 	newOp: null,
 	path: null,
 	leftOffset: 0,
+    fastoverlay: null,
     scale: d3.scale.quantile()
         .domain([-100,-80,-60,-40,-20, 20, 40, 60, 80, 100])
         .range(["#67001f","#b2182b","#d6604d","#f4a582","#fddbc7","#f7f7f7","#d1e5f0","#92c5de","#4393c3","#2166ac","#053061"])
@@ -42,6 +43,11 @@ globe.init = function(container, options) {
 		.attr('id', 'overlay')
 		.attr('class', 'fill-screen')
 
+    globe.display
+        .append('canvas')
+        .attr('id', 'fastoverlay')
+        .attr('class', 'fill-screen')
+
 	globe.display
 		.append('svg')
 		.attr('id', 'foreground')
@@ -62,8 +68,7 @@ globe.init = function(container, options) {
 
 	//TODO: Figure out why leftOffset isn't being passed properly
 
-	console.log('leftoffset', globe.leftOffset);
-
+	
 	this.loadGeo({},function () {
 		globe.path = d3.geo.path().projection(globe.map.projection).pointRadius(7);
 		var coastline = d3.select(".coastline");
@@ -89,7 +94,6 @@ globe.init = function(container, options) {
 	})
 
 	window.onresize = function() {
-		console.log('window is resizing');
 		globe.view = globe.getView();
 		d3.selectAll(".fill-screen")
             .attr("width", scope.view.width)
@@ -99,6 +103,23 @@ globe.init = function(container, options) {
                 'left': globe.leftOffset + 'px'
             });
 	}
+}
+
+globe.setupWebGL = function () {
+    var start = Date.now();
+    var glReport = require("./gl/glCheck");
+    var msg = glReport.pass ? "ok" : JSON.stringify(glReport);
+    console.log("check gl (" + (Date.now() - start) + "ms): " + msg);
+    if (_.isFunction(window.ga)) {
+        window.ga("send", "event", "gl", msg);
+    }
+    if (!glReport.pass) {
+        return;
+    }
+    var canvas = d3.select("#fastoverlay").node();
+    console.log('gl map', )
+    globe.fastoverlay = require("./gl/fastoverlay")(canvas, globe.overlayData);
+    // fastoverlayAgent.submit(fastoverlay);
 }
 
 globe.loadGeo = function(options, cb){
@@ -152,9 +173,9 @@ globe.zoom = d3.behavior.zoom()
 		// console.log('op', globe.op);
 		//canvasDisplay.hide();
         if(globe.overlayData){
-            console.time('clearCanvas')
+            //console.time('clearCanvas')
             clearCanvas(d3.select("#overlay").node());
-            console.timeEnd('clearCanvas')
+            //console.timeEnd('clearCanvas')
         }
         console.log('zoomstart')
 
@@ -200,12 +221,10 @@ globe.zoom = d3.behavior.zoom()
 
 		globe.op = null;  // the drag/zoom/click operation is over
 	});
+
 	globe.doDraw = function() {
-		// console.timeEnd('draw')
 		globe.display.selectAll("path").attr("d", globe.path);
-		//rendererAgent.trigger("redraw");
 		globe.doDraw_throttled = _.throttle(globe.doDraw, globe.REDRAW_WAIT, {leading: false});
-        // console.time('draw')
 	}
 
 globe.doDraw_throttled = _.throttle(globe.doDraw, globe.REDRAW_WAIT, {leading: false});
@@ -359,9 +378,12 @@ globe.interpolateField = function(grids, cb) {
 }
 
 globe.drawCanvas = function(mapData, options){
-    console.log('globe scale?', globe.scale.range())
+    
 
     globe.overlayData = Object.assign(globe.defaultCanvas, buildGrid(globe.defaultCanvas.builder([mapData])));
+    
+    console.log('overlayData', globe.overlayData.grid())
+    this.setupWebGL()
 
     setTimeout(function(){
         globe.drawOverlay();
@@ -469,6 +491,7 @@ function buildGrid(builder) {
     var ni = header.nx, nj = header.ny;    // number of grid points W-E and N-S (e.g., 144 x 73)
     var date = new Date(header.refTime);
     date.setHours(date.getHours() + header.forecastTime);
+    var _grid = require('./gl/rectangularGrid.js')(λ0, φ0)
 
     // Scan mode 0 assumed. Longitude increases from λ0, and latitude decreases from φ0.
     // http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table3-4.shtml
@@ -530,6 +553,21 @@ function buildGrid(builder) {
                     cb(floorMod(180 + λ0 + i * Δλ, 360) - 180, φ0 - j * Δφ, row[i]);
                 }
             }
+        },
+        field: function field() {
+            return {
+                valueAt: function valueAt(i) {
+                    var j = i * 2;
+                    var u = builder.data[j];
+                    var v = builder.data[j + 1];
+                    return [u, v, Math.sqrt(u * u + v * v)];
+                },
+                nearest: nearest.vector(_grid, builder.data),
+                bilinear: bilinear.vector(_grid, builder.data)
+            };
+        },
+        grid: function grid() {
+            return _grid;
         }
     };
 }
@@ -1140,3 +1178,8 @@ function convertHex(hex,a){
     var b = parseInt(hex.substring(4,6), 16);
     return [r,g,b,a];
 }
+
+
+
+
+      

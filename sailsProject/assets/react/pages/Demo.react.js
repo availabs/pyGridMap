@@ -12,8 +12,8 @@ var DemoPage = React.createClass({
 	getInitialState:function(){
 		return  {
 			elemWidth: 400,
-			startDate: moment().subtract(180, 'days')._d,
-			endDate: moment().subtract(90, 'days')._d,
+			startDate: moment().subtract(1080, 'days')._d,
+			endDate: moment().subtract(1000, 'days')._d,
 			graphData:[]
 		}
 	},

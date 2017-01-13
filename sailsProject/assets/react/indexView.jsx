@@ -20,6 +20,7 @@ var React = require("react"),
     var routes = (
     	<Route name="app" path="/" handler={App}>
             <Route name="map" path="/map" handler={MapPage} />
+            <Route name="demo" path="/demo" handler={DemoPage} />
     		<DefaultRoute handler={MapPage} />
     	</Route>
     );
