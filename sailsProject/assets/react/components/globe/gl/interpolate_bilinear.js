@@ -3,7 +3,29 @@
  */
 "use strict";
 
-var µ = require("./micro");
+var µ = {}
+µ.arrayHashCode = function (array) {
+    var samples = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : Infinity;
+
+    var data = void 0;
+    switch (array.byteLength % 4) {
+        case 0:
+            data = new Int32Array(array.buffer);break;
+        case 2:
+            data = new Int16Array(array.buffer);break;
+        default:
+            data = new Int8Array(array.buffer);break;
+    }
+    return _arrayHashCode(data, samples);
+};
+ function _arrayHashCode(array, samples) {
+        var result = new Int32Array([array.byteLength]);
+        var step = Math.max(array.length / samples, 1);
+        for (var i = 0; i < array.length; i += step) {
+            result[0] = 31 * result[0] + array[Math.floor(i)];
+        }
+        return result[0];
+    }
 var lookup = require("./lookup");
 var glReport = require("./glCheck");
 
@@ -66,6 +88,8 @@ function scalar(grid, data) {
         var useNative = glReport.floatTexLinear && !grid.isCylindrical();
         var look = lookup(glu, grid.dimensions());
 
+
+
         var _grid$dimensions = grid.dimensions(),
             width = _grid$dimensions.width,
             height = _grid$dimensions.height,
@@ -76,6 +100,7 @@ function scalar(grid, data) {
                 return [look.scalarSource(), useNative ? look.shaderSourceTexture2D() : look.shaderSourceBilinearWrap()];
             },
             textures: function textures() {
+
                 return {
                     weather_data: look.scalarTexture(data, {
                         hash: hash,
@@ -178,6 +203,7 @@ function vector(grid, data) {
                 return [look.vectorSource(), useNative ? look.shaderSourceTexture2D() : look.shaderSourceBilinearWrap()];
             },
             textures: function textures() {
+                //console.log('texture_data', data)
                 return {
                     weather_data: look.vectorTexture(data, {
                         hash: hash,

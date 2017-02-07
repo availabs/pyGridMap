@@ -34,7 +34,7 @@ var main = "\nuniform float u_Detail;\n\nvoid main() {\n    vec2 coord = invert(
  * @param animatorAgent
  * @returns {*}
  */
-module.exports = function (canvas, globeAgent) { //configuration, globeAgent, gridAgent, rendererAgent, animatorAgent
+module.exports = function (canvas) { //configuration, globeAgent, gridAgent, rendererAgent, animatorAgent
 
     // Draw webgl offscreen then copy to 2d canvas. Reduces jank, especially on iOS, during compositing of different
     // layers at the expense of some performance. Better way?
@@ -106,6 +106,7 @@ module.exports = function (canvas, globeAgent) { //configuration, globeAgent, gr
             gl.deleteTexture(entry.texture);
         }
         // create new texture
+        console.log('testing texture', def)
         var texture = glu.makeTexture2D(def);
         return { def: _.omit(def, "data"), texture: texture };
     }
@@ -141,21 +142,21 @@ module.exports = function (canvas, globeAgent) { //configuration, globeAgent, gr
      * Get the webgl components that are currently renderable.
      * @returns {Object[]} an array of webgl components, or undefined if a component describes itself as non-renderable.
      */
-    function collectComponents() {
-        var globe = globeAgent;
-        
-        var product = (gridAgent.value() || {}).overlayGrid || {};
-        console.log('product', product)
+    function collectComponents(projection, product) {
+        var myImposter = {}
+        //{bounds: , colors: }
+            Object.defineProperty(myImposter, 'bounds', [0, 100])
+            Object.defineProperty(myImposter, 'colors', new Uint8Array(length).map(d => Math.floor(Math.random() * (0 - 255 + 1))))
         var factories = [
-            globe && globe.projection(), 
+            projection, 
             product.grid && product.grid(),
             product.field && product.field()["bilinear"], 
             product.scale
           ];
-        console.log('1', globe && globe.optimizedProjection() )
-        // console.log('2',  product.grid && product.grid() )
-        // console.log('3', product.field && product.field()["bilinear"])
-        // console.log('4',product.scale)
+        //console.log('1', projection )
+        // console.log('2',  product.grid && product.grid() ?  product.grid().webgl() : null  )
+        // console.log('3', product.field && product.field()["bilinear"] ? product.field : product.field()["bilinear"]())
+        // console.log('4', product)
         return factories.map(function () {
             var e = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
             // console.log('5', e.webgl)
@@ -192,8 +193,8 @@ module.exports = function (canvas, globeAgent) { //configuration, globeAgent, gr
          *
          * @returns {boolean} true if current components support webgl, otherwise false (to then be handled by 2d).
          */
-        draw: function draw() {
-            var detail = //configuration.get("hd") ? 1.0 : 0.5;
+        draw: function draw(projection, grids) {
+            var detail = 1.0;//configuration.get("hd") ? 1.0 : 0.5;
             adjustViewport(detail);
 
             clear();
@@ -201,21 +202,22 @@ module.exports = function (canvas, globeAgent) { //configuration, globeAgent, gr
             // if we're just downloading and interpolating a new grid, and animation is turned on, then we don't want to
             // adjust the alpha.
             //console.log('--------------------------------')
-            var renderer = rendererAgent.value();
+            var renderer = 'ready'
             //console.log('renderer',renderer)
-            var product = (gridAgent.value() || {}).overlayGrid;
+            // var product = (gridAgent.value() || {}).overlayGrid;
             //console.log('product', product)
-            var overlayType = configuration.get("overlayType");
+            var overlayType = 'stuff'//configuration.get("overlayType");
             // console.log('overlayType', overlayType)
             var animate = false; //configuration.get("animate"); // !!animatorAgent.value();\
             //console.log('animate', animate)
-            var components = collectComponents();
-            // console.log('components', components)
+            var components = collectComponents(projection,grids);
+            console.log('components', components, components.length)
 
             if (overlayType === "off" || !renderer || components.some(function (e) {
                 return e === undefined;
             })) {
                 // Either we aren't supposed to draw anything, or some of the components do not yet support webgl.
+                console.log('no go')
                 return false;
             }
 
@@ -225,13 +227,14 @@ module.exports = function (canvas, globeAgent) { //configuration, globeAgent, gr
             }));
 
             if (!µ.arraysEq(currentSources, newSources)) {
-                console.log('new sources', newSources)
+                // console.log('-------------------new sources-----------------------\n', newSources)
                 buildProgram(newSources);
             }
 
             // Bind textures needed for this frame to available units. Just sequentially assign from 1.
             currentUnit = 1;
-            components.forEach(function (c) {
+            components.forEach(function (c,i) {
+                console.log('c', i, c.textures())
                 return bindTextures(registerTextures(c.textures()));
             });
             while (currentUnit < units.length) {
@@ -247,7 +250,9 @@ module.exports = function (canvas, globeAgent) { //configuration, globeAgent, gr
                 u_Detail: detail,
                 // HACK: set alpha based on current state of animating particles.
                 //       should this instead by handled by the palette component?
-                u_Alpha: (animate ? product.alpha.animated : product.alpha.single) / 255
+                //console.log()
+                u_Alpha: 2 
+                // (animate ? product.alpha.animated : product.alpha.single) / 255
             });
 
             gl.drawArrays(gl.TRIANGLES, 0, 6);

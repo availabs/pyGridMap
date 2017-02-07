@@ -10,10 +10,8 @@ var _createClass = function () { function defineProperties(target, props) { for 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 var _ = require("underscore");
-var µ = {}
-µ.isArrayLike = function isArrayLike(o) {
-    return Array.isArray(o) || (typeof o === "undefined" ? "undefined" : _typeof(o)) === "object" && !!o && "length" in o;
-};
+var µ = require('./micro')
+
 //var log = require("./../log")();
 
 // see http://webglfundamentals.org/webgl/lessons/webgl-resizing-the-canvas.html
@@ -74,10 +72,10 @@ module.exports =  function () {
     }, {
         key: "unitPlaneAttributes",
         value: function unitPlaneAttributes() {
-            console.log('test',   {
-                a_Position: new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]),
-                a_TexCoord: new Float32Array([0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1])
-            })
+            // console.log('test',   {
+            //     a_Position: new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]),
+            //     a_TexCoord: new Float32Array([0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1])
+            // })
             return {
                 a_Position: new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]),
                 a_TexCoord: new Float32Array([0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1])
@@ -369,6 +367,7 @@ module.exports =  function () {
                         defaultPixelStoreKeys.forEach(function (key) {
                             return gl.pixelStorei(gl[key], opt[key]);
                         });
+                        //console.log('---data----', format, width, height, 0, format, type, data)
                         gl.texImage2D(gl.TEXTURE_2D, 0, format, width, height, 0, format, type, data);
                         defaultTexParamKeys.forEach(function (key) {
                             return gl.texParameteri(gl.TEXTURE_2D, gl[key], opt[key]);

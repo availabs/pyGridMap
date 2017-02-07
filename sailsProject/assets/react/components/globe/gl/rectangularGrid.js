@@ -1,20 +1,5 @@
 var _ = require("underscore");
-var µ = {}
-µ.isArrayLike = function isArrayLike(o) {
-    return Array.isArray(o) || (typeof o === "undefined" ? "undefined" : _typeof(o)) === "object" && !!o && "length" in o;
-};
-µ.decimalize = function (x) {
-    if (_.isString(x) && x.indexOf("/") >= 0) {
-        x = x.split("/");
-    }
-    return µ.isArrayLike(x) && x.length === 2 ? x[0] / x[1] : +x;
-};
-µ.floorMod = function (a, n) {
-    var f = a - n * Math.floor(a / n);
-    // When a is within an ulp of n, f can be equal to n (because the subtraction has no effect). But the result
-    // should be in the range [0, n), so check for this case. Example: floorMod(-1e-16, 10)
-    return f === n ? 0 : f;
-};
+var µ = require('./micro.js')
 
 var π = Math.PI,
     τ = 2 * π,
