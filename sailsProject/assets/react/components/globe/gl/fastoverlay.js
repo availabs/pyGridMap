@@ -75,6 +75,7 @@ module.exports = function (canvas) { //configuration, globeAgent, gridAgent, ren
         glu.attribs(newProgram).set(GLU.unitPlaneAttributes());
         currentSources = newSources;
         currentProgram = newProgram;
+        console.log('textures', textures)
         currentUniforms = glu.uniforms(newProgram, textures);
         gl.useProgram(newProgram);
     }
@@ -106,8 +107,14 @@ module.exports = function (canvas) { //configuration, globeAgent, gridAgent, ren
             gl.deleteTexture(entry.texture);
         }
         // create new texture
-        console.log('testing texture', def)
+        console.log('testing texture', def, def.format, def.format.type)
+        // if (def.format === 6410) {
+        //     def.format = 6409
+        //     def.data = def.data.map(d => d / 500 )
+        // }
+
         var texture = glu.makeTexture2D(def);
+        console.log('texture2', texture)
         return { def: _.omit(def, "data"), texture: texture };
     }
 
@@ -145,18 +152,16 @@ module.exports = function (canvas) { //configuration, globeAgent, gridAgent, ren
     function collectComponents(projection, product) {
         var myImposter = {}
         //{bounds: , colors: }
-            Object.defineProperty(myImposter, 'bounds', [0, 100])
-            Object.defineProperty(myImposter, 'colors', new Uint8Array(length).map(d => Math.floor(Math.random() * (0 - 255 + 1))))
+         //   Object.defineProperty(myImposter, 'bounds', [0, 100])
+         //   Object.defineProperty(myImposter, 'colors', new Uint8Array(length).map(d => Math.floor(Math.random() * (0 - 255 + 1))))
         var factories = [
             projection, 
             product.grid && product.grid(),
             product.field && product.field()["bilinear"], 
             product.scale
           ];
-        //console.log('1', projection )
-        // console.log('2',  product.grid && product.grid() ?  product.grid().webgl() : null  )
-        // console.log('3', product.field && product.field()["bilinear"] ? product.field : product.field()["bilinear"]())
-        // console.log('4', product)
+        
+        //console.log('factories', factories)
         return factories.map(function () {
             var e = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
             // console.log('5', e.webgl)
@@ -211,7 +216,7 @@ module.exports = function (canvas) { //configuration, globeAgent, gridAgent, ren
             var animate = false; //configuration.get("animate"); // !!animatorAgent.value();\
             //console.log('animate', animate)
             var components = collectComponents(projection,grids);
-            console.log('components', components, components.length)
+            //console.log('components', components, components.length)
 
             if (overlayType === "off" || !renderer || components.some(function (e) {
                 return e === undefined;
@@ -234,7 +239,7 @@ module.exports = function (canvas) { //configuration, globeAgent, gridAgent, ren
             // Bind textures needed for this frame to available units. Just sequentially assign from 1.
             currentUnit = 1;
             components.forEach(function (c,i) {
-                console.log('c', i, c.textures())
+                //console.log('c', i, c.textures())
                 return bindTextures(registerTextures(c.textures()));
             });
             while (currentUnit < units.length) {
@@ -254,10 +259,16 @@ module.exports = function (canvas) { //configuration, globeAgent, gridAgent, ren
                 u_Alpha: 2 
                 // (animate ? product.alpha.animated : product.alpha.single) / 255
             });
+            //console.log('detail',detail)
 
             gl.drawArrays(gl.TRIANGLES, 0, 6);
 
+            console.log('stuff',                
+                //currentWidth,
+                //currentHeight
+            )
             if (useIntermediateBuffer) {
+
                 targetCtx.drawImage(container, 0, 0);
             }
 

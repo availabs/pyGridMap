@@ -20,7 +20,6 @@ var GlobeDemo = React.createClass({
 
 	initGlobe: function (props){
 		var container = props.container || "globeDiv"
-		console.log('scale?', this.props.scale.range())
 		if(props.leftOffset){
 			globe.leftOffset = props.leftOffset
 		}
@@ -42,7 +41,7 @@ var GlobeDemo = React.createClass({
     	var current_date = this.props.canvasData ? this.props.canvasData.header.date : null
     	var next_date = nextProps.canvasData ? nextProps.canvasData.header.date : null
     	if( (nextProps.canvasData && !this.props.canvasData) || ( current_date !== next_date) ) {
-    		console.log('redrawing', nextProps.canvasData)
+    		// console.log('redrawing', nextProps.canvasData)
     		globe.drawCanvas(nextProps.canvasData);
     	}
     	if(nextProps.scale){

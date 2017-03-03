@@ -23311,6 +23311,7 @@ module.exports = function (canvas, configuration, globeAgent, gridAgent, rendere
         glu.attribs(newProgram).set(GLU.unitPlaneAttributes());
         currentSources = newSources;
         currentProgram = newProgram;
+        console.log('textures', textures)
         currentUniforms = glu.uniforms(newProgram, textures);
         gl.useProgram(newProgram);
     }
@@ -23342,7 +23343,6 @@ module.exports = function (canvas, configuration, globeAgent, gridAgent, rendere
             gl.deleteTexture(entry.texture);
         }
         // create new texture
-        console.log('testing texture', def)
         var texture = glu.makeTexture2D(def);
         return { def: _.omit(def, "data"), texture: texture };
     }
@@ -23390,8 +23390,10 @@ module.exports = function (canvas, configuration, globeAgent, gridAgent, rendere
           ];
         // console.log('1', globe && globe.optimizedProjection() )
         // console.log('2',  product.grid && product.grid() ?  product.grid().webgl() : null  )
-        //console.log('3', product.field && product.field()["bilinear"])
-        //console.log('4',product)
+        // console.log('3', product.field && product.field()["bilinear"])
+        // console.log('4',product)
+
+        // console.log('factories', factories)
         return factories.map(function (d,i) {
             var e = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
             // console.log('???', d,i, e["webgl"])
@@ -23460,14 +23462,14 @@ module.exports = function (canvas, configuration, globeAgent, gridAgent, rendere
             }));
 
             if (!µ.arraysEq(currentSources, newSources)) {
-                console.log('new sources', newSources)
+                
                 buildProgram(newSources);
             }
 
             // Bind textures needed for this frame to available units. Just sequentially assign from 1.
             currentUnit = 1;
             components.forEach(function (c) {
-                console.log('c', c.textures())
+                //console.log('c', c.textures())
                 return bindTextures(registerTextures(c.textures()));
             });
             while (currentUnit < units.length) {
@@ -23940,6 +23942,7 @@ module.exports = function () {
                             gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
                             gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
                             gl.enableVertexAttribArray(loc);
+                            // console.log('assign', name, decl.type)
                             switch (decl.type) {
                                 case gl.FLOAT_VEC2:
                                     return gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
@@ -23994,7 +23997,7 @@ module.exports = function () {
                         defaultPixelStoreKeys.forEach(function (key) {
                             return gl.pixelStorei(gl[key], opt[key]);
                         });
-                        //console.log('-----data-----',  0, format, width, height, 0, format, type, data)
+                        console.log('-----data-----',  0, format, width, height, 0, format, type, data)
                         gl.texImage2D(gl.TEXTURE_2D, 0, format, width, height, 0, format, type, data);
                         defaultTexParamKeys.forEach(function (key) {
                             return gl.texParameteri(gl.TEXTURE_2D, gl[key], opt[key]);
@@ -26553,7 +26556,7 @@ module.exports = function (file) {
     var lat = vars[u.dimensions[2]];
     var lon = vars[u.dimensions[3]];
     var data = µ.merge(epak.blocks[u.data.block], epak.blocks[v.data.block]);
-    console.log('wind product', data)
+    // console.log('wind product', data)
     var _grid = rectangularGrid(lon.sequence, lat.sequence);
     var defaultInterpolator = bilinear.vector(_grid, data);
 

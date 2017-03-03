@@ -85,7 +85,7 @@ function scalar(grid, data) {
      */
     bilinear.webgl = function (glu) {
         var gl = glu.context;
-        var useNative = glReport.floatTexLinear && !grid.isCylindrical();
+        var useNative = true //glReport.floatTexLinear && !grid.isCylindrical();
         var look = lookup(glu, grid.dimensions());
 
 
@@ -100,7 +100,7 @@ function scalar(grid, data) {
                 return [look.scalarSource(), useNative ? look.shaderSourceTexture2D() : look.shaderSourceBilinearWrap()];
             },
             textures: function textures() {
-
+                //console.log('texture_data scalar', data)
                 return {
                     weather_data: look.scalarTexture(data, {
                         hash: hash,
@@ -203,7 +203,7 @@ function vector(grid, data) {
                 return [look.vectorSource(), useNative ? look.shaderSourceTexture2D() : look.shaderSourceBilinearWrap()];
             },
             textures: function textures() {
-                //console.log('texture_data', data)
+                console.log('texture_data vector', data)
                 return {
                     weather_data: look.vectorTexture(data, {
                         hash: hash,

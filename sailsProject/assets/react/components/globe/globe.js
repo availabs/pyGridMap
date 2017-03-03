@@ -112,10 +112,8 @@ globe.setupWebGL = function () {
     var start = Date.now();
     var glReport = require("./gl/glCheck");
     var msg = glReport.pass ? "ok" : JSON.stringify(glReport);
+    console.log('test 123', msg)
     console.log("check gl (" + (Date.now() - start) + "ms): " + msg);
-    if (_.isFunction(window.ga)) {
-        window.ga("send", "event", "gl", msg);
-    }
     if (!glReport.pass) {
         return;
     }
@@ -177,15 +175,10 @@ globe.zoom = d3.behavior.zoom()
 		var lakes = globe.display.select('.lakes')
 		coastline.datum(globe.coastLo);
 		lakes.datum(globe.lakesLo);
-		// console.log('zoom')
-		// console.log('op', globe.op);
-		//canvasDisplay.hide();
         if(globe.overlayData){
-            //console.time('clearCanvas')
             clearCanvas(d3.select("#overlay").node());
-            //console.timeEnd('clearCanvas')
         }
-        console.log('zoomstart')
+        // console.log('zoomstart')
 
 	})
 	.on("zoom", function() {
@@ -231,6 +224,7 @@ globe.zoom = d3.behavior.zoom()
 	});
 
 	globe.doDraw = function() {
+        globe.fastoverlay.draw(this.map.optimizedProjection(), globe.overlayData)
 		globe.display.selectAll("path").attr("d", globe.path);
 		globe.doDraw_throttled = _.throttle(globe.doDraw, globe.REDRAW_WAIT, {leading: false});
 	}
@@ -238,22 +232,25 @@ globe.zoom = d3.behavior.zoom()
 globe.doDraw_throttled = _.throttle(globe.doDraw, globe.REDRAW_WAIT, {leading: false});
 
 globe.drawOverlay = function(){
-    var ctx = d3.select("#overlay").node().getContext("2d");
 
-    clearCanvas(d3.select("#overlay").node());
-    //clearCanvas(d3.select("#scale").node());
+    globe.fastoverlay.draw(this.map.optimizedProjection(), globe.overlayData)
+    if ( false ) {
+        console.log('old overlay')
+        var ctx = d3.select("#overlay").node().getContext("2d");
 
-    console.time('interpolate')
-    globe.interpolateField(globe.overlayData, function(overlay){
-        console.timeEnd('interpolate')
-        ctx.putImageData(overlay, 0, 0);
-        var coastline = globe.display.select('.coastline')
-        var lakes = globe.display.select('.lakes')
-        coastline.datum(globe.coastHi);
-        lakes.datum(globe.lakesHi);
-        globe.display.selectAll("path").attr("d", globe.path);
-        //drawGridPoints(ctx, grid,globe);
-    })
+        clearCanvas(d3.select("#overlay").node());
+        console.time('interpolate')
+        globe.interpolateField(globe.overlayData, function(overlay){
+            console.timeEnd('interpolate')
+            ctx.putImageData(overlay, 0, 0);
+            var coastline = globe.display.select('.coastline')
+            var lakes = globe.display.select('.lakes')
+            coastline.datum(globe.coastHi);
+            lakes.datum(globe.lakesHi);
+            globe.display.selectAll("path").attr("d", globe.path);
+            //drawGridPoints(ctx, grid,globe);
+        })
+    }
 }
 
 globe.createMask = function () {
@@ -263,8 +260,9 @@ globe.createMask = function () {
 
     // Create a detached canvas, ask the model to define the mask polygon, then fill with an opaque color.
     var width = globe.view.width, height = globe.view.height;
-	console.log('mask width height', width, height)
-    var canvas = d3.select(document.createElement("canvas")).attr("width", width).attr("height", height).node();
+	var canvas = d3.select(document.createElement("canvas"))
+        .attr("width", width)
+        .attr("height", height).node();
     var context = globe.map.defineMask(canvas.getContext("2d"));
     context.fillStyle = "rgba(255, 0, 0, 1)";
     context.fill();
@@ -504,7 +502,7 @@ function buildGrid(builder) {
     var lat = {dimensions:'lat', sequence: {delta: Δφ, size:header.ny , start: header.la1}}
     //console.log('lat', 'lon')
     var _grid = require('./gl/rectangularGrid.js')(lon.sequence, lat.sequence)
-    var defaultInterpolator = bilinear.vector(_grid, builder.data);
+    var defaultInterpolator = bilinear.scalar(_grid, builder.data);
 
     // Scan mode 0 assumed. Longitude increases from λ0, and latitude decreases from φ0.
     // http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table3-4.shtml
@@ -573,7 +571,7 @@ function buildGrid(builder) {
             }
         },
         field: function field() {
-            console.log('field test', builder.data, _grid)
+            //console.log('field test', builder.data, _grid)
             return {
                 valueAt: function valueAt(i) {
                     var j = i * 2;
@@ -581,8 +579,8 @@ function buildGrid(builder) {
                     var v = builder.data[j + 1];
                     return [u, v, Math.sqrt(u * u + v * v)];
                 },
-                nearest: nearest.vector(_grid, builder.data_raw),
-                bilinear: bilinear.vector(_grid, builder.data_raw)
+                nearest: nearest.scalar(_grid, builder.data_raw),
+                bilinear: bilinear.scalar(_grid, builder.data_raw)
             };
         },
         grid: function grid() {

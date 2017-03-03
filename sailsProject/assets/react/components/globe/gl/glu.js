@@ -305,6 +305,7 @@ module.exports =  function () {
                             gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
                             gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
                             gl.enableVertexAttribArray(loc);
+                            // console.log('assign', name, decl.type)
                             switch (decl.type) {
                                 case gl.FLOAT_VEC2:
                                     return gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
@@ -367,13 +368,16 @@ module.exports =  function () {
                         defaultPixelStoreKeys.forEach(function (key) {
                             return gl.pixelStorei(gl[key], opt[key]);
                         });
-                        //console.log('---data----', format, width, height, 0, format, type, data)
+                        //console.log('test', defaultPixelStoreKeys)
+                        console.log('-----data-----',  0, format, width, height, 0, format, type, data)
+                        // if( format === 6410 ) format = 6409
                         gl.texImage2D(gl.TEXTURE_2D, 0, format, width, height, 0, format, type, data);
                         defaultTexParamKeys.forEach(function (key) {
                             return gl.texParameteri(gl.TEXTURE_2D, gl[key], opt[key]);
                         });
 
                         gl.bindTexture(gl.TEXTURE_2D, null);
+                        console.log('texture', texture)
                         return texture;
                     }
 
