@@ -369,7 +369,7 @@ module.exports =  function () {
                             return gl.pixelStorei(gl[key], opt[key]);
                         });
                         //console.log('test', defaultPixelStoreKeys)
-                        console.log('-----data-----',  0, format, width, height, 0, format, type, data)
+                        // console.log('-----data-----',  0, format, width, height, 0, format, type, data)
                         // if( format === 6410 ) format = 6409
                         gl.texImage2D(gl.TEXTURE_2D, 0, format, width, height, 0, format, type, data);
                         defaultTexParamKeys.forEach(function (key) {
@@ -377,7 +377,7 @@ module.exports =  function () {
                         });
 
                         gl.bindTexture(gl.TEXTURE_2D, null);
-                        console.log('texture', texture)
+                        // console.log('texture', texture)
                         return texture;
                     }
 

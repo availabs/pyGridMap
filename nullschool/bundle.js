@@ -23424,7 +23424,6 @@ module.exports = function (canvas, configuration, globeAgent, gridAgent, rendere
     }
 
     var controller = {
-
         /**
          * Render a frame.
          *
@@ -24453,7 +24452,7 @@ var π = Math.PI,
  * @returns {*}
  */
 module.exports = function rectangularGrid(λaxis, φaxis) {
-
+    console.log('λaxis, φaxis', λaxis, φaxis)
     var nx = Math.floor(λaxis.size); // number of lon points
     var ny = Math.floor(φaxis.size); // number of lat points
     var np = nx * ny; // total number of points
@@ -24637,6 +24636,7 @@ function scalar(grid, data) {
      * @returns {number} the bilinear interpolated value or 7e37 if none.
      */
     function bilinear(coord) {
+        console.log('does this happen?')
         var indices = grid.closest4(coord);
 
         var i00 = indices[0];

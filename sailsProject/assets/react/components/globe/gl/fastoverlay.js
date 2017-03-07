@@ -263,10 +263,7 @@ module.exports = function (canvas) { //configuration, globeAgent, gridAgent, ren
 
             gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-            console.log('stuff',                
-                //currentWidth,
-                //currentHeight
-            )
+            
             if (useIntermediateBuffer) {
 
                 targetCtx.drawImage(container, 0, 0);

@@ -6,7 +6,6 @@ var π = Math.PI,
     RAD = τ / 360;
 
 module.exports = function rectangularGrid(λaxis, φaxis) {
-
     var nx = Math.floor(λaxis.size); // number of lon points
     var ny = Math.floor(φaxis.size); // number of lat points
     var np = nx * ny; // total number of points
@@ -17,6 +16,8 @@ module.exports = function rectangularGrid(λaxis, φaxis) {
     var λ1 = λ0 + Δλ * (nx - 1); // lon upper bound
     var φ1 = φ0 + Δφ * (ny - 1); // lat upper bound
 
+    
+
     var λlow = (λ0 - Δλ / 2) * RAD;
     var λhigh = (λ1 + Δλ / 2) * RAD;
     var λsize = λhigh - λlow;
@@ -25,6 +26,8 @@ module.exports = function rectangularGrid(λaxis, φaxis) {
     var φsize = φhigh - φlow;
     var low = [λlow, φlow];
     var size = [λsize, φsize];
+
+    console.log('low', low, 'size', size)
 
     var isCylinder = Math.floor(nx * Δλ) >= 360; // true if the grid forms a cylinder
 

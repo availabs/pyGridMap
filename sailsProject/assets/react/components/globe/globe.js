@@ -46,10 +46,12 @@ globe.init = function(container, options) {
 		.attr('id', 'overlay')
 		.attr('class', 'fill-screen')
 
+
     globe.display
         .append('canvas')
         .attr('id', 'fastoverlay')
         .attr('class', 'fill-screen')
+        .style({'opacity': '0.6'})
 
 	globe.display
 		.append('svg')
@@ -224,7 +226,9 @@ globe.zoom = d3.behavior.zoom()
 	});
 
 	globe.doDraw = function() {
-        globe.fastoverlay.draw(this.map.optimizedProjection(), globe.overlayData)
+        if(globe.fastoverlay) {
+            globe.fastoverlay.draw(this.map.optimizedProjection(), globe.overlayData)
+        }
 		globe.display.selectAll("path").attr("d", globe.path);
 		globe.doDraw_throttled = _.throttle(globe.doDraw, globe.REDRAW_WAIT, {leading: false});
 	}
@@ -233,7 +237,7 @@ globe.doDraw_throttled = _.throttle(globe.doDraw, globe.REDRAW_WAIT, {leading: f
 
 globe.drawOverlay = function(){
 
-    globe.fastoverlay.draw(this.map.optimizedProjection(), globe.overlayData)
+    //globe.fastoverlay.draw(this.map.optimizedProjection(), globe.overlayData)
     if ( false ) {
         console.log('old overlay')
         var ctx = d3.select("#overlay").node().getContext("2d");
@@ -383,7 +387,7 @@ globe.interpolateField = function(grids, cb) {
 }
 
 globe.drawCanvas = function(mapData, options){
-    
+     console.log('mapData', d3.min(mapData.data), d3.max(mapData.data))
 
     globe.overlayData = Object.assign(globe.defaultCanvas, buildGrid(globe.defaultCanvas.builder([mapData])));
     
@@ -499,10 +503,10 @@ function buildGrid(builder) {
     var date = new Date(header.refTime);
     date.setHours(date.getHours() + header.forecastTime);
     var lon = {dimensions:'lon', sequence: {delta: Δλ, size:header.nx , start: header.lo1}}
-    var lat = {dimensions:'lat', sequence: {delta: Δφ, size:header.ny , start: header.la1}}
-    //console.log('lat', 'lon')
+    var lat = {dimensions:'lat', sequence: {delta: -Δφ, size:header.ny , start: header.la1}}
     var _grid = require('./gl/rectangularGrid.js')(lon.sequence, lat.sequence)
     var defaultInterpolator = bilinear.scalar(_grid, builder.data);
+    console.log('builder data', builder)
 
     // Scan mode 0 assumed. Longitude increases from λ0, and latitude decreases from φ0.
     // http://www.nco.ncep.noaa.gov/pmb/docs/grib2/grib2_table3-4.shtml

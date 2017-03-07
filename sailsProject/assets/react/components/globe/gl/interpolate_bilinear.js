@@ -3,29 +3,7 @@
  */
 "use strict";
 
-var µ = {}
-µ.arrayHashCode = function (array) {
-    var samples = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : Infinity;
-
-    var data = void 0;
-    switch (array.byteLength % 4) {
-        case 0:
-            data = new Int32Array(array.buffer);break;
-        case 2:
-            data = new Int16Array(array.buffer);break;
-        default:
-            data = new Int8Array(array.buffer);break;
-    }
-    return _arrayHashCode(data, samples);
-};
- function _arrayHashCode(array, samples) {
-        var result = new Int32Array([array.byteLength]);
-        var step = Math.max(array.length / samples, 1);
-        for (var i = 0; i < array.length; i += step) {
-            result[0] = 31 * result[0] + array[Math.floor(i)];
-        }
-        return result[0];
-    }
+var µ = require('./micro')
 var lookup = require("./lookup");
 var glReport = require("./glCheck");
 
@@ -36,7 +14,7 @@ var glReport = require("./glCheck");
  */
 function scalar(grid, data) {
     var hash = µ.arrayHashCode(data, 1000);
-
+    
     /**
      * @param {number[]} coord [λ, φ] in degrees.
      * @returns {number} the bilinear interpolated value or 7e37 if none.
@@ -87,8 +65,7 @@ function scalar(grid, data) {
         var gl = glu.context;
         var useNative = true //glReport.floatTexLinear && !grid.isCylindrical();
         var look = lookup(glu, grid.dimensions());
-
-
+        
 
         var _grid$dimensions = grid.dimensions(),
             width = _grid$dimensions.width,
