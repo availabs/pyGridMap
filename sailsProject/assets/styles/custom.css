@@ -1,5 +1,11 @@
 
 /* Styles for Rmm Graph */
+body {
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+
+}
 .d3-tip {
     font-family: Helvetica;
     line-height: 1;

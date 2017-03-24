@@ -107,14 +107,14 @@ module.exports = function (canvas) { //configuration, globeAgent, gridAgent, ren
             gl.deleteTexture(entry.texture);
         }
         // create new texture
-        console.log('testing texture', def, def.format, def.format.type)
+        //console.log('testing texture', def, def.format, def.format.type)
         // if (def.format === 6410) {
         //     def.format = 6409
         //     def.data = def.data.map(d => d / 500 )
         // }
 
         var texture = glu.makeTexture2D(def);
-        console.log('texture2', texture)
+        //console.log('texture2', texture)
         return { def: _.omit(def, "data"), texture: texture };
     }
 

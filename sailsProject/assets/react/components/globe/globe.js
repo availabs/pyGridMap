@@ -28,8 +28,8 @@ globe.init = function(container, options) {
 	this.container = container
     var scope = this;
 	globe.display = d3.select(container)
-		  	.append('div')
-		  	.attr('class', 'display')
+	  	.append('div')
+	  	.attr('class', 'display')
 
 	globe.display
 		.append('svg')
@@ -45,7 +45,6 @@ globe.init = function(container, options) {
 		.append('canvas')
 		.attr('id', 'overlay')
 		.attr('class', 'fill-screen')
-
 
     globe.display
         .append('canvas')
@@ -72,7 +71,13 @@ globe.init = function(container, options) {
 	this.map.orientation('-60, 0, ' + globe.zoomLevel.toString() ,this.view);
 
 	//TODO: Figure out why leftOffset isn't being passed properly
-
+    d3.selectAll(".fill-screen")
+        .attr("width", scope.view.width)
+        .attr("height", scope.view.height)
+        .style({
+            'position': 'absolute',
+            'left': globe.leftOffset + 'px'
+        });
 	
 	this.loadGeo({},function () {
 		globe.path = d3.geo.path().projection(globe.map.projection).pointRadius(7);
@@ -82,14 +87,8 @@ globe.init = function(container, options) {
 
 		var coastData = scope.coastHi
 		var lakeData = scope.lakesHi
-
-		d3.selectAll(".fill-screen")
-            .attr("width", scope.view.width)
-            .attr("height", scope.view.height)
-            .style({
-                'position': 'absolute',
-                'left': globe.leftOffset + 'px'
-            });
+        console.log('set')
+		
 
         coastline.datum(coastData);
 		lakes.datum(lakeData);
@@ -100,6 +99,7 @@ globe.init = function(container, options) {
 
 	window.onresize = function() {
 		globe.view = globe.getView();
+        console.log('resize')
 		d3.selectAll(".fill-screen")
             .attr("width", scope.view.width)
             .attr("height", scope.view.height)
@@ -107,6 +107,10 @@ globe.init = function(container, options) {
                 'position': 'absolute',
                 'left': globe.leftOffset + 'px'
             });
+        
+        var canvas = d3.select("#fastoverlay").node();
+        globe.fastoverlay = require("./gl/fastoverlay")(canvas);
+        globe.fastoverlay.draw(globe.map.optimizedProjection(), globe.overlayData)
 	}
 }
 
@@ -120,14 +124,9 @@ globe.setupWebGL = function () {
         return;
     }
     var canvas = d3.select("#fastoverlay").node();
-    // console.log('gl map',globe.overlayData.scale)
-    // projection_1 = this.map.projection
-    // product_2 = globe.overlayData.grid()
-    // product 3 = globe.overlayData.field && globe.overlayData.field()["bilinear"]
     globe.fastoverlay = require("./gl/fastoverlay")(canvas);
     console.log('fastoverlay?', globe.fastoverlay)
-    globe.fastoverlay.draw(this.map.optimizedProjection(), globe.overlayData)
-    // fastoverlayAgent.submit(fastoverlay);
+    globe.fastoverlay.draw(globe.map.optimizedProjection(), globe.overlayData)
 }
 
 globe.loadGeo = function(options, cb){
@@ -151,10 +150,8 @@ globe.getView = function(){
 	var b = document.querySelector(this.container);
     var x = b.offsetWidth;
 	var y = b.offsetHeight;
-    //var rect = getPosition(b);
     var rect =  b.getBoundingClientRect();
-    // console.log('get view', this.container, b , x, y, rect)
-
+    
 	return {width: x, height: y, left: rect.left, top: rect.top};
 }
 
@@ -387,8 +384,12 @@ globe.interpolateField = function(grids, cb) {
 }
 
 globe.drawCanvas = function(mapData, options){
-     console.log('mapData', d3.min(mapData.data), d3.max(mapData.data))
+   
 
+    var bounds = [ d3.min(mapData.data), d3.max(mapData.data)]
+    console.log('mapData bounds', bounds)
+    var scale = Object.assign(require("./palette/wind.js")(bounds),  {gradient: globe.scale})
+    globe.defaultCanvas.scale = scale  
     globe.overlayData = Object.assign(globe.defaultCanvas, buildGrid(globe.defaultCanvas.builder([mapData])));
     
     console.log('overlayData', globe.overlayData.grid())
