@@ -386,9 +386,21 @@ globe.interpolateField = function(grids, cb) {
 globe.drawCanvas = function(mapData, options){
    
 
-    var bounds = [ d3.min(mapData.data), d3.max(mapData.data)]
-    console.log('mapData bounds', bounds)
-    var scale = Object.assign(require("./palette/wind.js")(bounds),  {gradient: globe.scale})
+    
+    var cheatingScale = d3.scale.linear()
+        .domain([ d3.min(mapData.data), d3.max(mapData.data) ])
+        .range([193, 328])
+
+    var cheatingScaleTwo = d3.scale.quantile()
+        .domain(mapData.data)
+        .range([0,1,3,4,5,6,7,8,9,10,11,12])
+
+
+    console.log('test', mapData.data[0], cheatingScale(mapData.data[0]))
+    var bounds = cheatingScaleTwo.quantiles()
+    console.log('quntiles', bounds)
+    //mapData.data = mapData.data.map(cheatingScale)
+    var scale = Object.assign(require("./palette/wind.js")(bounds, 'BrBG'),  {gradient: globe.scale})
     globe.defaultCanvas.scale = scale  
     globe.overlayData = Object.assign(globe.defaultCanvas, buildGrid(globe.defaultCanvas.builder([mapData])));
     

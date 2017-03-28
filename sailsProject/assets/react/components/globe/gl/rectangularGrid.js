@@ -27,7 +27,7 @@ module.exports = function rectangularGrid(λaxis, φaxis) {
     var low = [λlow, φlow];
     var size = [λsize, φsize];
 
-    console.log('low', low, 'size', size)
+    // console.log('low', low, 'size', size)
 
     var isCylinder = Math.floor(nx * Δλ) >= 360; // true if the grid forms a cylinder
 
