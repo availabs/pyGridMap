@@ -1,0 +1,97 @@
+.duck {
+  display: block;
+  width: 120px;
+  margin: 1.5rem auto;
+}
+
+.map-content {
+    background-color: #f5f5f5;
+    box-shadow: -5px 0px 10px 3px rgba(0,0,0,0.25);
+    //padding: 5px;
+    overflow: hidden;
+}
+
+.map-content div.map {
+    // padding-top: 5px;
+    // padding-right: 10px;
+    // padding-bottom: 5px;
+    // padding-left: 20px;
+}
+
+.map-content div.overview {
+    // padding-top: 5px;
+    // padding-right: 5px;
+    // padding-bottom: 5px;
+    // padding-left: 0px;
+}
+
+.map-content svg#map, svg#foreground, canvas#animation, canvas#overlay {
+    /*width: 100%;
+    height: 100%;*/
+}
+
+.map-content div.map-container {
+    /*padding: 0px;*/
+}
+
+.map-content div.map-analytics {
+    height: 100vh;
+    text-align: center;
+}
+
+.map-content div.map-analytics span {
+    font-size: 28px;
+    font-weight: normal;
+    display: inline-block;
+    padding-top: 10px;
+}
+
+.map-content div.row {
+    margin-right: 0px;
+}
+
+.coastline, .lakes {
+    stroke: #ffffff;
+    stroke-width: 1.25;
+    fill: none;
+}
+
+.firefox .coastline, .firefox .lakes {
+    stroke-width: 1.0;
+}
+
+.colorGrids {
+    stroke: none;
+    fill: #ffffff;
+}
+
+.graticule {
+    stroke: #505050;
+    stroke-width: 1.0;
+    fill: none;
+}
+
+.hemisphere {
+    stroke: #707070;
+    stroke-width: 1.25;
+    fill: none;
+}
+
+.background-sphere {
+    stroke: none;
+    fill: #303030;
+}
+
+.foreground-sphere {
+    stroke: #000005;
+    stroke-width: 4.0;
+    fill: none;
+    -moz-user-select: none;  /* Oddly, Win FF sometimes selects this SVG element. Disable. */
+    user-select: none;
+}
+
+.location-mark {
+    stroke: #3aff3a;
+    stroke-width: 2.5;
+    fill: none;
+}
