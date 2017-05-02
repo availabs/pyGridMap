@@ -375,12 +375,12 @@ var _typeof = typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol
           }
         } else if (option = /^argo=(\w+)$/.exec(segment)) {
           switch (option[1]) {
-                case 'planned':
-                case 'recent':
-                case 'active':
-                case 'dead':
-                  result.argoFloat = option[1]
-              }
+            case 'planned':
+            case 'recent':
+            case 'active':
+            case 'dead':
+              result.argoFloat = option[1]
+          }
         }
       })
     }

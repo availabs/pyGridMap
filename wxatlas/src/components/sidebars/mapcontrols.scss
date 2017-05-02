@@ -1,0 +1,64 @@
+$light-gray: #e5e5e5;
+$mid-gray: #5d5d5d;
+$dark-gray: #2f2f2f;
+$white: #efefef;
+
+/*****************/
+/* Control Style */
+/*****************/
+.controls span {
+    color: $white;
+    font-size: 10px;
+    margin: 7px 0px 7px 7px;
+}
+
+.controls select.form-control {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-position: right 50%;
+    background-repeat: no-repeat;
+    padding: .5em;
+    padding-right: 1.5em;
+    border-top: $white;
+}
+
+.controls input.form-control {
+    padding-left: 8px;
+    padding-right: 0px;
+}
+
+.controls select.form-control, input.form-control {
+    color: $white;
+    background-color: #202020;
+    font-size: 12px;
+    margin: 0px 0px 7px 0px;
+    border-radius: 2px;
+}
+
+.controls span, select, input.form-control {
+    font-weight: bold;
+}
+
+.sub-nav > li {
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
+.controls div.year {
+    padding-right: 1px;
+    padding-left: 0px;
+}
+
+.controls div.month, div.day {
+    padding-right: 1px;
+    padding-left: 1px;
+}
+
+.controls div.hour {
+    padding-right: 0px;
+    padding-left: 1px;
+}
+
+.no-margin {
+    margin: 0px;
+}

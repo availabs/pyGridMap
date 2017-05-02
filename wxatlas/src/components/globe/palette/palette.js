@@ -313,28 +313,28 @@ function _classCallCheck (instance, Constructor) { if (!(instance instanceof Con
           var gl = glu.context
           return {
             shaderSource: function shaderSource () {
-                  var mapper = ƒmap === Math.log ? '\nfloat fmap(in float v) {\n    return log(v);\n}\n' : '\nfloat fmap(in float v) {\n    return v;\n}\n'
-                  return [mapper, '\nuniform vec2 u_Range;  // [min, size]\nuniform lowp sampler2D u_Palette;\nuniform lowp float u_Alpha;\n\nlowp vec4 colorize(in float v) {\n    vec2 st = vec2((fmap(v) - u_Range.x) / u_Range.y, 0.5);\n    lowp vec4 color = texture2D(u_Palette, st);\n    lowp float alpha = (1.0 - step(7e37, v)) * u_Alpha;\n    return vec4(color.rgb * alpha, alpha);  // premultiply alpha\n}\n']
-                },
+              var mapper = ƒmap === Math.log ? '\nfloat fmap(in float v) {\n    return log(v);\n}\n' : '\nfloat fmap(in float v) {\n    return v;\n}\n'
+              return [mapper, '\nuniform vec2 u_Range;  // [min, size]\nuniform lowp sampler2D u_Palette;\nuniform lowp float u_Alpha;\n\nlowp vec4 colorize(in float v) {\n    vec2 st = vec2((fmap(v) - u_Range.x) / u_Range.y, 0.5);\n    lowp vec4 color = texture2D(u_Palette, st);\n    lowp float alpha = (1.0 - step(7e37, v)) * u_Alpha;\n    return vec4(color.rgb * alpha, alpha);  // premultiply alpha\n}\n']
+            },
             textures: function textures () {
-                  return {
-                    color_scale: {
-                        format: gl.RGBA,
-                        type: gl.UNSIGNED_BYTE,
-                        width: colors.length / 4,
-                        height: 1,
-                        data: colors,
-                        hash: hash
-                      }
-                  }
-                },
-            uniforms: function uniforms () {
-                  return {
-                    u_Range: edgeRange,
-                    u_Palette: 'color_scale',
-                    u_Alpha: 1.0
-                  }
+              return {
+                color_scale: {
+                  format: gl.RGBA,
+                  type: gl.UNSIGNED_BYTE,
+                  width: colors.length / 4,
+                  height: 1,
+                  data: colors,
+                  hash: hash
                 }
+              }
+            },
+            uniforms: function uniforms () {
+              return {
+                u_Range: edgeRange,
+                u_Palette: 'color_scale',
+                u_Alpha: 1.0
+              }
+            }
           }
         }
       }, {
@@ -354,8 +354,8 @@ function _classCallCheck (instance, Constructor) { if (!(instance instanceof Con
       }, {
         key: 'bounds',
         get: function get () {
-              return bounds
-            }
+          return bounds
+        }
       }])
 
       return Scale
