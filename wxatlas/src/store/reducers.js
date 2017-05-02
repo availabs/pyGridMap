@@ -1,8 +1,10 @@
 import { combineReducers } from 'redux'
 import locationReducer from './location'
+import user from './modules/gridData'
 
 export const makeRootReducer = (asyncReducers) => {
   return combineReducers({
+  	gridData,
     location: locationReducer,
     ...asyncReducers
   })
