@@ -46,9 +46,9 @@ class Sidebar extends React.Component {
   }
 
   renderButtons () {
-    var displayTabs = tabs.map(tab => {
+    var displayTabs = tabs.map((tab, i) => {
       return (
-        <li onClick={this.setActiveTab.bind(null, tab)} className={this.state.activeTab.name === tab.name ? 'active' : ''}>
+        <li key={i} onClick={this.setActiveTab.bind(null, tab)} className={this.state.activeTab.name === tab.name ? 'active' : ''}>
           <a id='menu-group-risk-spotlight-tab' href='#menu-group-risk-spotlight' data-toggle='tab' data-index='0' aria-expanded='true'>
             <i className={tab.icon} />
           </a>
@@ -79,8 +79,8 @@ class Sidebar extends React.Component {
     return (
       <div className={sidebarClass}>
         {this.renderButtons()}
-        <div style={{overflow: 'hidden', display: this.state.open ? 'block' : 'none'}}>
-        {this.renderContent()}
+        <div style={{ overflow: 'hidden', display: this.state.open ? 'block' : 'none' }}>
+          {this.renderContent()}
         </div>
       </div>
     )
