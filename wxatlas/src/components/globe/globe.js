@@ -377,19 +377,35 @@ globe.interpolateField = function (grids, cb) {
 }
 
 globe.drawCanvas = function (mapData, options) {
+  options = options || {}
   var cheatingScale = d3.scale.linear()
         .domain([ d3.min(mapData.data), d3.max(mapData.data) ])
         .range([193, 328])
 
-  var cheatingScaleTwo = d3.scale.quantile()
-        .domain(mapData.data)
-        .range([0, 1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+  //mapData.data = mapData.data.map(d => cheatingScale(d))
+  // var bounds = [193, 328]
+  // var cheatingScaleTwo = d3.scale.quantile()
+  //       .domain(mapData.data)
+  //       .range([0, 1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
 
-  console.log('test', mapData.data[0], cheatingScale(mapData.data[0]))
-  var bounds = cheatingScaleTwo.quantiles()
-  console.log('quntiles', bounds)
-    // mapData.data = mapData.data.map(cheatingScale)
-  var scale = Object.assign(require('./palette/wind.js')(bounds, 'BrBG'), { gradient: globe.scale })
+  // var bounds = cheatingScaleTwo.quantiles()
+  // console.log('bounds',bounds)
+  var min = d3.min(mapData.data)
+  var max =d3.max(mapData.data)
+  var bounds = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+  var delta = (max - min) / bounds.length
+  bounds = bounds.map((d,i) => {
+    return min + (i*delta)
+  })
+
+  var drawBounds = options.bounds || bounds
+  console.log('draw bounds',drawBounds)
+  // var bounds = [5000, 5100, 5150, 5200, 5250, 5300, 5350, 5400, 5450, 5500, 5550, 5600, 5650, 5700, 5800, 5850]
+  
+
+
+  //scale six
+  var scale = Object.assign(require('./palette/wind.js')(drawBounds))
   globe.defaultCanvas.scale = scale
   globe.overlayData = Object.assign(globe.defaultCanvas, buildGrid(globe.defaultCanvas.builder([mapData])))
 

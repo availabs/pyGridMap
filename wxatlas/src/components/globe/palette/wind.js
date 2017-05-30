@@ -62,50 +62,52 @@ var four = function (bounds, resolution) {
   var resolution = resolution || 2000
   var bounds = bounds || [193, 328] // units: kelvins
   console.log('bounds', bounds)
-  var segments = [
-        [193, [37, 4, 42]],
-        [206, [41, 10, 130]],
-        [219, [81, 40, 40]],
-        [233.15, [192, 37, 149]], // -40 C/F
-        [255.372, [70, 215, 215]], // 0 F
-        [273.15, [21, 84, 187]], // 0 C
-        [275.15, [24, 132, 14]], // just above 0 C
-        [291, [247, 251, 59]],
-        [298, [235, 167, 21]],
-        [311, [230, 71, 39]],
-        [328, [88, 27, 67]]]
+  var colors = require('./rainbowGenerator')('tol-rainbow', bounds.leng)
+
+  var segments = bounds.map((bound,i) => [bound,colors[i]])
+
+
   return palette.buildScaleFromSegments(bounds, segments, resolution)
 }
 
 var five = function (bounds, resolution) {
     // var resolution = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 2000;
 
-  var palette = require('./palette')
-  var resolution = resolution || 2000
+  var gen = require('./palette')
+  resolution = 32
   var bounds = bounds || [193, 328] // units: kelvins
-  console.log('bounds', bounds)
-  var colors = [
-        [37, 4, 42],
-        [41, 10, 130],
-        [81, 40, 40],
-         [192, 37, 149], // -40 C/F
-         [70, 215, 215], // 0 F
-         [21, 84, 187], // 0 C
-         [24, 132, 14], // just above 0 C
-        [247, 251, 59],
-        [235, 167, 21],
-        [230, 71, 39],
-        [88, 27, 67]]
+ 
+      var colors = [
+        [200, 0, 0],
+        [255, 50, 0],
+        [255, 135, 0],
+        [255, 200, 0],
+        [255, 255, 0],
+        [225, 225, 0],
+        [150, 225, 0],
+        [0, 225, 0],
+        [0, 255, 170],
+        [0, 200, 240],
+        [0, 100, 200],
+        [50, 0, 225],
+        [125, 0, 225],
+        [200, 0, 200],
+        [150, 0, 150],
+        [90, 0, 90]
+      ].reverse()
+  //var pal = require('./rainbowGenerator')
+  //colors = pal('tol-rainbow', bounds.length)
   var segments = bounds.map((d, i) => [d, colors[i]])
   var totalBounds = bounds ? [bounds[0], bounds[bounds.length - 1]] : [193, 328] // units: kelvins
 
   console.log('segments', segments)
 
-  return palette.buildScaleFromSegments(totalBounds, segments, resolution)
+  return gen.buildScaleFromSegments(totalBounds, segments, resolution)
 }
 
 var six = function (bounds, scheme, resolution) {
     // var resolution = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 2000;
+
 
   var palette = require('./palette')
   var resolution = resolution || 2000
@@ -123,4 +125,4 @@ var six = function (bounds, scheme, resolution) {
   return palette.buildScaleFromSegments(totalBounds, segments, resolution)
 }
 
-module.exports = six
+module.exports = five

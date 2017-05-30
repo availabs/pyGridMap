@@ -12,13 +12,14 @@ const HOST = 'http://db-wxatlas.rit.albany.edu/'
 // ------------------------------------
 export const LOAD_DATA = 'LOAD_DATA'
 export const CHANGE_CONSTANT = 'CHANGE_CONSTANT'
+export const CHANGE_BOUNDS = 'CHANGE_BOUNDS'
 
 // -------------------------------------
 // Initial State
 // -------------------------------------
-var referenceScale = d3.scale.linear()
-     .domain([492, 522, (600 + 492) / 2, 570, 600])
-     .range(['#053061', '#4393c3', '#f7f7f7', '#f4a582', '#67001f'])
+// var referenceScale = d3.scale.linear()
+//      .domain([492, 522, (600 + 492) / 2, 570, 600])
+//      .range(['#053061', '#4393c3', '#f7f7f7', '#f4a582', '#67001f'])
 
 const initialState = {
   loading: false,
@@ -31,10 +32,7 @@ const initialState = {
   variable: 'gph',
   height: 500,
   type: 'grids',
-  scale:
-    d3.scale.threshold()
-        .domain(d3.range(492, 601, 6))
-        .range(d3.range(492, 601, 6).map(function (d) { return referenceScale(d) }))
+  bounds: []
 }
 
 var newDate = initialState.date
@@ -58,6 +56,20 @@ export function receiveConstant (key, val) {
   }
 }
 
+export function changeBounds (index, val) {
+  return {
+    type : CHANGE_BOUNDS,
+    index,
+    val
+  }
+}
+
+export const setBounds = (index, val) => {
+  return (dispatch) => {
+    return dispatch(changeBounds(index, val))
+  }
+}
+
 export const setConstant = (key, val) => {
   return (dispatch) => {
     return dispatch(receiveConstant(key, val))
@@ -76,11 +88,6 @@ export const requestData = (type, variable, height, year, month, day, hour) => {
     return fetch(`${HOST}${type}/${variable}/${height}/${year}/${month}/${day}/${hour}`)
     .then(response => response.json())
     .then(data => {
-      console.log('this data', data)
-
-      data.data = data.data.map(function (d) {
-        return d / 10
-      })
       data.header.date = new Date(year, month, day, hour)
 
       return dispatch(receiveGridData(data))
@@ -90,7 +97,8 @@ export const requestData = (type, variable, height, year, month, day, hour) => {
 
 export const actions = {
   requestData,
-  initialLoad
+  initialLoad,
+  setBounds
 }
 
 // ------------------------------------
@@ -106,12 +114,27 @@ const ACTION_HANDLERS = {
     } else if (action.res.id !== -1) {
       action.res
       newState.canvasData = action.res
+      var min = d3.min(newState.canvasData.data)
+      var max = d3.max(newState.canvasData.data)
+      var bounds = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      var delta = (max - min) / bounds.length
+      bounds = bounds.map((d, i) => {
+        return Math.round(min + (i * delta))
+      })
+      newState.bounds = bounds
     }
     return newState
   },
   [CHANGE_CONSTANT] : (state, action) => {
     var newState = Object.assign({}, state)
     newState[action.key] = action.val
+    return newState
+  },
+  [CHANGE_BOUNDS] : (state, action) => {
+    var newState = Object.assign({}, state)  
+    var newBounds = newState.bounds.map(d => d)
+    newBounds[action.index] = +action.val
+    newState.bounds = newBounds
     return newState
   }
 }

@@ -38,20 +38,14 @@ var GlobeDemo = React.createClass({
     }
     var current_date = this.props.canvasData ? this.props.canvasData.header.date : null
     var next_date = nextProps.canvasData ? nextProps.canvasData.header.date : null
-    if ((nextProps.canvasData && !this.props.canvasData) || (current_date !== next_date)) {
-        // console.log('redrawing', nextProps.canvasData)
-      globe.drawCanvas(nextProps.canvasData)
+    if (nextProps.canvasData) {
+      console.log('new draw ?', this.props.bounds)
+      globe.drawCanvas(nextProps.canvasData, {bounds: this.props.bounds})
     }
-    if (nextProps.scale) {
-      globe.setScale(nextProps.scale)
-    }
-        // if(!this.props.canvasData && nextProps.canvasData){
-        //     globe.drawCanvas(nextProps.canvasData);
-        // }
-        // else if(this.props.canvasData && nextProps.canvasData && this.props.date !== nextProps.date){
-        //     console.log('redrawing canvas')
 
-        // }
+    // if (nextProps.scale) {
+    //   globe.setScale(nextProps.scale)
+    // }
   },
 
   render: function () {

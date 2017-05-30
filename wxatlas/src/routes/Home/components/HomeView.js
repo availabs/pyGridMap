@@ -34,7 +34,7 @@ class MapPage extends React.Component {
   render () {
     const { date, format, mode, inputFormat } = this.state
 
-    console.log('data', this.props.canvasData)
+    console.log('home update', this.props.bounds)
 
     return (
 
@@ -43,7 +43,7 @@ class MapPage extends React.Component {
         <Globe
           canvasData={this.props.canvasData}
           projection={this.props.projection}
-          scale={this.props.scale}
+          bounds={this.props.bounds}
           height={this.state.screenHeight}
           leftOffset={20}
         />
@@ -60,7 +60,7 @@ const mapStateToProps = (state) => {
     loading: state.gridData.loading,
     canvasData: state.gridData.canvasData,
     projection: state.gridData.projection,
-    scale: state.gridData.scale
+    bounds: state.gridData.bounds
   }
 }
 export default connect(mapStateToProps, { initialLoad })(MapPage)
