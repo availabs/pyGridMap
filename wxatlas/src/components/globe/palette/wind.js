@@ -70,7 +70,7 @@ var four = function (bounds, resolution) {
   return palette.buildScaleFromSegments(bounds, segments, resolution)
 }
 
-var five = function (bounds, resolution) {
+var five = function (bounds, inColors, resolution) {
     // var resolution = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 2000;
 
   var gen = require('./palette')
@@ -95,6 +95,7 @@ var five = function (bounds, resolution) {
         [150, 0, 150],
         [90, 0, 90]
       ].reverse()
+  colors = inColors || colors
   //var pal = require('./rainbowGenerator')
   //colors = pal('tol-rainbow', bounds.length)
   var segments = bounds.map((d, i) => [d, colors[i]])

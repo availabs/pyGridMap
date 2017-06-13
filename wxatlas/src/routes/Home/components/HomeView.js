@@ -1,7 +1,8 @@
 import { initialLoad } from 'store/modules/gridData'
 import React from 'react'
 import Globe from 'components/globe/globe.react'
-import moment from 'moment'
+import DisplayLegend from 'components/sidebars/DisplayLegend'
+// import moment from 'moment'
 import d3 from 'd3'
 import Sidebar from './Sidebar'
 import { connect } from 'react-redux'
@@ -39,11 +40,13 @@ class MapPage extends React.Component {
     return (
 
       <div className='map-content'>
+        <DisplayLegend />
         <Sidebar />
         <Globe
           canvasData={this.props.canvasData}
           projection={this.props.projection}
           bounds={this.props.bounds}
+          colors={this.props.colors}
           height={this.state.screenHeight}
           leftOffset={20}
         />
@@ -60,7 +63,8 @@ const mapStateToProps = (state) => {
     loading: state.gridData.loading,
     canvasData: state.gridData.canvasData,
     projection: state.gridData.projection,
-    bounds: state.gridData.bounds
+    bounds: state.gridData.bounds,
+    colors: state.gridData.colors
   }
 }
 export default connect(mapStateToProps, { initialLoad })(MapPage)

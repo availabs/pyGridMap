@@ -399,13 +399,14 @@ globe.drawCanvas = function (mapData, options) {
   })
 
   var drawBounds = options.bounds || bounds
-  console.log('draw bounds',drawBounds)
+  console.log('draw bounds', drawBounds)
   // var bounds = [5000, 5100, 5150, 5200, 5250, 5300, 5350, 5400, 5450, 5500, 5550, 5600, 5650, 5700, 5800, 5850]
   
 
 
   //scale six
-  var scale = Object.assign(require('./palette/wind.js')(drawBounds))
+  console.log('scale', drawBounds, options.colors)
+  var scale = Object.assign(require('./palette/wind.js')(drawBounds, options.colors))
   globe.defaultCanvas.scale = scale
   globe.overlayData = Object.assign(globe.defaultCanvas, buildGrid(globe.defaultCanvas.builder([mapData])))
 

@@ -26,7 +26,8 @@ var GlobeDemo = React.createClass({
       globe.setScale(this.props.scale)
     }
     if (props.canvasData) {
-      globe.drawCanvas(props.canvasData)
+      console.log('initGlobe', props)
+      globe.drawCanvas(props.canvasData, {bounds: this.props.bounds, colors: this.props.colors})
     }
   },
 
@@ -40,7 +41,7 @@ var GlobeDemo = React.createClass({
     var next_date = nextProps.canvasData ? nextProps.canvasData.header.date : null
     if (nextProps.canvasData) {
       console.log('new draw ?', this.props.bounds)
-      globe.drawCanvas(nextProps.canvasData, {bounds: this.props.bounds})
+      globe.drawCanvas(nextProps.canvasData, {bounds: nextProps.bounds, colors: nextProps.colors})
     }
 
     // if (nextProps.scale) {

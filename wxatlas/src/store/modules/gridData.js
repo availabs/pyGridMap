@@ -17,10 +17,9 @@ export const CHANGE_BOUNDS = 'CHANGE_BOUNDS'
 // -------------------------------------
 // Initial State
 // -------------------------------------
-// var referenceScale = d3.scale.linear()
-//      .domain([492, 522, (600 + 492) / 2, 570, 600])
-//      .range(['#053061', '#4393c3', '#f7f7f7', '#f4a582', '#67001f'])
-
+const scales = {
+  rainbow: [[90, 0, 90], [150, 0, 150], [200, 0, 200], [125, 0, 225], [50, 0, 225], [0, 100, 200], [0, 200, 240], [0, 255, 170], [0, 225, 0], [150, 225, 0], [225, 225, 0], [255, 255, 0], [255, 200, 0], [255, 135, 0], [255, 50, 0], [200, 0, 0]]
+}
 const initialState = {
   loading: false,
   canvasData: null,
@@ -32,7 +31,9 @@ const initialState = {
   variable: 'gph',
   height: 500,
   type: 'grids',
-  bounds: []
+  bounds: [],
+  colors: scales['rainbow']
+
 }
 
 var newDate = initialState.date
