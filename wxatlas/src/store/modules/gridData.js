@@ -18,7 +18,8 @@ export const CHANGE_BOUNDS = 'CHANGE_BOUNDS'
 // Initial State
 // -------------------------------------
 const scales = {
-  rainbow: [[90, 0, 90], [150, 0, 150], [200, 0, 200], [125, 0, 225], [50, 0, 225], [0, 100, 200], [0, 200, 240], [0, 255, 170], [0, 225, 0], [150, 225, 0], [225, 225, 0], [255, 255, 0], [255, 200, 0], [255, 135, 0], [255, 50, 0], [200, 0, 0]]
+  rainbow: [[90, 0, 90], [150, 0, 150], [200, 0, 200], [125, 0, 225], [50, 0, 225], [0, 100, 200], [0, 200, 240], [0, 255, 170], [0, 225, 0], [150, 225, 0], [225, 225, 0], [255, 255, 0], [255, 200, 0], [255, 135, 0], [255, 50, 0], [200, 0, 0]],
+  rdbu: ['#67001f', '#b2182b', '#d6604d', '#f4a582', '#fddbc7', '#f7f7f7', '#d1e5f0', '#92c5de', '#4393c3', '#2166ac', '#053061']
 }
 const initialState = {
   loading: false,
@@ -32,7 +33,7 @@ const initialState = {
   height: 500,
   type: 'grids',
   bounds: [],
-  colors: scales['rainbow']
+  colors: scales['rdbu']
 
 }
 
@@ -117,7 +118,7 @@ const ACTION_HANDLERS = {
       newState.canvasData = action.res
       var min = d3.min(newState.canvasData.data)
       var max = d3.max(newState.canvasData.data)
-      var bounds = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+      var bounds = state.colors.map(d => 0)
       var delta = (max - min) / bounds.length
       bounds = bounds.map((d, i) => {
         return Math.round(min + (i * delta))

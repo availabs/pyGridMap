@@ -74,36 +74,17 @@ var five = function (bounds, inColors, resolution) {
     // var resolution = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 2000;
 
   var gen = require('./palette')
-  resolution = 32
+  resolution = 2000
   var bounds = bounds || [193, 328] // units: kelvins
- 
-      var colors = [
-        [200, 0, 0],
-        [255, 50, 0],
-        [255, 135, 0],
-        [255, 200, 0],
-        [255, 255, 0],
-        [225, 225, 0],
-        [150, 225, 0],
-        [0, 225, 0],
-        [0, 255, 170],
-        [0, 200, 240],
-        [0, 100, 200],
-        [50, 0, 225],
-        [125, 0, 225],
-        [200, 0, 200],
-        [150, 0, 150],
-        [90, 0, 90]
-      ].reverse()
+  var colors = [[200, 0, 0],[255, 50, 0],[255, 135, 0],[255, 200, 0],[255, 255, 0],[225, 225, 0],[150, 225, 0],[0, 225, 0],[0, 255, 170],[0, 200, 240],[0, 100, 200],[50, 0, 225],[125, 0, 225],[200, 0, 200],[150, 0, 150],[90, 0, 90]].reverse()
   colors = inColors || colors
-  //var pal = require('./rainbowGenerator')
-  //colors = pal('tol-rainbow', bounds.length)
+  if (typeof colors[0] === 'string') colors = colors.map(d => hexToRgb(d))
+
   var segments = bounds.map((d, i) => [d, colors[i]])
   var totalBounds = bounds ? [bounds[0], bounds[bounds.length - 1]] : [193, 328] // units: kelvins
-
-  console.log('segments', segments)
-
-  return gen.buildScaleFromSegments(totalBounds, segments, resolution)
+  var scale = gen.buildScaleFromSegments(totalBounds, segments, resolution)
+  console.log('actual scale', scale.bounds)
+  return scale
 }
 
 var six = function (bounds, scheme, resolution) {
