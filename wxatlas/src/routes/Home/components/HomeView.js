@@ -46,7 +46,7 @@ class MapPage extends React.Component {
           canvasData={this.props.canvasData}
           projection={this.props.projection}
           bounds={this.props.bounds}
-          colors={this.props.colors}
+          colors={this.props.scales[this.props.colors]}
           height={this.state.screenHeight}
           leftOffset={20}
         />
@@ -64,7 +64,8 @@ const mapStateToProps = (state) => {
     canvasData: state.gridData.canvasData,
     projection: state.gridData.projection,
     bounds: state.gridData.bounds,
-    colors: state.gridData.colors
+    colors: state.gridData.colors,
+    scales: state.gridData.scales
   }
 }
 export default connect(mapStateToProps, { initialLoad })(MapPage)

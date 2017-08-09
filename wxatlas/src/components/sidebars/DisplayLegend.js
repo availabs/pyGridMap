@@ -21,7 +21,7 @@ class DisplayLegend extends React.Component {
   }
 
   render () {
-    var colors = this.props.colors
+    var colors = this.props.scales[this.props.activeScale]
     if (typeof colors[0] === 'string') colors = colors.map(d => hexToRgb(d))
     var boundsBoxes = this.props.bounds.map((b,i) => {
       var background = 'linear-gradient( to right, ' + this.color2rgb(colors[i-1] || colors[i] ) + ', ' + this.color2rgb(colors[i])+')'
@@ -42,7 +42,8 @@ class DisplayLegend extends React.Component {
 
 const mapStateToProps = (state) => ({
   bounds: state.gridData.bounds,
-  colors: state.gridData.colors
+  activeScale: state.gridData.colors,
+  scales: state.gridData.scales
 })
 
 export default connect(mapStateToProps, {})(DisplayLegend)
