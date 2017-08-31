@@ -20,8 +20,8 @@ var globe = {
   leftOffset: 0,
   fastoverlay: null,
   scale: d3.scale.quantile()
-        .domain([-100, -80, -60, -40, -20, 20, 40, 60, 80, 100])
-        .range(['#67001f', '#b2182b', '#d6604d', '#f4a582', '#fddbc7', '#f7f7f7', '#d1e5f0', '#92c5de', '#4393c3', '#2166ac', '#053061'])
+    .domain([-100, -80, -60, -40, -20, 20, 40, 60, 80, 100])
+    .range(['#67001f', '#b2182b', '#d6604d', '#f4a582', '#fddbc7', '#f7f7f7', '#d1e5f0', '#92c5de', '#4393c3', '#2166ac', '#053061'])
 }
 
 globe.init = function (container, options) {
@@ -56,6 +56,11 @@ globe.init = function (container, options) {
     .append('svg')
     .attr('id', 'foreground')
     .attr('class', 'fill-screen')
+
+  globe.display.on('click', (a,b,c,d) => {
+    console.log('simple click on init', a, b, c ,d)
+
+  })
 
   this.view = this.getView()
 
@@ -190,8 +195,9 @@ globe.zoom = d3.behavior.zoom()
         return
       }
       // dispatch.trigger("moveStart");
-      globe.doDraw_throttled()
+      // globe.doDraw_throttled()
       // op.type = "drag";
+      console.log('simple click', globe.op, currentMouse,d3.mouse(this))
     }
     if (currentScale != globe.op.startScale) {
       globe.op.type = 'zoom'  // whenever a scale change is detected, (stickily) switch to a zoom operation
@@ -218,6 +224,17 @@ globe.zoom = d3.behavior.zoom()
 
     globe.op = null  // the drag/zoom/click operation is over
   })
+  
+globe.drawLocationMark = function(point, coord) {
+  console.log('a click happened')
+  if (coord && coord[0] && coord[1]) {
+      var mark = d3.select(".location-mark");
+      if (!mark.node()) {
+          mark = d3.select("#foreground").append("path").attr("class", "location-mark");
+      }
+      mark.datum({type: "Point", coordinates: coord}).attr("d", path);
+  }
+}
 
 globe.doDraw = function () {
   if (globe.fastoverlay) {
@@ -517,6 +534,8 @@ var getGlobe = function () {
   return globe
 }
 module.exports = new getGlobe()
+
+
 // ------------------- Canvas Util Functions ------------------------------------------------------------
 function buildGrid (builder) {
     // var builder = createBuilder(data);
