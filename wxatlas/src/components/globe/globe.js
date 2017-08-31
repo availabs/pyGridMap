@@ -168,7 +168,11 @@ globe.newOp = function (startMouse, startScale) {
     manipulator: globe.map.manipulator(startMouse, startScale)
   }
 }
-
+globe.location = function location(p,z) {
+  var view = globe.getView()
+  console.log('location', p, view)
+  return [ (p[0] - view.width) / z, (p[1] - view.height) / z];
+}
 globe.zoom = d3.behavior.zoom()
   .scale(globe.zoomLevel)
   .on('zoomstart', function () {
@@ -181,6 +185,7 @@ globe.zoom = d3.behavior.zoom()
     if (globe.overlayData) {
       clearCanvas(d3.select('#overlay').node())
     }
+    
         // console.log('zoomstart')
   })
   .on('zoom', function () {
@@ -196,8 +201,8 @@ globe.zoom = d3.behavior.zoom()
       }
       // dispatch.trigger("moveStart");
       // globe.doDraw_throttled()
-      // op.type = "drag";
-      console.log('simple click', globe.op, currentMouse,d3.mouse(this))
+      globe.op.type = "drag";
+      //console.log('simple click2', globe.op, currentMouse,d3.mouse(this))
     }
     if (currentScale != globe.op.startScale) {
       globe.op.type = 'zoom'  // whenever a scale change is detected, (stickily) switch to a zoom operation
@@ -211,11 +216,21 @@ globe.zoom = d3.behavior.zoom()
   .on('zoomend', function () {
     globe.op.manipulator.end()
     // Render hi-res coastlines and lakes
-
+    console.log('zoomend', globe.op.type)
     if (globe.op.type === 'click') {
       // dispatch.trigger("click", op.startMouse, globe.projection.invert(op.startMouse) || []);
+      var coords = globe.map.projection.invert(globe.op.startMouse)
+      // console.log('coords', coords)
+      var path = d3.geo.path().projection(globe.map.projection).pointRadius(7);
+      var mark = d3.select(".location-mark");
+      if (!mark.node()) {
+          mark = d3.select("#foreground").append("path").attr("class", "location-mark");
+      }
+      mark.datum({ type: "Point", coordinates: coords }).attr("d", path)
+
     } else if (globe.op.type !== 'spurious') {
       // signalEnd();
+
     }
     // canvasDisplay.update(globe);
     if (globe.overlayData) {
