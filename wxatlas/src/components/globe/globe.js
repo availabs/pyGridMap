@@ -207,7 +207,6 @@ globe.zoom = d3.behavior.zoom()
     if (currentScale != globe.op.startScale) {
       globe.op.type = 'zoom'  // whenever a scale change is detected, (stickily) switch to a zoom operation
     }
-        // console.log('zooming', currentMouse, currentScale)
     // when zooming, ignore whatever the mouse is doing--really cleans up behavior on touch devices
     globe.op.manipulator.move(globe.op.type === 'zoom' ? null : currentMouse, currentScale)
     // console.log('zoom2',op.type === "zoom" ? null : currentMouse, currentScale);
@@ -263,21 +262,24 @@ globe.doDraw_throttled = _.throttle(globe.doDraw, globe.REDRAW_WAIT, { leading: 
 
 globe.drawOverlay = function () {
     // globe.fastoverlay.draw(this.map.optimizedProjection(), globe.overlayData)
-  if (false) {
+  var coastline = globe.display.select('.coastline')
+  var lakes = globe.display.select('.lakes')
+  coastline.datum(globe.coastHi)
+  lakes.datum(globe.lakesHi)
+  globe.display.selectAll('path').attr('d', globe.path)
+  
+  if (true) {
     console.log('old overlay')
     var ctx = d3.select('#overlay').node().getContext('2d')
 
     clearCanvas(d3.select('#overlay').node())
     console.time('interpolate')
     globe.interpolateField(globe.overlayData, function (overlay) {
+      console.log(overlay)
       console.timeEnd('interpolate')
-      ctx.putImageData(overlay, 0, 0)
-      var coastline = globe.display.select('.coastline')
-      var lakes = globe.display.select('.lakes')
-      coastline.datum(globe.coastHi)
-      lakes.datum(globe.lakesHi)
-      globe.display.selectAll('path').attr('d', globe.path)
-            // drawGridPoints(ctx, grid,globe);
+      // ctx.putImageData(overlay, 0, 0)
+      
+      //drawGridPoints(ctx, grid,globe);
     })
   }
 }
@@ -344,7 +346,7 @@ globe.interpolateField = function (grids, cb) {
   var hasDistinctOverlay = primaryGrid !== overlayGrid
   var scale = overlayGrid.scale
   console.timeEnd('init')
-  console.log('testing', scale.gradient.range(), )
+  // console.log('testing', scale.gradient.range(), )
   scale.gradient = globe.scale
 
   function interpolateColumn (x) {
