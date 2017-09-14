@@ -1,3 +1,6 @@
+import { globeClick } from 'store/modules/gridData'
+import { connect } from 'react-redux'
+
 var React = require('react'),
   d3 = require('d3'),
   globe = require('./globe')
@@ -14,6 +17,7 @@ var GlobeDemo = React.createClass({
   componentDidMount: function () {
     var scope = this
     this.initGlobe(this.props)
+    console.log("globe did mount", this.props.globeClick)
   },
 
   initGlobe: function (props) {
@@ -21,7 +25,7 @@ var GlobeDemo = React.createClass({
     if (props.leftOffset) {
       globe.leftOffset = props.leftOffset
     }
-    globe.init('#' + container, { projection: props.projection })
+    globe.init('#' + container, { projection: props.projection, onGlobeClick: this.props.globeClick })
     if (this.props.scale) {
       globe.setScale(this.props.scale)
     }
@@ -57,4 +61,4 @@ var GlobeDemo = React.createClass({
 
 })
 
-module.exports = GlobeDemo
+export default connect(null, {globeClick})(GlobeDemo)

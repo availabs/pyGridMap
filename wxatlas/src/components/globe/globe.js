@@ -19,6 +19,7 @@ var globe = {
   path: null,
   leftOffset: 0,
   fastoverlay: null,
+  onGlobeClick: null,
   scale: d3.scale.quantile()
     .domain([-100, -80, -60, -40, -20, 20, 40, 60, 80, 100])
     .range(['#67001f', '#b2182b', '#d6604d', '#f4a582', '#fddbc7', '#f7f7f7', '#d1e5f0', '#92c5de', '#4393c3', '#2166ac', '#053061'])
@@ -101,6 +102,11 @@ globe.init = function (container, options) {
     d3.selectAll('path').attr('d', globe.path)
     globe.display.call(globe.zoom)
   })
+
+  if (options.onGlobeClick) {
+    globe.onGlobeClick = options.onGlobeClick
+    console.log("set globe click", options.onGlobeClick)
+  }
 
   window.onresize = function () {
     globe.view = globe.getView()
@@ -227,12 +233,9 @@ globe.zoom = d3.behavior.zoom()
       var path = d3.geo.path().projection(globe.map.projection).pointRadius(7);
       var mark = d3.select(".location-mark");
 
-      // Show coordinates
-      d3.select(".show-coordinates").text(formatCoordinates(coords[0], coords[1]));
-
-      // Show overlay grid value
+      // Show coordinates and overlay grid value
       var scalar = scalarize(overlay.bilinear(coords));
-      d3.select(".show-grid-value").text(formatScalar(scalar, overlay));
+      globe.onGlobeClick(formatCoordinates(coords[0], coords[1]), (+formatScalar(scalar, overlay)).toLocaleString())
 
       // console.log("scalar", scalar)
 

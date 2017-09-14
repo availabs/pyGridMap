@@ -13,6 +13,7 @@ const HOST = 'http://db-wxatlas.rit.albany.edu/'
 export const LOAD_DATA = 'LOAD_DATA'
 export const CHANGE_CONSTANT = 'CHANGE_CONSTANT'
 export const CHANGE_BOUNDS = 'CHANGE_BOUNDS'
+export const SET_LOCATION = 'SET_LOCATION'
 export const CHANGE_SCALE = 'CHANGE_SCALE'
 
 // -------------------------------------
@@ -37,7 +38,9 @@ const initialState = {
   type: 'grids',
   bounds: [],
   colors: "moisture",
-  scales: scales
+  scales: scales,
+  coordinates: null,
+  scalarValue: null
 }
 
 var newDate = initialState.date
@@ -69,6 +72,14 @@ export function changeBounds (index, val) {
   }
 }
 
+export function setLocation (coords, scalarValue) {
+  return {
+    type : SET_LOCATION,
+    coords,
+    scalarValue
+  }
+}
+
 export function changeScale (scaleName) {
   return {
     type : CHANGE_SCALE,
@@ -79,6 +90,12 @@ export function changeScale (scaleName) {
 export const setBounds = (index, val) => {
   return (dispatch) => {
     return dispatch(changeBounds(index, val))
+  }
+}
+
+export const globeClick = (coords, scalarValue) => {
+  return (dispatch) => {
+    return dispatch(setLocation(coords, scalarValue))
   }
 }
 
@@ -153,6 +170,13 @@ const ACTION_HANDLERS = {
     var newBounds = newState.bounds.map(d => d)
     newBounds[action.index] = +action.val
     newState.bounds = newBounds
+    return newState
+  },
+  [SET_LOCATION] : (state, action) => {
+    var newState = Object.assign({}, state)
+    newState.coordinates = action.coords
+    newState.scalarValue = action.scalarValue
+    console.log('set_location', action, newState)
     return newState
   },
   [CHANGE_SCALE] : (state, action) => {
