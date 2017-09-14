@@ -5,6 +5,7 @@ import DisplayLegend from 'components/sidebars/DisplayLegend'
 // import moment from 'moment'
 import d3 from 'd3'
 import Sidebar from './Sidebar'
+import DataReadout from './DataReadout'
 import { connect } from 'react-redux'
 var referenceScale = d3.scale.linear()
      .domain([492, 522, (600 + 492) / 2, 570, 600])
@@ -35,13 +36,14 @@ class MapPage extends React.Component {
   render () {
     const { date, format, mode, inputFormat } = this.state
 
-    console.log('home update', this.props.bounds)
+    // console.log('home update', this.props.bounds)
 
     return (
 
       <div className='map-content'>
         <DisplayLegend />
         <Sidebar />
+        <DataReadout />
         <Globe
           canvasData={this.props.canvasData}
           projection={this.props.projection}

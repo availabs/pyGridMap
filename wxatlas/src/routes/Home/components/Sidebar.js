@@ -1,6 +1,6 @@
 import React from 'react'
-import Mapcontrols from 'components/sidebars/mapcontrols'
-import LegendControl from 'components/sidebars/legendControl'
+import MapControls from 'components/sidebars/MapControls'
+import LegendControls from 'components/sidebars/LegendControls'
 import './Sidebar.scss'
 
 const tabs = [
@@ -69,9 +69,9 @@ class Sidebar extends React.Component {
   renderContent () {
     switch (this.state.activeTab.name) {
       case 'Home':
-        return <Mapcontrols />
+        return <MapControls />
       case 'Legend':
-        return <LegendControl />
+        return <LegendControls />
       default:
         return <div>{this.state.activeTab.name}</div>
     }

@@ -3,7 +3,7 @@ import './mapcontrols.scss'
 import { connect } from 'react-redux'
 import { requestData, receiveConstant } from 'store/modules/gridData'
 
-class Mapcontrols extends React.Component {
+class MapControls extends React.Component {
   constructor (props) {
     super(props)
     this.props = {
@@ -86,7 +86,6 @@ class Mapcontrols extends React.Component {
 
   render () {
     var sidebarClass = this.props.open ? 'sidebar-container' : 'sidebar-container closed'
-    console.log('gridData', this.props.gridData)
     return (
       <ul className='nav flex-column controls'>
         <li>
@@ -165,4 +164,4 @@ const mapStateToProps = (state) => ({
   type: state.gridData.type
 })
 
-export default connect(mapStateToProps, { requestData, receiveConstant })(Mapcontrols)
+export default connect(mapStateToProps, { requestData, receiveConstant })(MapControls)

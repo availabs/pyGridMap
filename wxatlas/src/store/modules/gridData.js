@@ -41,7 +41,7 @@ const initialState = {
 }
 
 var newDate = initialState.date
-console.log('running', requestData)
+// console.log('running', requestData)
 
 // ------------------------------------
 // Actions
@@ -125,7 +125,7 @@ export const actions = {
 const ACTION_HANDLERS = {
   [LOAD_DATA] : (state, action) => {
     var newState = Object.assign({}, state)
-    console.log('load_data attempt', action.res)
+    // console.log('load_data attempt', action.res)
 
     if (action.res.type === 'error') {
       newState.error = action.res.text

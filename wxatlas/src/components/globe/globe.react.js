@@ -40,7 +40,6 @@ var GlobeDemo = React.createClass({
     var current_date = this.props.canvasData ? this.props.canvasData.header.date : null
     var next_date = nextProps.canvasData ? nextProps.canvasData.header.date : null
     if (nextProps.canvasData) {
-      console.log('new draw ?', this.props.bounds)
       globe.drawCanvas(nextProps.canvasData, {bounds: nextProps.bounds, colors: nextProps.colors})
     }
 

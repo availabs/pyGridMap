@@ -77,7 +77,6 @@ globe.init = function (container, options) {
 
   // TODO: Figure out why leftOffset isn't being passed properly
   globe.view = globe.getView()
-  console.log('what is the width', scope.view.width)
   d3.selectAll('.fill-screen')
         .attr('width', scope.view.width + 30)
         .attr('height', scope.view.height)
@@ -94,7 +93,7 @@ globe.init = function (container, options) {
 
     var coastData = scope.coastHi
     var lakeData = scope.lakesHi
-    console.log('set')
+    // console.log('set')
 
     coastline.datum(coastData)
     lakes.datum(lakeData)
@@ -124,14 +123,13 @@ globe.setupWebGL = function () {
   var start = Date.now()
   var glReport = require('./gl/glCheck')
   var msg = glReport.pass ? 'ok' : JSON.stringify(glReport)
-  console.log('test 123', msg)
   console.log('check gl (' + (Date.now() - start) + 'ms): ' + msg)
   if (!glReport.pass) {
     return
   }
   var canvas = d3.select('#fastoverlay').node()
   globe.fastoverlay = require('./gl/fastoverlay')(canvas)
-  console.log('fastoverlay?', globe.fastoverlay)
+  // console.log('fastoverlay?', globe.fastoverlay)
   globe.fastoverlay.draw(globe.map.optimizedProjection(), globe.overlayData)
 }
 
@@ -155,7 +153,7 @@ globe.getView = function () {
   var x = b.offsetWidth
   var y = b.offsetHeight
   var rect = b.getBoundingClientRect()
-  console.log('rect', rect, rect.left)
+  // console.log('rect', rect, rect.left)
 
   return { width: x, height: y, left: rect.left, top: rect.top }
 }
@@ -168,11 +166,13 @@ globe.newOp = function (startMouse, startScale) {
     manipulator: globe.map.manipulator(startMouse, startScale)
   }
 }
+
 globe.location = function location(p,z) {
   var view = globe.getView()
   console.log('location', p, view)
   return [ (p[0] - view.width) / z, (p[1] - view.height) / z];
 }
+
 globe.zoom = d3.behavior.zoom()
   .scale(globe.zoomLevel)
   .on('zoomstart', function () {
@@ -185,8 +185,6 @@ globe.zoom = d3.behavior.zoom()
     if (globe.overlayData) {
       clearCanvas(d3.select('#overlay').node())
     }
-    
-        // console.log('zoomstart')
   })
   .on('zoom', function () {
     var currentMouse = d3.mouse(this), currentScale = d3.event.scale
@@ -215,21 +213,39 @@ globe.zoom = d3.behavior.zoom()
   .on('zoomend', function () {
     globe.op.manipulator.end()
     // Render hi-res coastlines and lakes
+    var coastline = globe.display.select('.coastline');
+    var lakes = globe.display.select('.lakes');
+    coastline.datum(globe.coastHi);
+    lakes.datum(globe.lakesHi);
     console.log('zoomend', globe.op.type)
+    globe.display.selectAll('path').attr('d', globe.path)
     if (globe.op.type === 'click') {
       // dispatch.trigger("click", op.startMouse, globe.projection.invert(op.startMouse) || []);
-      var coords = globe.map.projection.invert(globe.op.startMouse)
-      // console.log('coords', coords)
+
+      var overlay = globe.overlayData.field();
+      var coords = globe.map.projection.invert(globe.op.startMouse);
       var path = d3.geo.path().projection(globe.map.projection).pointRadius(7);
       var mark = d3.select(".location-mark");
+
+      // Show coordinates
+      d3.select(".show-coordinates").text(formatCoordinates(coords[0], coords[1]));
+
+      // Show overlay grid value
+      var scalar = scalarize(overlay.bilinear(coords));
+      d3.select(".show-grid-value").text(formatScalar(scalar, overlay));
+
+      // console.log("scalar", scalar)
+
+      // Draw location mark
       if (!mark.node()) {
-          mark = d3.select("#foreground").append("path").attr("class", "location-mark");
+        mark = d3.select("#foreground").append("path").attr("class", "location-mark");
       }
       mark.datum({ type: "Point", coordinates: coords }).attr("d", path)
 
+      // console.log("readout", readout)
+
     } else if (globe.op.type !== 'spurious') {
       // signalEnd();
-
     }
     // canvasDisplay.update(globe);
     if (globe.overlayData) {
@@ -238,17 +254,6 @@ globe.zoom = d3.behavior.zoom()
 
     globe.op = null  // the drag/zoom/click operation is over
   })
-  
-globe.drawLocationMark = function(point, coord) {
-  console.log('a click happened')
-  if (coord && coord[0] && coord[1]) {
-      var mark = d3.select(".location-mark");
-      if (!mark.node()) {
-          mark = d3.select("#foreground").append("path").attr("class", "location-mark");
-      }
-      mark.datum({type: "Point", coordinates: coord}).attr("d", path);
-  }
-}
 
 globe.doDraw = function () {
   if (globe.fastoverlay) {
@@ -261,13 +266,13 @@ globe.doDraw = function () {
 globe.doDraw_throttled = _.throttle(globe.doDraw, globe.REDRAW_WAIT, { leading: false })
 
 globe.drawOverlay = function () {
-    // globe.fastoverlay.draw(this.map.optimizedProjection(), globe.overlayData)
+  // globe.fastoverlay.draw(this.map.optimizedProjection(), globe.overlayData)
   var coastline = globe.display.select('.coastline')
   var lakes = globe.display.select('.lakes')
   coastline.datum(globe.coastHi)
   lakes.datum(globe.lakesHi)
   globe.display.selectAll('path').attr('d', globe.path)
-  
+
   if (true) {
     console.log('old overlay')
     var ctx = d3.select('#overlay').node().getContext('2d')
@@ -275,10 +280,10 @@ globe.drawOverlay = function () {
     clearCanvas(d3.select('#overlay').node())
     console.time('interpolate')
     globe.interpolateField(globe.overlayData, function (overlay) {
-      console.log(overlay)
+      // console.log(overlay)
       console.timeEnd('interpolate')
       // ctx.putImageData(overlay, 0, 0)
-      
+
       //drawGridPoints(ctx, grid,globe);
     })
   }
@@ -286,8 +291,6 @@ globe.drawOverlay = function () {
 
 globe.createMask = function () {
   if (!globe.map) return null
-
-    // console.time("render mask");
 
     // Create a detached canvas, ask the model to define the mask polygon, then fill with an opaque color.
   var width = globe.view.width, height = globe.view.height
@@ -413,11 +416,12 @@ globe.interpolateField = function (grids, cb) {
 globe.drawCanvas = function (mapData, options) {
   options = options || {}
 
-  var scale = globe.getScaleSix(mapData,options)// globe.getScaleSix(mapData,options)
+  console.log("map data", mapData)
+
+  var scale = globe.getScaleSix(mapData, options)
   globe.defaultCanvas.scale = scale
   globe.overlayData = Object.assign(globe.defaultCanvas, buildGrid(globe.defaultCanvas.builder([mapData])))
 
-  console.log('overlayData', globe.overlayData.grid())
   this.setupWebGL()
 
   setTimeout(function () {
@@ -425,7 +429,7 @@ globe.drawCanvas = function (mapData, options) {
   }, 100)
 }
 
-globe.getScaleOne = (mapData,options) => {
+globe.getScaleOne = (mapData, options) => {
   // var cheatingScale = d3.scale.linear()
   //       .domain([ d3.min(mapData.data), d3.max(mapData.data) ])
   //       .range([193, 328])
@@ -446,7 +450,7 @@ globe.getScaleOne = (mapData,options) => {
 }
 
 globe.getScaleSix = (mapData, options) => {
-  
+
   var min = d3.min(mapData.data)
   var max =d3.max(mapData.data)
   var bounds = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
@@ -654,6 +658,8 @@ function buildGrid (builder) {
   }
 }
 
+var _typeof = typeof Symbol === 'function' && typeof Symbol.iterator === 'symbol' ? function (obj) { return typeof obj } : function (obj) { return obj && typeof Symbol === 'function' && obj.constructor === Symbol && obj !== Symbol.prototype ? 'symbol' : typeof obj }
+
 function floorMod (a, n) {
   var f = a - n * Math.floor(a / n)
     // HACK: when a is extremely close to an n transition, f can be equal to n. This is bad because f must be
@@ -669,7 +675,22 @@ function clamp (x, low, high) {
   return Math.max(low, Math.min(x, high))
 }
 
-// d3.geo.polyhedron
+function formatCoordinates(λ, φ) {
+  return Math.abs(φ).toFixed(2) + '° ' + (φ >= 0 ? 'N' : 'S') + ', ' + Math.abs(λ).toFixed(2) + '° ' + (λ >= 0 ? 'E' : 'W')
+}
+
+function formatScalar(value, units) {
+  return value.toFixed(units.precision)
+  //   return units.conversion(value).toFixed(units.precision)
+}
+
+function scalarize(x) {
+  return isArrayLike(x) ? x[2] : x
+}
+
+function isArrayLike (o) {
+  return Array.isArray(o) || (typeof o === 'undefined' ? 'undefined' : _typeof(o)) === 'object' && !!o && 'length' in o
+}
 
 // -----------------------------------------------
 function throttle (func, wait, options) {
@@ -892,4 +913,3 @@ function convertHex (hex, a) {
   var b = parseInt(hex.substring(4, 6), 16)
   return [r, g, b, a]
 }
-

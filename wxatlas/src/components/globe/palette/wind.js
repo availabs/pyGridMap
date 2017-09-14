@@ -83,7 +83,6 @@ var five = function (bounds, inColors, resolution) {
   var segments = bounds.map((d, i) => [d, colors[i]])
   var totalBounds = bounds ? [bounds[0], bounds[bounds.length - 1]] : [193, 328] // units: kelvins
   var scale = gen.buildScaleFromSegments(totalBounds, segments, resolution)
-  console.log('actual scale', scale.bounds)
   return scale
 }
 

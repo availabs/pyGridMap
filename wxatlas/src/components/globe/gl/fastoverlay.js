@@ -74,7 +74,7 @@ module.exports = function (canvas) { // configuration, globeAgent, gridAgent, re
     glu.attribs(newProgram).set(GLU.unitPlaneAttributes())
     currentSources = newSources
     currentProgram = newProgram
-    console.log('textures', textures)
+    // console.log('textures', textures)
     currentUniforms = glu.uniforms(newProgram, textures)
     gl.useProgram(newProgram)
   }
