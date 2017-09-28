@@ -15,12 +15,8 @@ class DataReadout extends React.Component {
     this.setState({ open: !this.state.open })
   }
 
-  componentWillReceiveProps (nextProps) {
-    console.log("data readout new props", nextProps)
-  }
-
   render () {
-    console.log("render data readout", this.props)
+    if (!this.props.coordinates) return <span />;
     var locationClass = this.state.open ? 'location' : 'location closed'
     return (
       <div className={locationClass}>
@@ -36,8 +32,8 @@ class DataReadout extends React.Component {
 }
 
 const mapStateToProps = (state) => ({
-  coordinates: state.coordinates,
-  scalarValue: state.scalarValue
+  coordinates: state.gridData.coordinates,
+  scalarValue: state.gridData.scalarValue
 })
 
 export default connect(mapStateToProps, {})(DataReadout)

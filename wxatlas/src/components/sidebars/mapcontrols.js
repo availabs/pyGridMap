@@ -102,6 +102,7 @@ class MapControls extends React.Component {
             <option value='gph'>Geopotential Height</option>
             <option value='uwnd'>Zonal Wind</option>
             <option value='vwnd'>Meridional Wind</option>
+            <option value='t2m'>Temperature</option>
           </select>
         </li>
         <li>
