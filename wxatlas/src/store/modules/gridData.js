@@ -35,6 +35,12 @@ const scales = {
   moisture: ["#001107", "#00240e", "#053916", "#0e4f1f", "#1b652a", "#2d7b38", "#429148", "#5ba75d", "#7cbd79", "#a0d39a", "#c7e9c0", "#ffffff", "#ffffff", "#fdd0a2", "#e9b686", "#d69d6c", "#c38555", "#b06f41", "#9d5a30", "#8a4720", "#773614", "#64260a", "#511a03", "#310f01"],
   anomaly: ["#9e6cae", "#5e3785", "#25135c", "#000033", "#000099", "#0000e5", "#4c4cff", "#6666ff", "#ccccff", "#ffffff", "#ffffff", "#ffeda0", "#fd8d3c", "#fc4e2a", "#bd0026", "#990000", "#4c0000", "#78152d", "#a53965", "#d26eb9"]
 }
+const variables = {
+  gph: {scale: 'rainbow', min: 4920, step: 60},
+  uwnd: {scale: 'rdbu', min: -100, step: 10},
+  vwnd: {scale: 'anomaly', min: -100, step: 10},
+  t2m: {scale: 'divergent_1', min: 260, step: 10}
+}
 const initialState = {
   loading: false,
   canvasData: null,
@@ -161,9 +167,9 @@ const ACTION_HANDLERS = {
       newState.canvasData = action.res
       // var min = d3.min(newState.canvasData.data)
       // var max = d3.max(newState.canvasData.data)
-      var min = 4320
-      var max = 6000
-      var delta = 60
+      var min = variables[newState.variable].min
+      // var max = 6000
+      var delta = variables[newState.variable].step
       var bounds = state.scales[state.colors].map(d => 0)
       console.log('bounds', bounds)
       // var delta = (max - min) / bounds.length
@@ -179,6 +185,9 @@ const ACTION_HANDLERS = {
   [CHANGE_CONSTANT] : (state, action) => {
     var newState = Object.assign({}, state)
     newState[action.key] = action.val
+    if (action.key === 'variable') {
+      newState.colors = variables[action.val].scale
+    }
     return newState
   },
   [CHANGE_BOUNDS] : (state, action) => {
