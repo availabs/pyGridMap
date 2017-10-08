@@ -1,7 +1,7 @@
 import React from 'react'
 import './mapcontrols.scss'
 import { connect } from 'react-redux'
-import { setBounds, setColorScale } from 'store/modules/gridData'
+import { setBounds, setColors } from 'store/modules/gridData'
 import { throttle } from 'components/utils/utils'
 import NumberEditor from './numberEditor'
 
@@ -13,13 +13,11 @@ class LegendControls extends React.Component {
   }
 
   _boundsChange (val, name) {
-    console.log('_boundsChange', val, name)
-    throttle(this.props.setBounds(name,val), 300)
+    throttle(this.props.setBounds(name, val), 300)
   }
 
   _scaleChange (val, name) {
-    console.log("_scaleChange", val.target.value)
-    this.props.setColorScale(val.target.value)
+    this.props.setColors(val.target.value)
   }
 
   color2rgb (color) {
@@ -27,7 +25,8 @@ class LegendControls extends React.Component {
   }
 
   render () {
-    var colors = this.props.scales[this.props.activeScale]
+    // var colors = this.props.scales[this.props.activeScale]
+    var colors = this.props.currentScale
     if (typeof colors[0] === 'string') colors = colors.map(d => hexToRgb(d))
     var sidebarClass = this.props.open ? 'sidebar-container' : 'sidebar-container closed'
     var boundsBoxes = this.props.bounds.map((b,i) => {
@@ -52,8 +51,8 @@ class LegendControls extends React.Component {
         </li>
       )
     })
-    var scaleList = Object.keys(this.props.scales).map(scaleName => {
-      var colors = this.props.scales[scaleName]
+    var scaleList = Object.keys(this.props.scales).map(colorScale => {
+      var colors = this.props.currentScale
       if (typeof colors[0] === 'string') colors = colors.map(d => hexToRgb(d))
       return (
         <option value={scaleName}>{scaleName}</option>
@@ -77,10 +76,11 @@ class LegendControls extends React.Component {
 const mapStateToProps = (state) => ({
   bounds: state.gridData.bounds,
   scales: state.gridData.scales,
-  activeScale: state.gridData.colors
+  activeScale: state.gridData.colors,
+  currentScale: state.gridData.currentScale
 })
 
-export default connect(mapStateToProps, {setBounds, setColorScale})(LegendControls)
+export default connect(mapStateToProps, { setBounds, setColors })(LegendControls)
 
 function hexToRgb (hex) {
   var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)

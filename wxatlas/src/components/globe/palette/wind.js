@@ -9,21 +9,23 @@ function hexToRgb (hex) {
   ] : [0, 0, 0]
 }
 
-var one = function (bounds, resolution) {
+var one = function (bounds, inColors) {
    // var resolution = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 5000;
-  var resolution = resolution || 100
+  var bounds = bounds || [500, 595]
+  var resolution = bounds.length
   var palette = require('./palette')
 
-  var bounds = bounds || [500, 595] // units: m/s
-  var array = new Uint8Array(resolution * 4)
-  console.log(palette.extendedSinebowColor)
-  palette.fillRange(array, [0, 1], [0, 1], palette.extendedSinebowColor)
+  // var bounds = bounds || [500, 595] // units: m/s
+  var colors = Array(resolution).fill(0).map(x => Array(3).fill(0))
+  colors = inColors || colors
+  var totalBounds = bounds ? [bounds[0], bounds[bounds.length - 1]] : [193, 328]
+  palette.fillRange(colors, totalBounds, totalBounds, inColors)
 
   return palette.buildScale(bounds, array)
 }
 
 var two = function (bounds, resolution) {
-  var resolution = resolution || 500
+  var resolution = 19
   var palette = require('./palette')
   var chroma = require('chroma-js')
 
@@ -71,18 +73,19 @@ var four = function (bounds, resolution) {
 }
 
 var five = function (bounds, inColors, resolution) {
-    // var resolution = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 2000;
 
   var gen = require('./palette')
-  resolution = 2000
   var bounds = bounds || [193, 328] // units: kelvins
-  var colors = [[200, 0, 0],[255, 50, 0],[255, 135, 0],[255, 200, 0],[255, 255, 0],[225, 225, 0],[150, 225, 0],[0, 225, 0],[0, 255, 170],[0, 200, 240],[0, 100, 200],[50, 0, 225],[125, 0, 225],[200, 0, 200],[150, 0, 150],[90, 0, 90]].reverse()
+  var resolution = bounds.length
+  var colors = Array(resolution).fill(0).map(x => Array(3).fill(0))
   colors = inColors || colors
+
   if (typeof colors[0] === 'string') colors = colors.map(d => hexToRgb(d))
 
   var segments = bounds.map((d, i) => [d, colors[i]])
   var totalBounds = bounds ? [bounds[0], bounds[bounds.length - 1]] : [193, 328] // units: kelvins
   var scale = gen.buildScaleFromSegments(totalBounds, segments, resolution)
+
   return scale
 }
 
@@ -91,7 +94,8 @@ var six = function (bounds, scheme, resolution) {
 
 
   var palette = require('./palette')
-  var resolution = resolution || 2000
+  // var resolution = resolution || 2000
+  var resolution = 150
   var bounds = bounds || [193, 328] // units: kelvins
   var colorbrewer = require('colorbrewer')
   console.log('bounds', colorbrewer)
@@ -100,9 +104,6 @@ var six = function (bounds, scheme, resolution) {
 
   var segments = bounds.map((d, i) => [d, colors[i]])
   var totalBounds = bounds ? [bounds[0], bounds[bounds.length - 1]] : [193, 328] // units: kelvins
-
-  console.log('segments', segments)
-
   return palette.buildScaleFromSegments(totalBounds, segments, resolution)
 }
 

@@ -8,18 +8,12 @@ class DataReadout extends React.Component {
     this.state = {
       open: true
     }
-    this.toggleReadout = this.toggleReadout.bind(this)
-  }
-
-  toggleReadout () {
-    this.setState({ open: !this.state.open })
   }
 
   render () {
-    if (!this.props.coordinates) return <span />;
-    var locationClass = this.state.open ? 'location' : 'location closed'
+    if (!this.props.coordinates) return <span />
     return (
-      <div className={locationClass}>
+      <div className={'location'}>
         <div style={{ display: this.state.open ? 'block' : 'none' }}>
           <i className='fa fa-map-marker' />
           <div className='show-coordinates'>{this.props.coordinates}</div>

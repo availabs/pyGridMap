@@ -19,7 +19,9 @@ function _classCallCheck (instance, Constructor) { if (!(instance instanceof Con
     var Δr = end[0] - r,
       Δg = end[1] - g,
       Δb = end[2] - b
+
     return function (i, a) {
+      // console.log('r, g, b, a', [Math.floor(r + i * Δr), Math.floor(g + i * Δg), Math.floor(b + i * Δb), a])
       return [Math.floor(r + i * Δr), Math.floor(g + i * Δg), Math.floor(b + i * Δb), a]
     }
   }
@@ -79,7 +81,11 @@ function _classCallCheck (instance, Constructor) { if (!(instance instanceof Con
       ranges = []
     for (var i = 0; i < segments.length - 1; i++) {
       points.push(segments[i + 1][0])
+      // points.push(segments[i][0])
+      // console.log('points', points)
       interpolators.push(colorInterpolator(segments[i][1], segments[i + 1][1]))
+
+      // console.log('interpolators', interpolators)
       ranges.push([segments[i][0], segments[i + 1][0]])
     }
 
@@ -177,6 +183,9 @@ function _classCallCheck (instance, Constructor) { if (!(instance instanceof Con
       end = Math.round((b - x) / Δ)
     for (var i = start; i < end + 1; i++) {
       var c = ƒcolor(x + i * Δ)
+      // console.log('x + i * Δ', x + i * Δ)
+      // var c = ƒcolor
+      // console.log('c', c)
       var j = i * 4
       array[j] = c[0]
       array[j + 1] = c[1]
@@ -210,9 +219,13 @@ function _classCallCheck (instance, Constructor) { if (!(instance instanceof Con
 
   palette.buildScaleFromSegments = function (bounds, segments, resolution) {
     var gradient = palette.segmentedColorScale(segments)
+    // var gradient = segments
     var array = new Uint8Array(resolution * 4)
+    console.log('array', array)
     palette.fillRange(array, bounds, bounds, gradient)
+    console.log('array', array)
     return palette.buildScale(bounds, array)
+    console.log('palette', palette.buildScale)
   }
 
     /**
@@ -252,17 +265,26 @@ function _classCallCheck (instance, Constructor) { if (!(instance instanceof Con
             [centerLow, centerHigh] == [edgeLow + ε, edgeHigh - ε]  where ε = (edgeHigh - edgeLow) / 2n
             [edgeLow, edgeHigh] == [centerLow - ε, centerHigh + ε]  where ε = (centerHigh - centerLow) / 2(n-1)
           */
-
+    console.log('colors', colors)
     var lo = ƒmap(bounds[0]),
       hi = ƒmap(bounds[1])
-    var iMax = colors.length / 4 - 1,
-      scale = iMax / (hi - lo)
+    // var iMax = colors.length / 4 - 1,
+    //   scale = iMax / (hi - lo)
     var hash = µ.arrayHashCode(colors, 1000)
-    var ε = (hi - lo) / (2 * iMax)
-    var edgeLo = lo - ε,
-      edgeHi = hi + ε,
-      edgeRange = [edgeLo, edgeHi - edgeLo]
+    // var ε = (hi - lo) / (2 * iMax)
+    // var edgeLo = lo - ε,
+    //   edgeHi = hi + ε,
+    //   edgeRange = [edgeLo, edgeHi - edgeLo]
+    var edgeRange = [lo, hi-lo]
+    console.log('edgeRange', edgeRange)
 
+
+      // edgeRange = [edgeLo, edgeHi]
+      // console.log('edgeRange', edgeRange)
+      console.log('lo, hi', lo, hi)
+      // console.log('ε', ε)
+      // console.log('edgeLo', edgeLo)
+      // console.log('edgeHi', edgeHi)
     return new (function () {
       function Scale () {
         _classCallCheck(this, Scale)
@@ -314,7 +336,15 @@ function _classCallCheck (instance, Constructor) { if (!(instance instanceof Con
           return {
             shaderSource: function shaderSource () {
               var mapper = ƒmap === Math.log ? '\nfloat fmap(in float v) {\n    return log(v);\n}\n' : '\nfloat fmap(in float v) {\n    return v;\n}\n'
-              return [mapper, '\nuniform vec2 u_Range;  // [min, size]\nuniform lowp sampler2D u_Palette;\nuniform lowp float u_Alpha;\n\nlowp vec4 colorize(in float v) {\n    vec2 st = vec2((fmap(v) - u_Range.x) / u_Range.y, 0.5);\n    lowp vec4 color = texture2D(u_Palette, st);\n    lowp float alpha = (1.0 - step(7e37, v)) * u_Alpha;\n    return vec4(color.rgb * alpha, alpha);  // premultiply alpha\n}\n']
+              return [mapper, '\nuniform vec2 u_Range;  // [min, size]\n' +
+                              'uniform lowp sampler2D u_Palette;\n' +
+                              'uniform lowp float u_Alpha;\n\n' +
+                              'lowp vec4 colorize(in float v) {\n' +
+                              'vec2 st = vec2((fmap(v) - u_Range.x) / u_Range.y, 0.5);\n' +
+                              'lowp vec4 color = texture2D(u_Palette, st);\n' +
+                              'lowp float alpha = (1.0 - step(7e37, v)) * u_Alpha;\n' +
+                              'return vec4(color.rgb, alpha);  // premultiply alpha\n}\n'
+                            ]
             },
             textures: function textures () {
               return {

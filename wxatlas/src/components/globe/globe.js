@@ -4,6 +4,7 @@ var _ = require('underscore')
 var bilinear = require('./gl/interpolate_bilinear')
 var nearest = require('./gl/nearest')
 var globes = require('./projections/globes')
+var chroma = require('chroma-js')
 
 var globe = {
   version: '0.0.1',
@@ -13,24 +14,25 @@ var globe = {
   overlayData: null,
   projection: 'orthographic',
   map: null,
-  zoomLevel: 320,
+  zoomLevel: 375,
   REDRAW_WAIT: 5,
   newOp: null,
   path: null,
   leftOffset: 0,
-  fastoverlay: null,
+  fastOverlay: null,
   onGlobeClick: null,
+  interpolateColors: null,
   scale: d3.scale.quantile()
-    .domain([-100, -80, -60, -40, -20, 20, 40, 60, 80, 100])
-    .range(['#67001f', '#b2182b', '#d6604d', '#f4a582', '#fddbc7', '#f7f7f7', '#d1e5f0', '#92c5de', '#4393c3', '#2166ac', '#053061'])
+          .domain([-100, -80, -60, -40, -20, 20, 40, 60, 80, 100])
+          .range(['#67001f', '#b2182b', '#d6604d', '#f4a582', '#fddbc7', '#f7f7f7', '#d1e5f0', '#92c5de', '#4393c3', '#2166ac', '#053061'])
 }
 
 globe.init = function (container, options) {
   this.container = container
   var scope = this
   globe.display = d3.select(container)
-      .append('div')
-      .attr('class', 'display')
+    .append('div')
+    .attr('class', 'display')
 
   globe.display
     .append('svg')
@@ -48,10 +50,10 @@ globe.init = function (container, options) {
     .attr('class', 'fill-screen')
 
   globe.display
-        .append('canvas')
-        .attr('id', 'fastoverlay')
-        .attr('class', 'fill-screen')
-        .style({ 'opacity': '0.6' })
+    .append('canvas')
+    .attr('id', 'fastOverlay')
+    .attr('class', 'fill-screen')
+    .style({ 'opacity': '0.6' })
 
   globe.display
     .append('svg')
@@ -60,7 +62,6 @@ globe.init = function (container, options) {
 
   globe.display.on('click', (a,b,c,d) => {
     console.log('simple click on init', a, b, c ,d)
-
   })
 
   this.view = this.getView()
@@ -74,7 +75,7 @@ globe.init = function (container, options) {
 
   this.map = globes[this.projection](this.view)
   this.map.defineMap(d3.select('#map'), d3.select('#foreground'))
-  this.map.orientation('-60, 0, ' + globe.zoomLevel.toString(), this.view)
+  this.map.orientation('-98.5795, 39.8283, ' + globe.zoomLevel.toString(), this.view)
 
   // TODO: Figure out why leftOffset isn't being passed properly
   globe.view = globe.getView()
@@ -94,7 +95,6 @@ globe.init = function (container, options) {
 
     var coastData = scope.coastHi
     var lakeData = scope.lakesHi
-    // console.log('set')
 
     coastline.datum(coastData)
     lakes.datum(lakeData)
@@ -108,6 +108,11 @@ globe.init = function (container, options) {
     console.log("set globe click", options.onGlobeClick)
   }
 
+  if (options.interpolateColors) {
+    globe.interpolateColors = options.interpolateColors
+    console.log('set interpolate scale', options.interpolateColors)
+  }
+
   window.onresize = function () {
     globe.view = globe.getView()
     console.log('resize')
@@ -119,9 +124,9 @@ globe.init = function (container, options) {
               'left': globe.leftOffset + 'px'
             })
 
-    var canvas = d3.select('#fastoverlay').node()
-    globe.fastoverlay = require('./gl/fastoverlay')(canvas)
-    globe.fastoverlay.draw(globe.map.optimizedProjection(), globe.overlayData)
+    var canvas = d3.select('#fastOverlay').node()
+    globe.fastOverlay = require('./gl/fastoverlay')(canvas)
+    globe.fastOverlay.draw(globe.map.optimizedProjection(), globe.overlayData)
   }
 }
 
@@ -133,10 +138,9 @@ globe.setupWebGL = function () {
   if (!glReport.pass) {
     return
   }
-  var canvas = d3.select('#fastoverlay').node()
-  globe.fastoverlay = require('./gl/fastoverlay')(canvas)
-  // console.log('fastoverlay?', globe.fastoverlay)
-  globe.fastoverlay.draw(globe.map.optimizedProjection(), globe.overlayData)
+  var canvas = d3.select('#fastOverlay').node()
+  globe.fastOverlay = require('./gl/fastoverlay')(canvas)
+  globe.fastOverlay.draw(globe.map.optimizedProjection(), globe.overlayData)
 }
 
 globe.loadGeo = function (options, cb) {
@@ -152,15 +156,12 @@ globe.loadGeo = function (options, cb) {
 }
 
 globe.getView = function () {
-  // console.log('get view', this.container)
   var w = window
   var d = document && document.documentElement
   var b = document.querySelector(this.container)
   var x = b.offsetWidth
   var y = b.offsetHeight
   var rect = b.getBoundingClientRect()
-  // console.log('rect', rect, rect.left)
-
   return { width: x, height: y, left: rect.left, top: rect.top }
 }
 
@@ -182,7 +183,8 @@ globe.location = function location(p,z) {
 globe.zoom = d3.behavior.zoom()
   .scale(globe.zoomLevel)
   .on('zoomstart', function () {
-    globe.op = globe.op || globe.newOp(d3.mouse(this), globe.zoom.scale())  // a new operation begins
+    // a new operation begins
+    globe.op = globe.op || globe.newOp(d3.mouse(this), globe.zoom.scale())
     // Render lo-res coastlines and lakes
     var coastline = globe.display.select('.coastline')
     var lakes = globe.display.select('.lakes')
@@ -194,7 +196,6 @@ globe.zoom = d3.behavior.zoom()
   })
   .on('zoom', function () {
     var currentMouse = d3.mouse(this), currentScale = d3.event.scale
-    // console.log()
     globe.op = globe.op || globe.newOp(currentMouse, 1)  // Fix bug on some browsers where zoomstart fires out of order.
     if (globe.op.type === 'click' || globe.op.type === 'spurious') {
       var distanceMoved = distance(currentMouse, globe.op.startMouse)
@@ -206,14 +207,12 @@ globe.zoom = d3.behavior.zoom()
       // dispatch.trigger("moveStart");
       // globe.doDraw_throttled()
       globe.op.type = "drag";
-      //console.log('simple click2', globe.op, currentMouse,d3.mouse(this))
     }
     if (currentScale != globe.op.startScale) {
       globe.op.type = 'zoom'  // whenever a scale change is detected, (stickily) switch to a zoom operation
     }
     // when zooming, ignore whatever the mouse is doing--really cleans up behavior on touch devices
     globe.op.manipulator.move(globe.op.type === 'zoom' ? null : currentMouse, currentScale)
-    // console.log('zoom2',op.type === "zoom" ? null : currentMouse, currentScale);
     globe.doDraw_throttled()
   })
   .on('zoomend', function () {
@@ -227,26 +226,18 @@ globe.zoom = d3.behavior.zoom()
     globe.display.selectAll('path').attr('d', globe.path)
     if (globe.op.type === 'click') {
       // dispatch.trigger("click", op.startMouse, globe.projection.invert(op.startMouse) || []);
-
       var overlay = globe.overlayData.field();
       var coords = globe.map.projection.invert(globe.op.startMouse);
       var path = d3.geo.path().projection(globe.map.projection).pointRadius(7);
       var mark = d3.select(".location-mark");
-
       // Show coordinates and overlay grid value
       var scalar = scalarize(overlay.bilinear(coords));
       globe.onGlobeClick(formatCoordinates(coords[0], coords[1]), (+formatScalar(scalar, overlay)).toLocaleString())
-
-      // console.log("scalar", scalar)
-
       // Draw location mark
       if (!mark.node()) {
         mark = d3.select("#foreground").append("path").attr("class", "location-mark");
       }
       mark.datum({ type: "Point", coordinates: coords }).attr("d", path)
-
-      // console.log("readout", readout)
-
     } else if (globe.op.type !== 'spurious') {
       // signalEnd();
     }
@@ -254,13 +245,12 @@ globe.zoom = d3.behavior.zoom()
     if (globe.overlayData) {
       globe.drawOverlay()
     }
-
     globe.op = null  // the drag/zoom/click operation is over
   })
 
 globe.doDraw = function () {
-  if (globe.fastoverlay) {
-    globe.fastoverlay.draw(this.map.optimizedProjection(), globe.overlayData)
+  if (globe.fastOverlay) {
+    globe.fastOverlay.draw(this.map.optimizedProjection(), globe.overlayData)
   }
   globe.display.selectAll('path').attr('d', globe.path)
   globe.doDraw_throttled = _.throttle(globe.doDraw, globe.REDRAW_WAIT, { leading: false })
@@ -269,7 +259,7 @@ globe.doDraw = function () {
 globe.doDraw_throttled = _.throttle(globe.doDraw, globe.REDRAW_WAIT, { leading: false })
 
 globe.drawOverlay = function () {
-  // globe.fastoverlay.draw(this.map.optimizedProjection(), globe.overlayData)
+  // globe.fastOverlay.draw(this.map.optimizedProjection(), globe.overlayData)
   var coastline = globe.display.select('.coastline')
   var lakes = globe.display.select('.lakes')
   coastline.datum(globe.coastHi)
@@ -283,10 +273,8 @@ globe.drawOverlay = function () {
     clearCanvas(d3.select('#overlay').node())
     console.time('interpolate')
     globe.interpolateField(globe.overlayData, function (overlay) {
-      // console.log(overlay)
       console.timeEnd('interpolate')
       // ctx.putImageData(overlay, 0, 0)
-
       //drawGridPoints(ctx, grid,globe);
     })
   }
@@ -295,21 +283,19 @@ globe.drawOverlay = function () {
 globe.createMask = function () {
   if (!globe.map) return null
 
-    // Create a detached canvas, ask the model to define the mask polygon, then fill with an opaque color.
+  // Create a detached canvas, ask the model to define the mask polygon, then fill with an opaque color.
   var width = globe.view.width, height = globe.view.height
   var canvas = d3.select(document.createElement('canvas'))
-        .attr('width', width)
-        .attr('height', height).node()
+                .attr('width', width)
+                .attr('height', height).node()
   var context = globe.map.defineMask(canvas.getContext('2d'))
   context.fillStyle = 'rgba(255, 0, 0, 1)'
   context.fill()
-    // d3.select("#display").node().appendChild(canvas);  // make mask visible for debugging
+  // d3.select("#display").node().appendChild(canvas);  // make mask visible for debugging
 
   var imageData = context.getImageData(0, 0, width, height)
-    // console.log('context image data',imageData)
-
   var data = imageData.data  // layout: [r, g, b, a, r, g, b, a, ...]
-    // console.timeEnd("render mask");
+
   return {
     imageData: imageData,
     isVisible: function (x, y) {
@@ -332,15 +318,15 @@ globe.interpolateField = function (grids, cb) {
 
   console.time('init')
   var mask = globe.createMask()
-  var primaryGrid = {}// grids;//.primaryGrid;
-  var overlayGrid = grids// .overlayGrid;
+  var primaryGrid = {} // grids;//.primaryGrid;
+  var overlayGrid = grids // .overlayGrid;
 
     // var d = when.defer(), cancel = this.cancel;
 
   var projection = globe.map.projection
   var bounds = globe.map.bounds(globe.view)
 
-    // How fast particles move on the screen (arbitrary value chosen for aesthetics).
+  // How fast particles move on the screen (arbitrary value chosen for aesthetics).
   var velocityScale = bounds.height * 1 / 6000
 
   var columns = []
@@ -352,7 +338,6 @@ globe.interpolateField = function (grids, cb) {
   var hasDistinctOverlay = primaryGrid !== overlayGrid
   var scale = overlayGrid.scale
   console.timeEnd('init')
-  // console.log('testing', scale.gradient.range(), )
   scale.gradient = globe.scale
 
   function interpolateColumn (x) {
@@ -366,7 +351,6 @@ globe.interpolateField = function (grids, cb) {
         var wind = null
         if (coord) {
           var λ = coord[0], φ = coord[1]
-                    // console.log(λ,φ)
           if (isFinite(λ)) {
                         // wind = interpolate(λ, φ);
             var scalar = null
@@ -379,21 +363,14 @@ globe.interpolateField = function (grids, cb) {
             }
             if (isValue(scalar)) {
               color = convertHex(scale.gradient(scalar), OVERLAY_ALPHA)
-                            // console.log('color',color)
             }
           }
         }
-                // if(scalar) {
-                //     console.log('val', scalar, y)
-                // }
-
                 // column[y+1] = column[y] = wind || [NaN, NaN, null];
         mask.set(x, y, color).set(x + 1, y, color).set(x, y + 1, color).set(x + 1, y + 1, color)
       }
     }
-        // console.log('c size', column.length, bounds)
     columns[x + 1] = columns[x] = column
-        // console.timeEnd('interpolating column')
   }
 
   (function batchInterpolate () {
@@ -418,9 +395,6 @@ globe.interpolateField = function (grids, cb) {
 
 globe.drawCanvas = function (mapData, options) {
   options = options || {}
-
-  console.log("map data", mapData)
-
   var scale = globe.getScaleSix(mapData, options)
   globe.defaultCanvas.scale = scale
   globe.overlayData = Object.assign(globe.defaultCanvas, buildGrid(globe.defaultCanvas.builder([mapData])))
@@ -447,24 +421,27 @@ globe.getScaleOne = (mapData, options) => {
   //console.log('bounds',bounds)
   var bounds = options.bounds ?
     [options.bounds[0], options.bounds[options.bounds.length - 1]] :
-    [  d3.min(mapData.data), d3.max(mapData.data) ]
+    [ d3.min(mapData.data), d3.max(mapData.data) ]
   console.log('the bounds', bounds)
   return Object.assign(require('./palette/pallette1.js')(bounds))
 }
 
 globe.getScaleSix = (mapData, options) => {
 
-  var min = d3.min(mapData.data)
-  var max =d3.max(mapData.data)
-  var bounds = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-  var delta = (max - min) / bounds.length
-  bounds = bounds.map((d, i) => {
-    return min + (i * delta)
-  })
+  // var min = 4920
+  // var max = 6000
+  // var step = 60
+  // var bounds = Array((max-min)/step+1).fill().map((d, i) => i)
+  // // var delta = (max - min) / step
+  // bounds = bounds.map((d, i) => {
+  //   return min + (i * step)
+  // })
+  var bounds = []
 
-  var drawBounds = options.bounds || bounds
-  console.log()
-  return Object.assign(require('./palette/wind.js')(drawBounds, options.colors))
+  var colorBounds = options.bounds || bounds
+  var colors = options.colors
+  console.log('bounds & colors', colorBounds, colors)
+  return Object.assign(require('./palette/wind.js')(colorBounds, colors))
 }
 
 globe.drawGeoJson = function (mapData, options) {
@@ -520,7 +497,7 @@ globe.defaultCanvas = {
       data: function (i) {
         return data[i]
       },
-      data_raw: new Float32Array(data)
+      rawData: new Float32Array(data)
     }
   },
 
@@ -651,8 +628,8 @@ function buildGrid (builder) {
           var v = builder.data[j + 1]
           return [u, v, Math.sqrt(u * u + v * v)]
         },
-        nearest: nearest.scalar(_grid, builder.data_raw),
-        bilinear: bilinear.scalar(_grid, builder.data_raw)
+        nearest: nearest.scalar(_grid, builder.rawData),
+        bilinear: bilinear.scalar(_grid, builder.rawData)
       }
     },
     grid: function grid () {
