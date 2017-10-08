@@ -25,7 +25,6 @@ class MapPage extends React.Component {
   componentDidMount () {
     let newDate = this.state.date
     this.props.initialLoad()
-    console.log('initial load')
   }
 
   render () {

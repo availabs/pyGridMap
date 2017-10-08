@@ -17,7 +17,6 @@ var GlobeDemo = React.createClass({
   componentDidMount: function () {
     var scope = this
     this.initGlobe(this.props)
-    console.log('props', this.props)
   },
 
   initGlobe: function (props) {
@@ -27,11 +26,9 @@ var GlobeDemo = React.createClass({
     }
     globe.init('#' + container, { projection: props.projection, onGlobeClick: this.props.globeClick })
     if (this.props.scale) {
-      console.log('setting this scale', this.props.scale)
       globe.setScale(this.props.scale)
     }
     if (props.canvasData) {
-      console.log('initGlobe', props)
       globe.drawCanvas(props.canvasData, { bounds: this.props.bounds, colors: this.props.colors })
     }
   },
@@ -44,7 +41,6 @@ var GlobeDemo = React.createClass({
     }
     var current_date = this.props.canvasData ? this.props.canvasData.header.date : null
     var next_date = nextProps.canvasData ? nextProps.canvasData.header.date : null
-    console.log('colors in globe react', nextProps.colors)
     if (nextProps.canvasData) {
       globe.drawCanvas(nextProps.canvasData, { bounds: nextProps.bounds, colors: nextProps.colors })
     }

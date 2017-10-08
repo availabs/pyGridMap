@@ -4,7 +4,6 @@ var _ = require('underscore')
 var bilinear = require('./gl/interpolate_bilinear')
 var nearest = require('./gl/nearest')
 var globes = require('./projections/globes')
-var chroma = require('chroma-js')
 
 var globe = {
   version: '0.0.1',
@@ -21,7 +20,6 @@ var globe = {
   leftOffset: 0,
   fastOverlay: null,
   onGlobeClick: null,
-  interpolateColors: null,
   scale: d3.scale.quantile()
           .domain([-100, -80, -60, -40, -20, 20, 40, 60, 80, 100])
           .range(['#67001f', '#b2182b', '#d6604d', '#f4a582', '#fddbc7', '#f7f7f7', '#d1e5f0', '#92c5de', '#4393c3', '#2166ac', '#053061'])
@@ -105,12 +103,6 @@ globe.init = function (container, options) {
 
   if (options.onGlobeClick) {
     globe.onGlobeClick = options.onGlobeClick
-    console.log("set globe click", options.onGlobeClick)
-  }
-
-  if (options.interpolateColors) {
-    globe.interpolateColors = options.interpolateColors
-    console.log('set interpolate scale', options.interpolateColors)
   }
 
   window.onresize = function () {
@@ -427,7 +419,6 @@ globe.getScaleOne = (mapData, options) => {
 }
 
 globe.getScaleSix = (mapData, options) => {
-
   // var min = 4920
   // var max = 6000
   // var step = 60
@@ -437,10 +428,8 @@ globe.getScaleSix = (mapData, options) => {
   //   return min + (i * step)
   // })
   var bounds = []
-
   var colorBounds = options.bounds || bounds
   var colors = options.colors
-  console.log('bounds & colors', colorBounds, colors)
   return Object.assign(require('./palette/wind.js')(colorBounds, colors))
 }
 

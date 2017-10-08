@@ -26,11 +26,13 @@ class LegendControls extends React.Component {
 
   render () {
     // var colors = this.props.scales[this.props.activeScale]
+    var scaleName = this.props.activeScale
     var colors = this.props.currentScale
     if (typeof colors[0] === 'string') colors = colors.map(d => hexToRgb(d))
     var sidebarClass = this.props.open ? 'sidebar-container' : 'sidebar-container closed'
     var boundsBoxes = this.props.bounds.map((b,i) => {
-      var background = 'linear-gradient( to bottom, ' + this.color2rgb(colors[i-1] || colors[i] ) + ', ' + this.color2rgb(colors[i])+')'
+      // var background = 'linear-gradient( to bottom, ' + this.color2rgb(colors[i-1] || colors[i] ) + ', ' + this.color2rgb(colors[i])+')'
+      var background = this.color2rgb(colors[i])
       console.log("background", background)
       return (
         <li key={i}>

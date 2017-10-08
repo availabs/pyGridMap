@@ -219,13 +219,9 @@ function _classCallCheck (instance, Constructor) { if (!(instance instanceof Con
 
   palette.buildScaleFromSegments = function (bounds, segments, resolution) {
     var gradient = palette.segmentedColorScale(segments)
-    // var gradient = segments
     var array = new Uint8Array(resolution * 4)
-    console.log('array', array)
     palette.fillRange(array, bounds, bounds, gradient)
-    console.log('array', array)
     return palette.buildScale(bounds, array)
-    console.log('palette', palette.buildScale)
   }
 
     /**
@@ -265,7 +261,6 @@ function _classCallCheck (instance, Constructor) { if (!(instance instanceof Con
             [centerLow, centerHigh] == [edgeLow + ε, edgeHigh - ε]  where ε = (edgeHigh - edgeLow) / 2n
             [edgeLow, edgeHigh] == [centerLow - ε, centerHigh + ε]  where ε = (centerHigh - centerLow) / 2(n-1)
           */
-    console.log('colors', colors)
     var lo = ƒmap(bounds[0]),
       hi = ƒmap(bounds[1])
     // var iMax = colors.length / 4 - 1,
@@ -276,12 +271,9 @@ function _classCallCheck (instance, Constructor) { if (!(instance instanceof Con
     //   edgeHi = hi + ε,
     //   edgeRange = [edgeLo, edgeHi - edgeLo]
     var edgeRange = [lo, hi-lo]
-    console.log('edgeRange', edgeRange)
-
 
       // edgeRange = [edgeLo, edgeHi]
       // console.log('edgeRange', edgeRange)
-      console.log('lo, hi', lo, hi)
       // console.log('ε', ε)
       // console.log('edgeLo', edgeLo)
       // console.log('edgeHi', edgeHi)

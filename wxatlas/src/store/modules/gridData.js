@@ -12,7 +12,6 @@ const HOST = 'http://db-wxatlas.rit.albany.edu/'
 // Constants
 // ------------------------------------
 export const LOAD_DATA = 'LOAD_DATA'
-export const INTERPOLATE_SCALE = 'INTERPOLATE_SCALE'
 export const CHANGE_CONSTANT = 'CHANGE_CONSTANT'
 export const CHANGE_BOUNDS = 'CHANGE_BOUNDS'
 export const SET_LOCATION = 'SET_LOCATION'
@@ -31,6 +30,9 @@ export const CHANGE_SCALE = 'CHANGE_SCALE'
 
 */
 const scales = {
+  moisture: ['#001107', '#429148', '#ffffff', '#b06f41', '#310f01'],
+  rainbow: ['#5a005a', '#7d00e1', '#00ffaa', '#ffff00', '#c80000'],
+  divergent_1: ['#053061', '#878bbf', '#ffffff', '#c87250', '#67001f']
   // qualitative: [
   //   '#235877', '#356782', '#44758d', '#538598', '#6293a2', '#71a3ae', '#80b3b9',
   //   '#8ec3c4', '#9dd5d0', '#ace5db', '#b3ece0', '#b2e1dd', '#b0d8db', '#aecdd8',
@@ -68,10 +70,6 @@ const scales = {
   //   "#e9b686", "#d69d6c", "#c38555", "#b06f41", "#9d5a30", "#8a4720", "#773614",
   //   "#64260a", "#511a03", "#310f01"
   // ],
-  moisture: ['#001107', '#429148', '#ffffff', '#b06f41', '#310f01'],
-  rainbow: ['#5a005a', '#7d00e1', '#00ffaa', '#ffff00', '#c80000'],
-  divergent_1: ['#053061', '#878bbf', '#ffffff', '#c87250', '#67001f']
-  // anomaly: ['#9e6cae', '#000099', '#ffffff', '#990000', '#d26eb9']
   // anomaly: [
   //   "#9e6cae", "#5e3785", "#25135c", "#000033", "#000099", "#0000e5", "#4c4cff",
   //   "#6666ff", "#ccccff", "#ffffff", "#ffeda0", "#fd8d3c", "#fc4e2a",
@@ -217,7 +215,6 @@ const ACTION_HANDLERS = {
       newState.currentScale = chroma.bezier(colors)
                                   .scale()
                                   .colors(bounds.length)
-      console.log('currentScale', newState.currentScale)
       newState.bounds = bounds
     }
     return newState
