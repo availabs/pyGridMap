@@ -29,11 +29,21 @@ class DisplayLegend extends React.Component {
       return (
           <div style={{ flex: 1, height: 25, display: 'inline', background: background, border: '2px solid black' }}>
             <span className='DisplayBounds' style={{ position: 'relative', left: -27, top: -25, fontSize: 13, fontWeight: 'bold', textShadow: '-1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff' }}>
-              {this.props.bounds[i]}
+              {(+this.props.bounds[i]).toLocaleString()}
             </span>
           </div>
       )
     })
+    var step = this.props.bounds[1] - this.props.bounds[0]
+    boundsBoxes.push(
+      (
+          <div style={{ width: 0, height: 25, display: 'inline', background: 'transparent', border: 'none' }}>
+            <span className='DisplayBounds' style={{ position: 'relative', left: -27, top: -23, fontSize: 13, fontWeight: 'bold', textShadow: '-1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff' }}>
+              {(this.props.bounds[this.props.bounds.length - 1] + step).toLocaleString() }
+            </span>
+          </div>
+      )
+    )
 
     return (
       <div className='DisplayLegend' style={{ zIndex: 20, display: 'flex', position: 'fixed', top: 20, left: 40, right: 40, border: '2px solid black' }}>
