@@ -1,5 +1,5 @@
 import React from 'react'
-import './MapControls.scss'
+import './mapcontrols.scss'
 import { connect } from 'react-redux'
 
 function hexToRgb (hex) {

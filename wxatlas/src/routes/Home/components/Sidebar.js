@@ -1,5 +1,5 @@
 import React from 'react'
-import MapControls from 'components/sidebars/MapControls'
+import MapControls from 'components/sidebars/mapcontrols'
 import LegendControls from 'components/sidebars/LegendControls'
 import './Sidebar.scss'
 
