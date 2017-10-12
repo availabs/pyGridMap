@@ -14,7 +14,7 @@ var globe = {
   projection: 'orthographic',
   map: null,
   zoomLevel: 340,
-  REDRAW_WAIT: 5,
+  REDRAW_WAIT: 125,
   newOp: null,
   path: null,
   leftOffset: 0,
@@ -210,12 +210,7 @@ globe.zoom = d3.behavior.zoom()
   .on('zoomend', function () {
     globe.op.manipulator.end()
     // Render hi-res coastlines and lakes
-    var coastline = globe.display.select('.coastline');
-    var lakes = globe.display.select('.lakes');
-    coastline.datum(globe.coastHi);
-    lakes.datum(globe.lakesHi);
     console.log('zoomend', globe.op.type)
-    globe.display.selectAll('path').attr('d', globe.path)
     if (globe.op.type === 'click') {
       // dispatch.trigger("click", op.startMouse, globe.projection.invert(op.startMouse) || []);
       var overlay = globe.overlayData.field();
@@ -232,6 +227,12 @@ globe.zoom = d3.behavior.zoom()
       mark.datum({ type: "Point", coordinates: coords }).attr("d", path)
     } else if (globe.op.type !== 'spurious') {
       // signalEnd();
+      console.log('update the coastline')
+      var coastline = globe.display.select('.coastline');
+      var lakes = globe.display.select('.lakes');
+      //coastline.datum(globe.coastHi);
+      // lakes.datum(globe.lakesHi);
+      globe.display.selectAll('path').attr('d', globe.path)
     }
     // canvasDisplay.update(globe);
     if (globe.overlayData) {
@@ -252,24 +253,20 @@ globe.doDraw_throttled = _.throttle(globe.doDraw, globe.REDRAW_WAIT, { leading: 
 
 globe.drawOverlay = function () {
   // globe.fastOverlay.draw(this.map.optimizedProjection(), globe.overlayData)
-  var coastline = globe.display.select('.coastline')
-  var lakes = globe.display.select('.lakes')
-  coastline.datum(globe.coastHi)
-  lakes.datum(globe.lakesHi)
-  globe.display.selectAll('path').attr('d', globe.path)
+ 
+ 
+  // if (true) {
+  //   console.log('old overlay')
+  //   var ctx = d3.select('#overlay').node().getContext('2d')
 
-  if (true) {
-    console.log('old overlay')
-    var ctx = d3.select('#overlay').node().getContext('2d')
-
-    clearCanvas(d3.select('#overlay').node())
-    console.time('interpolate')
-    globe.interpolateField(globe.overlayData, function (overlay) {
-      console.timeEnd('interpolate')
-      // ctx.putImageData(overlay, 0, 0)
-      //drawGridPoints(ctx, grid,globe);
-    })
-  }
+  //   clearCanvas(d3.select('#overlay').node())
+  //   // console.time('interpolate')
+  //   // globe.interpolateField(globe.overlayData, function (overlay) {
+  //   //   console.timeEnd('interpolate')
+  //   //   // ctx.putImageData(overlay, 0, 0)
+  //   //   //drawGridPoints(ctx, grid,globe);
+  //   // })
+  // }
 }
 
 globe.createMask = function () {

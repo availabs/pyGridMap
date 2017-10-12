@@ -28,7 +28,7 @@ class DisplayLegend extends React.Component {
       var background = this.color2rgb(colors[i])
       return (
           <div style={{ flex: 1, height: 25, display: 'inline', background: background, border: '2px solid black' }}>
-            <span className='DisplayBounds' style={{ position: 'relative', left: -15, top: -25, fontSize: 13, fontWeight: 'bold', textShadow: '-1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff' }}>
+            <span className='DisplayBounds' style={{ position: 'relative', left: -27, top: -25, fontSize: 13, fontWeight: 'bold', textShadow: '-1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff' }}>
               {this.props.bounds[i]}
             </span>
           </div>

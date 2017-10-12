@@ -370,20 +370,18 @@ const ACTION_HANDLERS = {
   },
   [CHANGE_SCALE]: (state, action) => {
     var newState = Object.assign({}, state)
-    newState.colors = action.scaleName
 
+    newState.colors = action.scaleName
     var variable = newState.variable
     var level = newState.height
     var type = newState.type
-    var min = variables[variable].level[level][type].min
-    var max = variables[variable].level[level][type].max
-    var step = variables[variable].level[level][type].step
-    var bounds = Array((max - min) / step).fill().map((d, i) => i)
+    var colorArray = scales[action.scaleName]
+    var bounds = newState.bounds
 
-    bounds = bounds.map((d, i) => {
-      return Math.round(min + (i * step))
-    })
-    newState.bounds = bounds
+    newState.currentScale = chroma.bezier(colorArray)
+      .scale()
+      .colors(bounds.length)
+
     return newState
   }
 }

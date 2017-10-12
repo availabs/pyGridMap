@@ -33,7 +33,7 @@ class LegendControls extends React.Component {
     var boundsBoxes = this.props.bounds.map((b,i) => {
       // var background = 'linear-gradient( to bottom, ' + this.color2rgb(colors[i-1] || colors[i] ) + ', ' + this.color2rgb(colors[i])+')'
       var background = this.color2rgb(colors[i])
-      console.log("background", background)
+      //console.log("background", background)
       return (
         <li key={i}>
           <div className='row no-margin'>
@@ -57,7 +57,7 @@ class LegendControls extends React.Component {
       var colors = this.props.currentScale
       if (typeof colors[0] === 'string') colors = colors.map(d => hexToRgb(d))
       return (
-        <option value={scaleName}>{scaleName}</option>
+        <option value={colorScale}>{colorScale.toUpperCase()}</option>
       )
     })
 
