@@ -43,6 +43,10 @@ class Sidebar extends React.Component {
     this.setState({ open: !this.state.open })
   }
 
+  openSidebar () {
+    this.setState({ open: !this.state.open ? true : this.state.open, activeTab: this.state.activeTab })
+  }
+
   setActiveTab (tab) {
     this.setState({ activeTab: tab, open: !this.state.open ? true : this.state.open })
   }
