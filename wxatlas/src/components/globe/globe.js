@@ -13,7 +13,7 @@ var globe = {
   overlayData: null,
   projection: 'orthographic',
   map: null,
-  zoomLevel: 375,
+  zoomLevel: 340,
   REDRAW_WAIT: 5,
   newOp: null,
   path: null,
