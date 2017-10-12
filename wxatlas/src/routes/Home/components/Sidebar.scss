@@ -1,5 +1,5 @@
 .sidebar-container {
-  position: absolute;
+  position: fixed;
   left: 0;
   top: 100px;
   background-color: rgba(0, 0, 0, 0.7);
@@ -59,7 +59,7 @@
   color: #fff;
 }
 
-span {
+span.fa {
   height: 40px;
   width: 40px;
   padding: 10px;

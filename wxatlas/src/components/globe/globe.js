@@ -253,8 +253,8 @@ globe.doDraw_throttled = _.throttle(globe.doDraw, globe.REDRAW_WAIT, { leading: 
 
 globe.drawOverlay = function () {
   // globe.fastOverlay.draw(this.map.optimizedProjection(), globe.overlayData)
- 
- 
+
+
   // if (true) {
   //   console.log('old overlay')
   //   var ctx = d3.select('#overlay').node().getContext('2d')
