@@ -34,16 +34,17 @@ class Sidebar extends React.Component {
       activeTab: tabs[0]
     }
     this.toggleSidebar = this.toggleSidebar.bind(this)
+    this.openSidebar = this.openSidebar.bind(this)
     this.setActiveTab = this.setActiveTab.bind(this)
     this.renderContent = this.renderContent.bind(this)
   }
 
-  setActiveTab (tab) {
-    this.setState({ activeTab: tab })
-  }
-
   toggleSidebar () {
     this.setState({ open: !this.state.open })
+  }
+
+  setActiveTab (tab) {
+    this.setState({ activeTab: tab, open: !this.state.open ? true : this.state.open })
   }
 
   renderButtons () {
