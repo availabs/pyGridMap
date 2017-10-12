@@ -50,8 +50,8 @@ class Sidebar extends React.Component {
     var displayTabs = tabs.map((tab, i) => {
       return (
         <li key={i} onClick={this.setActiveTab.bind(null, tab)} className={this.state.activeTab.name === tab.name ? 'active' : ''}>
-          <a id='menu-group-risk-spotlight-tab' href='#menu-group-risk-spotlight' data-toggle='tab' data-index='0' aria-expanded='true'>
-            <i className={tab.icon} />
+          <a href='#'>
+            <span className={tab.icon} />
           </a>
         </li>
       )
@@ -59,7 +59,9 @@ class Sidebar extends React.Component {
     return (
       <ul className='nav flex-column open-tabs'>
         <li className='layer-toggle' onClick={this.toggleSidebar}>
-          <span className='glyphicon glyphicon-chevron-right' />
+          <a href='#'>
+            <span className={this.state.open ? 'fa fa-chevron-left' : 'fa fa-chevron-right'} />
+          </a>
         </li>
         {displayTabs}
       </ul>
@@ -79,10 +81,11 @@ class Sidebar extends React.Component {
 
   render () {
     var sidebarClass = this.state.open ? 'sidebar-container' : 'sidebar-container closed'
+    var controlsClass = this.state.open ? 'controls' : 'controls-closed'
     return (
       <div className={sidebarClass}>
         {this.renderButtons()}
-        <div style={{ overflow: 'hidden', display: this.state.open ? 'block' : 'none' }}>
+        <div className={controlsClass}>
           {this.renderContent()}
         </div>
       </div>

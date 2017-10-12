@@ -26,13 +26,14 @@ export const CHANGE_SCALE = 'CHANGE_SCALE'
    - rainbow
 
    Divergent
-   - divergent_1 (Blue to red with white in the center)
+   - RdBu (Blue to red with white in the center)
 
 */
 const scales = {
   moisture: ['#001107', '#429148', '#ffffff', '#b06f41', '#310f01'],
   rainbow: ['#5a005a', '#7d00e1', '#00ffaa', '#ffff00', '#c80000'],
-  divergent_1: ['#053061', '#878bbf', '#ffffff', '#c87250', '#67001f']
+  RdBu: ['#053061', '#878bbf', '#ffffff', '#c87250', '#67001f'],
+  RdYlBu: ['#0904fb', '#33c1f9', '#ffffff', '#ffc20c', '#ce0000']
   // qualitative: [
   //   '#235877', '#356782', '#44758d', '#538598', '#6293a2', '#71a3ae', '#80b3b9',
   //   '#8ec3c4', '#9dd5d0', '#ace5db', '#b3ece0', '#b2e1dd', '#b0d8db', '#aecdd8',
@@ -49,38 +50,158 @@ const scales = {
   //   '#ebddd3', '#f2e6dc', '#ddd2ca', '#c9bfb8', '#b5ada7', '#a19b95', '#8e8985',
   //   '#7b7775', '#696665', '#585655', '#464646'
   // ],
-  // divergent_1: [
-  //   '#053061', '#2b3d7e', '#454e91', '#5c61a2', '#7276b1', '#878bbf', '#9ba1cd',
-  //   '#afb7da', '#c3cfe6', '#d6e6f2', '#ffffff', '#f9d388', '#efba79',
-  //   '#e3a26b', '#d7895d', '#c87250', '#b95943', '#a84338', '#962a2e', '#811225',
-  //   '#67001f'
-  // ],
-  // rainbow: [
-  //   '#5a005a', '#960096', '#c800c8', '#7d00e1', '#3200e1', '#0064c8', '#00c8f0',
-  //   '#00ffaa', '#00e100', '#96e100', '#e1e100', '#ffff00', '#ffc800', '#ff8700',
-  //   '#ff3200', '#c80000'
-  // ],
-  // rdbu: [
-  //   '#67001f', '#b2182b', '#d6604d', '#f4a582', '#fddbc7', '#f7f7f7', '#d1e5f0',
-  //   '#92c5de', '#4393c3', '#2166ac', '#053061'
-  // ],
-  // moisture: [
-  //   "#001107", "#00240e", "#053916", "#0e4f1f", "#1b652a", "#2d7b38", "#429148",
-  //   "#5ba75d", "#7cbd79", "#a0d39a", "#c7e9c0", "#ffffff", "#ffffff", "#fdd0a2",
-  //   "#e9b686", "#d69d6c", "#c38555", "#b06f41", "#9d5a30", "#8a4720", "#773614",
-  //   "#64260a", "#511a03", "#310f01"
-  // ],
-  // anomaly: [
-  //   "#9e6cae", "#5e3785", "#25135c", "#000033", "#000099", "#0000e5", "#4c4cff",
-  //   "#6666ff", "#ccccff", "#ffffff", "#ffeda0", "#fd8d3c", "#fc4e2a",
-  //   "#bd0026", "#990000", "#4c0000", "#78152d", "#a53965", "#d26eb9"
-  // ]
 }
 const variables = {
-  gph: {scale: 'rainbow', min: 4920, max: 6000, step: 60},
-  uwnd: {scale: 'divergent_1', min: -50, max: 50, step: 5},
-  vwnd: {scale: 'divergent_1', min: -50, max: 50, step: 5},
-  t2m: {scale: 'moisture', min: 260, max: 335, step: 5}
+  gph: {
+    level: {
+      1000: {
+        grids: { defaultScale: 'rainbow', validScales: ['rainbow', 'RdYlBu'], min: -300, max: 300, step: 30 },
+        anoms: { defaultScale: 'RdBu', validScales: ['rainbow', 'RdYlBu'], min: -250, max: 250, step: 25 }
+      },
+      925: {
+        grids: { defaultScale: 'rainbow', validScales: ['rainbow', 'RdYlBu'], min: 400, max: 1000, step: 30 },
+        anoms: { defaultScale: 'RdBu', validScales: ['rainbow', 'RdYlBu'], min: -250, max: 250, step: 25 }
+      },
+      850: {
+        grids: { defaultScale: 'rainbow', validScales: ['rainbow', 'RdYlBu'], min: 1000, max: 1600, step: 30 },
+        anoms: { defaultScale: 'RdBu', validScales: ['rainbow', 'RdYlBu'], min: -250, max: 250, step: 25 }
+      },
+      700: {
+        grids: { defaultScale: 'rainbow', validScales: ['rainbow', 'RdYlBu'], min: 2590, max: 3220, step: 30 },
+        anoms: { defaultScale: 'RdBu', validScales: ['rainbow', 'RdYlBu'], min: -300, max: 300, step: 25 }
+      },
+      500: {
+        grids: { defaultScale: 'rainbow', validScales: ['rainbow', 'RdYlBu'], min: 4920, max: 6000, step: 60 },
+        anoms: { defaultScale: 'RdBu', validScales: ['rainbow', 'RdYlBu'], min: -400, max: 400, step: 50 }
+      },
+      300: {
+        grids: { defaultScale: 'rainbow', validScales: ['rainbow', 'RdYlBu'], min: 8380, max: 9940, step: 120 },
+        anoms: { defaultScale: 'RdBu', validScales: ['rainbow', 'RdYlBu'], min: -500, max: 500, step: 50 }
+      },
+      250: {
+        grids: { defaultScale: 'rainbow', validScales: ['rainbow', 'RdYlBu'], min: 9360, max: 11160, step: 120 },
+        anoms: { defaultScale: 'RdBu', validScales: ['rainbow', 'RdYlBu'], min: -500, max: 500, step: 50 }
+      },
+      200: {
+        grids: { defaultScale: 'rainbow', validScales: ['rainbow', 'RdYlBu'], min: 10760, max: 12680, step: 120 },
+        anoms: { defaultScale: 'RdBu', validScales: ['rainbow', 'RdYlBu'], min: -500, max: 500, step: 50 }
+      },
+      100: {
+        grids: { defaultScale: 'rainbow', validScales: ['rainbow', 'RdYlBu'], min: 15080, max: 16880, step: 120 },
+        anoms: { defaultScale: 'RdBu', validScales: ['rainbow', 'RdYlBu'], min: -500, max: 500, step: 50 }
+      },
+      50: {
+        grids: { defaultScale: 'rainbow', validScales: ['rainbow', 'RdYlBu'], min: 19040, max: 20960, step: 120 },
+        anoms: { defaultScale: 'RdBu', validScales: ['rainbow', 'RdYlBu'], min: -600, max: 600, step: 75 }
+      },
+      10: {
+        grids: { defaultScale: 'rainbow', validScales: ['rainbow', 'RdYlBu'], min: 29000, max: 31520, step: 120 },
+        anoms: { defaultScale: 'RdBu', validScales: ['rainbow', 'RdYlBu'], min: -600, max: 600, step: 75 }
+      }
+    }
+  },
+  uwnd: {
+    level: {
+      1000: {
+        grids: { defaultScale: 'RdYlBu', min: -20, max: 20, step: 2 },
+        anoms: { defaultScale: 'RdBu', min: -20, max: 20, step: 2 }
+      },
+      925: {
+        grids: { defaultScale: 'RdYlBu', min: -30, max: 30, step: 3 },
+        anoms: { defaultScale: 'RdBu', min: -30, max: 30, step: 3 }
+      },
+      850: {
+        grids: { defaultScale: 'RdYlBu', min: -30, max: 30, step: 3 },
+        anoms: { defaultScale: 'RdBu', min: -30, max: 30, step: 3 }
+      },
+      700: {
+        grids: { defaultScale: 'RdYlBu', min: -40, max: 40, step: 4 },
+        anoms: { defaultScale: 'RdBu', min: -40, max: 40, step: 4 }
+      },
+      500: {
+        grids: { defaultScale: 'RdYlBu', min: -50, max: 50, step: 5 },
+        anoms: { defaultScale: 'RdBu', min: -50, max: 50, step: 5 }
+      },
+      300: {
+        grids: { defaultScale: 'RdYlBu', min: -100, max: 100, step: 10 },
+        anoms: { defaultScale: 'RdBu', min: -60, max: 60, step: 6 }
+      },
+      250: {
+        grids: { defaultScale: 'RdYlBu', min: -100, max: 100, step: 10 },
+        anoms: { defaultScale: 'RdBu', min: -60, max: 60, step: 6 }
+      },
+      200: {
+        grids: { defaultScale: 'RdYlBu', min: -100, max: 100, step: 10 },
+        anoms: { defaultScale: 'RdBu', min: -60, max: 60, step: 6 }
+      },
+      100: {
+        grids: { defaultScale: 'RdYlBu', min: -60, max: 60, step: 6 },
+        anoms: { defaultScale: 'RdBu', min: -60, max: 60, step: 6 }
+      },
+      50: {
+        grids: { defaultScale: 'RdYlBu', min: -50, max: 50, step: 5 },
+        anoms: { defaultScale: 'RdBu', min: -50, max: 50, step: 5 }
+      },
+      10: {
+        grids: { defaultScale: 'RdYlBu', min: -50, max: 50, step: 5 },
+        anoms: { defaultScale: 'RdBu', min: -50, max: 50, step: 5 }
+      }
+    }
+  },
+  vwnd: {
+    level: {
+      1000: {
+        grids: { defaultScale: 'RdYlBu', min: -20, max: 20, step: 2 },
+        anoms: { defaultScale: 'RdBu', min: -20, max: 20, step: 2 }
+      },
+      925: {
+        grids: { defaultScale: 'RdYlBu', min: -30, max: 30, step: 3 },
+        anoms: { defaultScale: 'RdBu', min: -30, max: 30, step: 3 }
+      },
+      850: {
+        grids: { defaultScale: 'RdYlBu', min: -30, max: 30, step: 3 },
+        anoms: { defaultScale: 'RdBu', min: -30, max: 30, step: 3 }
+      },
+      700: {
+        grids: { defaultScale: 'RdYlBu', min: -40, max: 40, step: 4 },
+        anoms: { defaultScale: 'RdBu', min: -40, max: 40, step: 4 }
+      },
+      500: {
+        grids: { defaultScale: 'RdYlBu', min: -50, max: 50, step: 5 },
+        anoms: { defaultScale: 'RdBu', min: -50, max: 50, step: 5 }
+      },
+      300: {
+        grids: { defaultScale: 'RdYlBu', min: -50, max: 50, step: 5 },
+        anoms: { defaultScale: 'RdBu', min: -50, max: 50, step: 5 }
+      },
+      250: {
+        grids: { defaultScale: 'RdYlBu', min: -50, max: 50, step: 5 },
+        anoms: { defaultScale: 'RdBu', min: -50, max: 50, step: 5 }
+      },
+      200: {
+        grids: { defaultScale: 'RdYlBu', min: -50, max: 50, step: 5 },
+        anoms: { defaultScale: 'RdBu', min: -50, max: 50, step: 5 }
+      },
+      100: {
+        grids: { defaultScale: 'RdYlBu', min: -30, max: 30, step: 3 },
+        anoms: { defaultScale: 'RdBu', min: -30, max: 30, step: 3 }
+      },
+      50: {
+        grids: { defaultScale: 'RdYlBu', min: -30, max: 30, step: 3 },
+        anoms: { defaultScale: 'RdBu', min: -30, max: 30, step: 3 }
+      },
+      10: {
+        grids: { defaultScale: 'RdYlBu', min: -50, max: 50, step: 5 },
+        anoms: { defaultScale: 'RdBu', min: -50, max: 50, step: 5 }
+      }
+    }
+  },
+  t2m: {
+    scale: 'moisture',
+    min: 260,
+    max: 335,
+    step: 5
+  }
 }
 const initialState = {
   loading: false,
@@ -107,40 +228,40 @@ var newDate = initialState.date
 // ------------------------------------
 // Actions
 // ------------------------------------
-export function receiveGridData (res) {
+export function receiveGridData(res) {
   return {
-    type : LOAD_DATA,
+    type: LOAD_DATA,
     res
   }
 }
 
-export function receiveConstant (key, val) {
+export function receiveConstant(key, val) {
   return {
-    type : CHANGE_CONSTANT,
+    type: CHANGE_CONSTANT,
     key,
     val
   }
 }
 
-export function changeBounds (index, val) {
+export function changeBounds(index, val) {
   return {
-    type : CHANGE_BOUNDS,
+    type: CHANGE_BOUNDS,
     index,
     val
   }
 }
 
-export function setLocation (coords, scalarValue) {
+export function setLocation(coords, scalarValue) {
   return {
-    type : SET_LOCATION,
+    type: SET_LOCATION,
     coords,
     scalarValue
   }
 }
 
-export function changeScale (scaleName) {
+export function changeScale(scaleName) {
   return {
-    type : CHANGE_SCALE,
+    type: CHANGE_SCALE,
     scaleName
   }
 }
@@ -179,12 +300,12 @@ export const requestData = (type, variable, height, year, month, day, hour) => {
   console.log('request data', `${HOST}${type}/${variable}/${height}/${year}/${month}/${day}/${hour}`)
   return (dispatch) => {
     return fetch(`${HOST}${type}/${variable}/${height}/${year}/${month}/${day}/${hour}`)
-    .then(response => response.json())
-    .then(data => {
-      data.header.date = new Date(year, month, day, hour)
+      .then(response => response.json())
+      .then(data => {
+        data.header.date = new Date(year, month, day, hour)
 
-      return dispatch(receiveGridData(data))
-    })
+        return dispatch(receiveGridData(data))
+      })
   }
 }
 
@@ -198,55 +319,67 @@ export const actions = {
 // Action Handlers
 // ------------------------------------
 const ACTION_HANDLERS = {
-  [LOAD_DATA] : (state, action) => {
+  [LOAD_DATA]: (state, action) => {
     var newState = Object.assign({}, state)
     if (action.res.type === 'error') {
       newState.error = action.res.text
     } else if (action.res.id !== -1) {
       newState.canvasData = action.res
-      var colors = newState.scales[newState.colors]
-      var min = variables[newState.variable].min
-      var max = variables[newState.variable].max
-      var step = variables[newState.variable].step
-      var bounds = Array((max-min)/step).fill().map((d, i) => i)
+
+      var variable = newState.variable
+      var level = newState.height
+      var type = newState.type
+      var colors = scales[variables[variable].level[level][type].defaultScale]
+      var min = variables[variable].level[level][type].min
+      var max = variables[variable].level[level][type].max
+      var step = variables[variable].level[level][type].step
+      var bounds = Array((max - min) / step).fill().map((d, i) => i)
+
       bounds = bounds.map((d, i) => {
         return Math.round(min + (i * step))
       })
       newState.currentScale = chroma.bezier(colors)
-                                  .scale()
-                                  .colors(bounds.length)
+        .scale()
+        .colors(bounds.length)
       newState.bounds = bounds
     }
     return newState
   },
-  [CHANGE_CONSTANT] : (state, action) => {
+  [CHANGE_CONSTANT]: (state, action) => {
     var newState = Object.assign({}, state)
     newState[action.key] = action.val
+    var level = newState.height
+    var type = newState.type
     if (action.key === 'variable') {
-      newState.colors = variables[action.val].scale
+      newState.colors = variables[action.val].level[level][type].defaultScale
     }
     return newState
   },
-  [CHANGE_BOUNDS] : (state, action) => {
+  [CHANGE_BOUNDS]: (state, action) => {
     var newState = Object.assign({}, state)
     var newBounds = newState.bounds.map(d => d)
     newBounds[action.index] = +action.val
     newState.bounds = newBounds
     return newState
   },
-  [SET_LOCATION] : (state, action) => {
+  [SET_LOCATION]: (state, action) => {
     var newState = Object.assign({}, state)
     newState.coordinates = action.coords
     newState.scalarValue = action.scalarValue
     return newState
   },
-  [CHANGE_SCALE] : (state, action) => {
+  [CHANGE_SCALE]: (state, action) => {
     var newState = Object.assign({}, state)
     newState.colors = action.scaleName
-    var min = variables[newState.variable].min
-    var max = variables[newState.variable].max
-    var step = variables[newState.variable].step
-    var bounds = Array((max-min)/step).fill().map((d, i) => i)
+
+    var variable = newState.variable
+    var level = newState.height
+    var type = newState.type
+    var min = variables[variable].level[level][type].min
+    var max = variables[variable].level[level][type].max
+    var step = variables[variable].level[level][type].step
+    var bounds = Array((max - min) / step).fill().map((d, i) => i)
+
     bounds = bounds.map((d, i) => {
       return Math.round(min + (i * step))
     })
@@ -259,7 +392,7 @@ const ACTION_HANDLERS = {
 // Reducer
 // ------------------------------------
 
-export default function counterReducer (state = initialState, action) {
+export default function counterReducer(state = initialState, action) {
   const handler = ACTION_HANDLERS[action.type]
   return handler ? handler(state, action) : state
 }
