@@ -15,9 +15,11 @@ class DataReadout extends React.Component {
     return (
       <div className={'location'}>
         <div style={{ display: this.state.open ? 'block' : 'none' }}>
-          <i className='fa fa-map-marker' />
-          <div className='show-coordinates'>{this.props.coordinates}</div>
-          <hr />
+          <div>
+            <div className='fa fa-map-marker'></div>
+            <div className='show-coordinates'>{this.props.coordinates}</div>
+          </div>
+          <hr style={{ borderTopColor: '#fff' }}/>
           <div className='show-grid-value'>{this.props.scalarValue}</div>
         </div>
       </div>

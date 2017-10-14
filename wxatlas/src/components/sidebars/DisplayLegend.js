@@ -27,21 +27,23 @@ class DisplayLegend extends React.Component {
       // var background = 'linear-gradient( to right, ' + this.color2rgb(colors[i-1] || colors[i] ) + ', ' + this.color2rgb(colors[i])+')'
       var background = this.color2rgb(colors[i])
       return (
-          <div style={{ flex: 1, height: 25, display: 'inline', background: background, border: '2px solid black' }}>
-            <span className='DisplayBounds' style={{ position: 'relative', left: -27, top: -25, fontSize: 13, fontWeight: 'bold', textShadow: '-1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff' }}>
-              {(+this.props.bounds[i]).toLocaleString()}
-            </span>
-          </div>
+        <div className='test-bounds' style={{ border: '1px solid red', flex: 1, height: 25, textAlign: 'center' }}>
+          {(+this.props.bounds[i]).toLocaleString()}
+        </div>
+      )
+      return (
+        <div style={{ flex: 1, height: 25, display: 'inline', background: background, border: '2px solid black' }}>
+          <span className='DisplayBounds' style={{ position: 'relative', left: -27, top: -25, fontSize: 13, fontWeight: 'bold', textShadow: '-1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff' }}>
+          </span>
+        </div>
       )
     })
     var step = this.props.bounds[1] - this.props.bounds[0]
     boundsBoxes.push(
       (
-          <div style={{ width: 0, height: 25, display: 'inline', background: 'transparent', border: 'none' }}>
-            <span className='DisplayBounds' style={{ position: 'relative', left: -27, top: -23, fontSize: 13, fontWeight: 'bold', textShadow: '-1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff' }}>
-              {(this.props.bounds[this.props.bounds.length - 1] + step).toLocaleString() }
-            </span>
-          </div>
+        <div className='test-bounds' style={{ border: '1px solid red', height: 25, textAlign: 'center' }}>
+          {(this.props.bounds[this.props.bounds.length - 1] + step).toLocaleString() }
+        </div>
       )
     )
 
