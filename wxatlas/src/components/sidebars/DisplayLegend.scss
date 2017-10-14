@@ -1,0 +1,28 @@
+.label-test {
+  flex: 1;
+  height: 25px;
+  display: inline;
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: bold;
+  text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+  padding-top: 3px;
+}
+
+.legend-labels {
+  left: 0px;
+  right: 0px;
+}
+
+.color-legend {
+  top: 25px;
+  left: 40px;
+  right: 40px;
+  border: 2px solid black;
+}
+
+.legend-labels, .color-legend {
+  z-index: 20;
+  display: flex;
+  position: fixed;
+}

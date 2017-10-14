@@ -1,5 +1,6 @@
 import React from 'react'
 import './mapcontrols.scss'
+import './DisplayLegend.scss'
 import { connect } from 'react-redux'
 
 function hexToRgb (hex) {
@@ -21,35 +22,45 @@ class DisplayLegend extends React.Component {
   }
 
   render () {
+
     var colors = this.props.currentScale
     if (typeof colors[0] === 'string') colors = colors.map(d => hexToRgb(d))
-    var boundsBoxes = this.props.bounds.map((d, i) => {
-      // var background = 'linear-gradient( to right, ' + this.color2rgb(colors[i-1] || colors[i] ) + ', ' + this.color2rgb(colors[i])+')'
-      var background = this.color2rgb(colors[i])
+    var boundsLabels = this.props.bounds.map((d, i) => {
       return (
-          <div style={{ flex: 1, height: 25, display: 'inline', background: background, border: '2px solid black' }}>
-            <span className='DisplayBounds' style={{ position: 'relative', left: -27, top: -25, fontSize: 13, fontWeight: 'bold', textShadow: '-1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff' }}>
-              {(+this.props.bounds[i]).toLocaleString()}
-            </span>
-          </div>
+        <div className='label-test'>
+          { this.props.bounds[i] }
+        </div>
       )
     })
+    var boundsBoxes = this.props.bounds.map((d, i) => {
+      var background = this.color2rgb(colors[i])
+      return (
+        <div style={{ flex: 1, height: 25, display: 'inline', background: background, border: '2px solid black' }}>
+        </div>
+      )
+    })
+
+    // Add the extra boundary label to the end of the color legend
     var step = this.props.bounds[1] - this.props.bounds[0]
-    boundsBoxes.push(
+    boundsLabels.push(
       (
-          <div style={{ width: 0, height: 25, display: 'inline', background: 'transparent', border: 'none' }}>
-            <span className='DisplayBounds' style={{ position: 'relative', left: -27, top: -23, fontSize: 13, fontWeight: 'bold', textShadow: '-1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff' }}>
-              {(this.props.bounds[this.props.bounds.length - 1] + step).toLocaleString() }
-            </span>
-          </div>
+        <div className='label-test'>
+          { this.props.bounds[this.props.bounds.length - 1] + step }
+        </div>
       )
     )
 
     return (
-      <div className='DisplayLegend' style={{ zIndex: 20, display: 'flex', position: 'fixed', top: 20, left: 40, right: 40, border: '2px solid black' }}>
-        {boundsBoxes}
+      <div>
+        <div className='legend-labels'>
+          { boundsLabels }
+        </div>
+        <div className='color-legend'>
+          { boundsBoxes }
+        </div>
       </div>
     )
+    
   }
 }
 
