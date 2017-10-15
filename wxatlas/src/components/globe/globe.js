@@ -642,7 +642,7 @@ function clamp (x, low, high) {
 }
 
 function formatCoordinates(λ, φ) {
-  return Math.abs(φ).toFixed(2) + '° ' + (φ >= 0 ? 'N' : 'S') + ', ' + Math.abs(λ).toFixed(2) + '° ' + (λ >= 0 ? 'E' : 'W')
+  return Math.abs(φ).toFixed(2) + '°' + (φ >= 0 ? 'N' : 'S') + ', ' + Math.abs(λ).toFixed(2) + '°' + (λ >= 0 ? 'E' : 'W')
 }
 
 function formatScalar(value, units) {

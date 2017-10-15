@@ -26,9 +26,14 @@ class DisplayLegend extends React.Component {
     var colors = this.props.currentScale
     if (typeof colors[0] === 'string') colors = colors.map(d => hexToRgb(d))
     var boundsLabels = this.props.bounds.map((d, i) => {
+      if (this.props.variable === 'temp' && this.props.type === 'grids') {
+        var labels = this.props.bounds[i] - 273
+      } else {
+        var labels = this.props.bounds[i]
+      }
       return (
         <div className='label-test'>
-          { this.props.bounds[i] }
+          { labels }
         </div>
       )
     })
@@ -42,10 +47,15 @@ class DisplayLegend extends React.Component {
 
     // Add the extra boundary label to the end of the color legend
     var step = this.props.bounds[1] - this.props.bounds[0]
+    if (this.props.variable === 'temp' && this.props.type === 'grids') {
+      var lastLabel = (this.props.bounds[this.props.bounds.length - 1] - 273) + step
+    } else {
+      var lastLabel = this.props.bounds[this.props.bounds.length - 1] + step
+    }
     boundsLabels.push(
       (
         <div className='label-test'>
-          { this.props.bounds[this.props.bounds.length - 1] + step }
+          { lastLabel }
         </div>
       )
     )
@@ -60,11 +70,13 @@ class DisplayLegend extends React.Component {
         </div>
       </div>
     )
-    
+
   }
 }
 
 const mapStateToProps = (state) => ({
+  type: state.gridData.type,
+  variable: state.gridData.variable,
   bounds: state.gridData.bounds,
   activeScale: state.gridData.colors,
   scales: state.gridData.scales,

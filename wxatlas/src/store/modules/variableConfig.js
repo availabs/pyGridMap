@@ -181,11 +181,53 @@ const variables = {
       }
     }
   },
-  t2m: {
-    scale: 'moisture',
-    min: 260,
-    max: 335,
-    step: 5
+  temp: {
+    level: {
+      1000: {
+        grids: { defaultScale: 'rainbow', validScales: ['rainbow', 'RdYlBu'], min: 240, max: 303, step: 3 },
+        anoms: { defaultScale: 'RdBu', validScales: ['rainbow', 'RdYlBu'], min: -250, max: 250, step: 25 }
+      },
+      925: {
+        grids: { defaultScale: 'rainbow', validScales: ['rainbow', 'RdYlBu'], min: 240, max: 303, step: 3 },
+        anoms: { defaultScale: 'RdBu', validScales: ['rainbow', 'RdYlBu'], min: -250, max: 250, step: 25 }
+      },
+      850: {
+        grids: { defaultScale: 'rainbow', validScales: ['rainbow', 'RdYlBu'], min: 240, max: 303, step: 3 },
+        anoms: { defaultScale: 'RdBu', validScales: ['rainbow', 'RdYlBu'], min: -250, max: 250, step: 25 }
+      },
+      700: {
+        grids: { defaultScale: 'rainbow', validScales: ['rainbow', 'RdYlBu'], min: 240, max: 286, step: 2 },
+        anoms: { defaultScale: 'RdBu', validScales: ['rainbow', 'RdYlBu'], min: -300, max: 300, step: 25 }
+      },
+      500: {
+        grids: { defaultScale: 'rainbow', validScales: ['rainbow', 'RdYlBu'], min: 230, max: 272, step: 2 },
+        anoms: { defaultScale: 'RdBu', validScales: ['rainbow', 'RdYlBu'], min: -400, max: 400, step: 50 }
+      },
+      300: {
+        grids: { defaultScale: 'rainbow', validScales: ['rainbow', 'RdYlBu'], min: 210, max: 248, step: 2 },
+        anoms: { defaultScale: 'RdBu', validScales: ['rainbow', 'RdYlBu'], min: -500, max: 500, step: 50 }
+      },
+      250: {
+        grids: { defaultScale: 'rainbow', validScales: ['rainbow', 'RdYlBu'], min: 206, max: 240, step: 2 },
+        anoms: { defaultScale: 'RdBu', validScales: ['rainbow', 'RdYlBu'], min: -500, max: 500, step: 50 }
+      },
+      200: {
+        grids: { defaultScale: 'rainbow', validScales: ['rainbow', 'RdYlBu'], min: 200, max: 234, step: 2 },
+        anoms: { defaultScale: 'RdBu', validScales: ['rainbow', 'RdYlBu'], min: -500, max: 500, step: 50 }
+      },
+      100: {
+        grids: { defaultScale: 'rainbow', validScales: ['rainbow', 'RdYlBu'], min: 185, max: 230, step: 3 },
+        anoms: { defaultScale: 'RdBu', validScales: ['rainbow', 'RdYlBu'], min: -500, max: 500, step: 50 }
+      },
+      50: {
+        grids: { defaultScale: 'rainbow', validScales: ['rainbow', 'RdYlBu'], min: 190, max: 230, step: 2 },
+        anoms: { defaultScale: 'RdBu', validScales: ['rainbow', 'RdYlBu'], min: -600, max: 600, step: 75 }
+      },
+      10: {
+        grids: { defaultScale: 'rainbow', validScales: ['rainbow', 'RdYlBu'], min: 190, max: 250, step: 3 },
+        anoms: { defaultScale: 'RdBu', validScales: ['rainbow', 'RdYlBu'], min: -600, max: 600, step: 75 }
+      }
+    }
   }
 }
 

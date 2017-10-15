@@ -115,7 +115,6 @@ export const requestData = (type, variable, height, year, month, day, hour) => {
       .then(response => response.json())
       .then(data => {
         data.header.date = new Date(year, month, day, hour)
-
         return dispatch(receiveGridData(data))
       })
   }
